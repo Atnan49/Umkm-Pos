@@ -46,12 +46,12 @@ ipcMain.handle('pos:get-printers', async () => {
 });
 
 // IPC: Direct Silent Printing to Thermal Receipt Printer
-ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, silent = true }) => {
+ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, silent = true, paperWidth = '58mm' }) => {
   return new Promise((resolve) => {
-    // Create an invisible background window tailored for 58mm / 80mm thermal paper
+    const is80mm = paperWidth === '80mm';
     const printWin = new BrowserWindow({
       show: false,
-      width: 300,
+      width: is80mm ? 400 : 300,
       height: 600,
       webPreferences: {
         nodeIntegration: false,
@@ -70,24 +70,26 @@ ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, sil
             margin: 0;
             padding: 4px;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 11px;
+            font-size: ${is80mm ? '13px' : '11px'};
             line-height: 1.25;
             color: #000;
-            width: 58mm;
+            width: ${is80mm ? '74mm' : '56mm'};
           }
           .receipt-header { text-align: center; margin-bottom: 6px; border-bottom: 1px dashed #000; padding-bottom: 6px; }
-          .receipt-title { font-size: 13px; font-weight: bold; text-transform: uppercase; }
-          .receipt-meta { font-size: 10px; margin-top: 2px; }
+          .receipt-title { font-size: ${is80mm ? '15px' : '13px'}; font-weight: bold; text-transform: uppercase; }
+          .receipt-meta { font-size: ${is80mm ? '11px' : '10px'}; margin-top: 2px; }
           .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
           .receipt-table td { padding: 2px 0; }
           .receipt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
           .receipt-totals { width: 100%; margin-top: 4px; }
           .receipt-totals td { padding: 2px 0; }
-          .receipt-footer { text-align: center; margin-top: 8px; font-size: 10px; border-top: 1px dashed #000; padding-top: 6px; }
+          .receipt-footer { text-align: center; margin-top: 8px; font-size: ${is80mm ? '11px' : '10px'}; border-top: 1px dashed #000; padding-top: 6px; }
+          .receipt-tear-feed { height: 12mm; }
         </style>
       </head>
       <body>
         ${receiptHtml}
+        <div class="receipt-tear-feed"></div>
       </body>
       </html>
     `;

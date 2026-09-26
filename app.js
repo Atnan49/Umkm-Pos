@@ -21,6 +21,7 @@ const CONFIG = {
     address: 'Jl. Usaha Raya No. 12, Pasar Anyar',
     footer: 'Terima kasih atas kunjungan Anda!',
     printerName: '',
+    paperWidth: '58mm',
     silentPrint: true,
     soundBeep: true
   },
@@ -722,6 +723,11 @@ const UI = {
   },
 
   renderThermalReceipt(trx) {
+    const is80mm = Store.outlet.paperWidth === '80mm';
+    if (this.dom.receiptContainer) {
+      this.dom.receiptContainer.className = 'print-receipt-container ' + (is80mm ? 'paper-80mm' : 'paper-58mm');
+    }
+
     const itemsHtml = trx.items.map(it => `
       <tr>
         <td colspan="2" style="font-weight:600;">${it.name}</td>
@@ -763,6 +769,7 @@ const UI = {
         <div>${Store.outlet.footer || 'Terima kasih atas kunjungan Anda!'}</div>
         <div style="margin-top:2px;">Barang yang sudah dibeli tidak dapat ditukar</div>
       </div>
+      <div class="receipt-tear-feed"></div>
     `;
   }
 };
@@ -875,6 +882,26 @@ const CameraScanner = {
 const App = {
   barcodeBuffer: '',
   lastKeyTime: 0,
+  barcodeTimer: null,
+
+  dispatchBarcode(rawCode) {
+    if (!rawCode) return;
+    const code = String(rawCode).trim();
+    if (!code || code.length < 3) return;
+
+    if (UI.dom.productModal && UI.dom.productModal.classList.contains('active')) {
+      const barcodeInput = document.getElementById('prod-barcode');
+      if (barcodeInput) {
+        barcodeInput.value = code;
+        barcodeInput.focus();
+      }
+      SoundFeedback.playScan(true);
+      UI.showScannerToast(`✓ Barcode ${code} terisi ke form`, false);
+      return;
+    }
+
+    this.handleBarcodeScan(code);
+  },
 
   async init() {
     Store.init();
@@ -1033,6 +1060,10 @@ const App = {
       }
     }
 
+    if (document.getElementById('setting-paper-width')) {
+      document.getElementById('setting-paper-width').value = Store.outlet.paperWidth || '58mm';
+    }
+
     this.initHardwareIntegrations();
     UI.dom.settingsModal.classList.add('active');
     document.getElementById('setting-outlet-name').focus();
@@ -1077,6 +1108,7 @@ const App = {
         const res = await window.posBridge.printReceipt({
           receiptHtml: UI.dom.receiptContainer.innerHTML,
           deviceName: Store.outlet.printerName || undefined,
+          paperWidth: Store.outlet.paperWidth || '58mm',
           silent: true
         });
         if (res && res.success) {
@@ -1111,6 +1143,7 @@ const App = {
         await window.posBridge.printReceipt({
           receiptHtml: UI.dom.receiptContainer.innerHTML,
           deviceName: Store.outlet.printerName || undefined,
+          paperWidth: Store.outlet.paperWidth || '58mm',
           silent: true
         });
         UI.showScannerToast('✓ Cetak Ulang Struk Terkirim ke Printer', false);
@@ -1346,6 +1379,8 @@ const App = {
       if (this.tempLogo !== undefined) {
         Store.outlet.brandLogo = this.tempLogo;
       }
+      const paperInput = document.getElementById('setting-paper-width');
+      Store.outlet.paperWidth = paperInput ? paperInput.value : '58mm';
       Store.outlet.address = document.getElementById('setting-outlet-address').value.trim();
       Store.outlet.footer = document.getElementById('setting-outlet-footer').value.trim();
       Store.outlet.printerName = document.getElementById('setting-printer').value;
@@ -1417,31 +1452,19 @@ const App = {
         return;
       }
 
-      if (e.key === 'Enter') {
-        // Laser scanner burst check (< 80ms interval between characters)
-        if (this.barcodeBuffer.length >= 3 && interval < 80) {
+      // Scanner terminator check (Enter or Tab)
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        if (this.barcodeBuffer.length >= 3 && interval < 85) {
           e.preventDefault();
-          const scannedCode = this.barcodeBuffer.trim();
+          clearTimeout(this.barcodeTimer);
+          const code = this.barcodeBuffer;
           this.barcodeBuffer = '';
-
-          // If product modal is open, auto-fill barcode input field
-          if (UI.dom.productModal && UI.dom.productModal.classList.contains('active')) {
-            const barcodeInput = document.getElementById('prod-barcode');
-            if (barcodeInput) {
-              barcodeInput.value = scannedCode;
-              barcodeInput.focus();
-            }
-            SoundFeedback.playScan(true);
-            UI.showScannerToast(`✓ Barcode ${scannedCode} terisi ke form`, false);
-            return;
-          }
-
-          this.handleBarcodeScan(scannedCode);
+          this.dispatchBarcode(code);
           return;
         }
 
-        // Enter on search input
-        if (document.activeElement === UI.dom.posSearch) {
+        // Standard Enter on search input
+        if (e.key === 'Enter' && document.activeElement === UI.dom.posSearch) {
           const q = Store.searchQuery.toLowerCase().trim();
           const matched = Store.products.filter(p =>
             (p.id && p.id.toLowerCase() === q) || 
@@ -1463,10 +1486,22 @@ const App = {
 
       // Collect characters into scanner buffer
       if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-        if (interval > 80) {
+        if (interval > 85) {
           this.barcodeBuffer = e.key;
         } else {
           this.barcodeBuffer += e.key;
+        }
+
+        // Auto-detect idle timeout for scanners without Enter/Tab terminator
+        clearTimeout(this.barcodeTimer);
+        if (this.barcodeBuffer.length >= 4) {
+          this.barcodeTimer = setTimeout(() => {
+            if (this.barcodeBuffer.length >= 4) {
+              const code = this.barcodeBuffer;
+              this.barcodeBuffer = '';
+              this.dispatchBarcode(code);
+            }
+          }, 110);
         }
       }
     });
