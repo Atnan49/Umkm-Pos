@@ -1,0 +1,25 @@
+{
+  "name": "bukukasir-umkm",
+  "version": "1.0.0",
+  "description": "Aplikasi Kasir POS Desktop UMKM dengan Integrasi Laser Scanner dan Printer Thermal",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "pos",
+    "kasir",
+    "umkm",
+    "desktop",
+    "electron",
+    "thermal-printer",
+    "laser-scanner"
+  ],
+  "author": "BukuKasir",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

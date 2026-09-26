@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BukuKasir UMKM - Kasir dan Pembukuan Toko</title>
+  <meta name="description" content="Aplikasi kasir penjualan, manajemen stok barang, dan laporan laba bersih untuk UMKM Indonesia. Cepat, ringan, dan bekerja offline.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Header Utama -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">🏪</div>
+        <div>
+          <h1 class="brand-title">BukuKasir UMKM</h1>
+          <p class="brand-subtitle" id="outlet-name-display">Toko Berkah Bersama</p>
+        </div>
+      </div>
+      
+      <!-- Navigasi Desktop -->
+      <nav class="nav-tabs desktop-only" aria-label="Menu Navigasi Utama">
+        <button type="button" class="tab-btn active" data-view="pos">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Kasir Penjualan
+        </button>
+        <button type="button" class="tab-btn" data-view="inventory">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Kelola Produk dan Stok
+        </button>
+        <button type="button" class="tab-btn" data-view="reports">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Laporan Keuangan
+        </button>
+      </nav>
+
+      <!-- Aksi Header: Pengaturan & Backup -->
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" id="btn-open-settings" title="Ubah Nama Toko dan Info Struk" aria-label="Pengaturan Toko">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="btn-label-desktop">Toko</span>
+        </button>
+        <button type="button" class="btn-secondary" id="btn-export-data" title="Ekspor Cadangan Data (JSON)" aria-label="Cadangkan Data">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="btn-label-desktop">Cadangkan</span>
+        </button>
+        <label class="btn-secondary cursor-pointer" title="Pulihkan Data dari Berkas JSON" aria-label="Pulihkan Data">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="btn-label-desktop">Pulihkan</span>
+          <input type="file" id="input-import-data" accept=".json" style="display:none">
+        </label>
+      </div>
+    </header>
+
+    <!-- Konten Layar -->
+    <main class="main-viewport">
+      <!-- 1. TAMPILAN: KASIR PENJUALAN -->
+      <section id="view-pos" class="app-view active" aria-labelledby="view-pos-heading">
+        <h2 id="view-pos-heading" class="sr-only">Kasir Penjualan</h2>
+        <div class="pos-container">
+          <!-- Sisi Kiri: Katalog & Pencarian -->
+          <div class="pos-catalog-pane">
+            <div class="catalog-toolbar">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="pos-search" placeholder="Cari nama barang atau kode barcode..." autocomplete="off" aria-label="Cari barang atau scan barcode">
+              </div>
+              <div class="category-filters" id="category-pills" role="toolbar" aria-label="Filter Kategori Barang">
+                <!-- Tombol filter kategori dirender oleh JavaScript -->
+              </div>
+            </div>
+
+            <!-- Daftar Produk -->
+            <div class="product-grid" id="product-grid" aria-live="polite">
+              <!-- Kartu produk dirender oleh JavaScript -->
+            </div>
+          </div>
+
+          <!-- Sisi Kanan: Nota Keranjang Pesanan -->
+          <aside class="pos-cart-pane" id="pos-cart-panel" aria-label="Keranjang Belanja">
+            <div class="cart-header">
+              <div class="cart-title-wrap">
+                <h3 class="cart-title">Nota Pesanan</h3>
+                <span class="shortcut-tip desktop-only">Pintasan: F4 untuk Bayar</span>
+              </div>
+              <div class="cart-header-actions">
+                <button type="button" class="btn-text-danger" id="btn-clear-cart" title="Kosongkan Keranjang">Kosongkan</button>
+                <button type="button" class="btn-icon mobile-only" id="btn-close-mobile-cart" aria-label="Tutup Keranjang">&times;</button>
+              </div>
+            </div>
+
+            <div class="cart-items-list" id="cart-items" tabindex="0" aria-label="Daftar item belanja">
+              <!-- Item keranjang dirender oleh JavaScript -->
+            </div>
+
+            <div class="cart-summary">
+              <div class="summary-row">
+                <span>Jumlah Barang</span>
+                <span id="cart-item-count" class="font-mono">0 item</span>
+              </div>
+              <div class="summary-row total-highlight">
+                <span>Total Tagihan</span>
+                <span id="cart-total" class="font-mono font-bold text-primary">Rp 0</span>
+              </div>
+
+              <!-- Pembayaran Tunai & Kembalian -->
+              <div class="payment-box">
+                <label for="cash-input" class="label-sm">Uang Diterima dari Pembeli</label>
+                <div class="cash-input-wrap">
+                  <span class="cash-prefix font-mono" aria-hidden="true">Rp</span>
+                  <input type="number" id="cash-input" placeholder="0" min="0" step="500" inputmode="numeric" aria-label="Nominal uang tunai diterima">
+                  <button type="button" class="btn-exact" id="btn-exact-cash" title="Setel nominal sesuai total belanja">Uang Pas</button>
+                </div>
+                <div class="quick-cash-chips" id="quick-cash-chips" aria-label="Pilihan Cepat Nominal Uang">
+                  <!-- Pilihan pecahan uang dirender oleh JavaScript -->
+                </div>
+                <div class="summary-row change-row">
+                  <span id="label-change">Kembalian</span>
+                  <span id="cart-change" class="font-mono font-bold" aria-labelledby="label-change">Rp 0</span>
+                </div>
+              </div>
+
+              <div class="cart-actions">
+                <button type="button" class="btn-checkout" id="btn-checkout" disabled>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Selesaikan dan Cetak Struk</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- 2. TAMPILAN: KELOLA PRODUK & STOK -->
+      <section id="view-inventory" class="app-view" aria-labelledby="view-inventory-heading">
+        <div class="section-container">
+          <div class="section-header">
+            <div>
+              <h2 id="view-inventory-heading" class="section-title">Katalog dan Persediaan Stok</h2>
+              <p class="section-desc">Atur nama barang, kategori, harga modal, harga jual, dan jumlah stok tersisa.</p>
+            </div>
+            <button type="button" class="btn-primary" id="btn-add-product">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Tambah Produk Baru</span>
+            </button>
+          </div>
+
+          <div class="table-card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <caption class="sr-only">Daftar inventaris barang dan harga</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Nama Barang</th>
+                    <th scope="col">Kategori</th>
+                    <th scope="col" class="text-right">Harga Modal</th>
+                    <th scope="col" class="text-right">Harga Jual</th>
+                    <th scope="col" class="text-center">Margin Untung</th>
+                    <th scope="col" class="text-center">Sisa Stok</th>
+                    <th scope="col" class="text-right">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-tbody">
+                  <!-- Baris produk dirender oleh JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. TAMPILAN: LAPORAN KEUANGAN -->
+      <section id="view-reports" class="app-view" aria-labelledby="view-reports-heading">
+        <div class="section-container">
+          <div class="section-header">
+            <div>
+              <h2 id="view-reports-heading" class="section-title">Ringkasan Omzet dan Laba Bersih</h2>
+              <p class="section-desc">Perhitungan otomatis total penjualan, modal barang terjual (HPP), dan estimasi keuntungan bersih.</p>
+            </div>
+            <button type="button" class="btn-secondary" id="btn-export-csv">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <span>Unduh Berkas CSV</span>
+            </button>
+          </div>
+
+          <!-- Kartu Metrik Keuangan -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Omzet Penjualan</div>
+              <div class="metric-value font-mono" id="stat-revenue">Rp 0</div>
+              <div class="metric-sub" id="stat-trans-count">0 transaksi berhasil</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Modal Pokok Barang Terjual (HPP)</div>
+              <div class="metric-value font-mono" id="stat-cogs">Rp 0</div>
+              <div class="metric-sub">Biaya kulakan dari barang yang laku</div>
+            </div>
+            <div class="metric-card highlight-profit">
+              <div class="metric-label">Estimasi Keuntungan Bersih</div>
+              <div class="metric-value font-mono text-emerald" id="stat-profit">Rp 0</div>
+              <div class="metric-sub" id="stat-profit-margin">Persentase keuntungan: 0%</div>
+            </div>
+          </div>
+
+          <!-- Tabel Riwayat Penjualan -->
+          <div class="table-card mt-6">
+            <div class="card-header-simple">
+              <h3 class="card-title-sm">Riwayat Transaksi Penjualan</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <caption class="sr-only">Riwayat transaksi penjualan toko</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Waktu dan Nomor Struk</th>
+                    <th scope="col">Rincian Item</th>
+                    <th scope="col" class="text-right">Total Transaksi</th>
+                    <th scope="col" class="text-right">Keuntungan Bersih</th>
+                    <th scope="col" class="text-center">Cetak Ulang</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-tbody">
+                  <!-- Baris transaksi dirender oleh JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Navigasi Bawah Layar Sentuh Ponsel -->
+    <nav class="mobile-nav mobile-only" aria-label="Navigasi Bawah Ponsel">
+      <button type="button" class="mobile-nav-btn active" data-view="pos">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Kasir</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" id="mobile-cart-toggle" aria-label="Buka Keranjang Pesanan">
+        <div class="nav-badge-wrap">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="badge" id="mobile-cart-badge">0</span>
+        </div>
+        <span>Keranjang</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="inventory">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <span>Stok</span>
+      </button>
+      <button type="button" class="mobile-nav-btn" data-view="reports">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Laporan</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal Produk (Tambah / Edit) -->
+  <div class="modal-overlay" id="product-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-product-title">Tambah Produk Baru</h3>
+        <button type="button" class="modal-close" id="modal-product-close" aria-label="Tutup form produk">&times;</button>
+      </div>
+      <form id="form-product" class="modal-body">
+        <input type="hidden" id="prod-id">
+        <div class="form-group">
+          <label for="prod-name">Nama Produk atau Barang *</label>
+          <input type="text" id="prod-name" required placeholder="Contoh: Beras Ramos 5kg, Es Kopi Susu">
+        </div>
+        <div class="form-group">
+          <label for="prod-barcode">Kode Barcode (Untuk Scanner Laser)</label>
+          <input type="text" id="prod-barcode" placeholder="Pindai barcode atau ketik angka barcode" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prod-category">Kategori Barang</label>
+            <input type="text" id="prod-category" placeholder="Makanan, Minuman, Sembako" list="category-datalist">
+            <datalist id="category-datalist"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="prod-stock">Jumlah Stok Awal *</label>
+            <input type="number" id="prod-stock" required min="0" value="10" inputmode="numeric">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prod-cost">Harga Modal / Kulakan (Rp) *</label>
+            <input type="number" id="prod-cost" required min="0" step="500" placeholder="10000" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label for="prod-price">Harga Jual Pembeli (Rp) *</label>
+            <input type="number" id="prod-price" required min="0" step="500" placeholder="15000" inputmode="numeric">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modal-product-cancel">Batal</button>
+          <button type="submit" class="btn-primary">Simpan Data Produk</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Pengaturan Toko & Hardware -->
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-settings-title">Pengaturan Profil Toko dan Perangkat</h3>
+        <button type="button" class="modal-close" id="modal-settings-close" aria-label="Tutup form pengaturan">&times;</button>
+      </div>
+      <form id="form-settings" class="modal-body">
+        <div class="form-group">
+          <label for="setting-outlet-name">Nama Toko atau Usaha *</label>
+          <input type="text" id="setting-outlet-name" required placeholder="Nama Toko Anda">
+        </div>
+        <div class="form-group">
+          <label for="setting-outlet-address">Alamat Toko (Dicetak pada Struk)</label>
+          <input type="text" id="setting-outlet-address" placeholder="Contoh: Jl. Merdeka No. 10, Pasar Baru">
+        </div>
+        <div class="form-group">
+          <label for="setting-outlet-footer">Pesan Penutup Struk</label>
+          <input type="text" id="setting-outlet-footer" placeholder="Contoh: Terima kasih atas kunjungan Anda!">
+        </div>
+        
+        <div class="settings-divider">Integrasi Perangkat Keras</div>
+
+        <div class="form-group">
+          <label for="setting-printer">Printer Struk Thermal Terhubung</label>
+          <select id="setting-printer" aria-label="Pilih Printer Struk Thermal">
+            <option value="">Default Sistem Windows (Dialog Cetak Standar)</option>
+          </select>
+          <small class="field-hint" id="printer-detect-hint">Mendeteksi printer sistem...</small>
+        </div>
+        <div class="form-checkbox-row">
+          <input type="checkbox" id="setting-silent-print" checked>
+          <label for="setting-silent-print">Cetak Langsung Tanpa Dialog (Silent Print Kasir)</label>
+        </div>
+        <div class="form-checkbox-row">
+          <input type="checkbox" id="setting-sound-beep" checked>
+          <label for="setting-sound-beep">Bunyikan Beep Konfirmasi saat Scanner Laser Memindai</label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modal-settings-cancel">Batal</button>
+          <button type="submit" class="btn-primary">Simpan Pengaturan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notifikasi Scanner Laser -->
+  <div id="scanner-toast" class="scanner-toast" aria-live="assertive"></div>
+
+  <!-- Templat Cetak Struk Thermal (Disembunyikan pada layar, aktif otomatis saat cetak) -->
+  <div id="thermal-receipt" class="print-receipt-container" aria-hidden="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
