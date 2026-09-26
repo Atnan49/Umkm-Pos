@@ -1,16 +1,26 @@
-const CACHE_NAME = 'bukukasir-v1';
+const CACHE_NAME = 'bukukasir-v4';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './html5-qrcode.min.js',
   './manifest.json',
+  './icon.png',
   './icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn('Gagal memuat cache aset PWA:', asset, err);
+        }
+      }
+    })
   );
   self.skipWaiting();
 });

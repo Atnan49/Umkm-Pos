@@ -1,0 +1,116 @@
+{
+  "App/app.js": {
+    "mtime": 1790437075.9995022,
+    "seen": 1790437122.3238254,
+    "ast_hash": "1ae7368e6a6ccc481b0d72bca9b6d8af",
+    "semantic_hash": ""
+  },
+  "App/generate-icons.js": {
+    "mtime": 1790428566.7060816,
+    "seen": 1790435954.025709,
+    "ast_hash": "06ef3b43a9abdf65b26c6a6fe1d8b3f3",
+    "semantic_hash": "06ef3b43a9abdf65b26c6a6fe1d8b3f3"
+  },
+  "App/html5-qrcode.min.js": {
+    "mtime": 1790406287.8927088,
+    "seen": 1790435954.025712,
+    "ast_hash": "d88d3200cb547c9e86ee972975561dcd",
+    "semantic_hash": "d88d3200cb547c9e86ee972975561dcd"
+  },
+  "App/main.js": {
+    "mtime": 1790436903.992811,
+    "seen": 1790437122.3238535,
+    "ast_hash": "041700228a633f8b3faee0bf9bce0c2b",
+    "semantic_hash": ""
+  },
+  "App/manifest.json": {
+    "mtime": 1790429213.7368436,
+    "seen": 1790435954.0257158,
+    "ast_hash": "5eb03f58fef5b5f3e7f9f2e51e128df0",
+    "semantic_hash": "5eb03f58fef5b5f3e7f9f2e51e128df0"
+  },
+  "App/package.json": {
+    "mtime": 1790436883.8962004,
+    "seen": 1790437122.3238626,
+    "ast_hash": "dc261e12f99e2c348d73ffc1bd8a82f6",
+    "semantic_hash": ""
+  },
+  "App/preload.js": {
+    "mtime": 1790428470.7905505,
+    "seen": 1790435954.025719,
+    "ast_hash": "a70d7586cbcc366a669583ca05adcab3",
+    "semantic_hash": "a70d7586cbcc366a669583ca05adcab3"
+  },
+  "App/sw.js": {
+    "mtime": 1790436923.062261,
+    "seen": 1790437122.3238704,
+    "ast_hash": "dbd844e506a678988f4a961c5de1c8c8",
+    "semantic_hash": ""
+  },
+  "Profile Produk'/profile.js": {
+    "mtime": 1790429532.9593065,
+    "seen": 1790435954.0257218,
+    "ast_hash": "27cec6bc53b04f2d6d198cda2b3b887a",
+    "semantic_hash": "27cec6bc53b04f2d6d198cda2b3b887a"
+  },
+  ".agents/rules/graphify.md": {
+    "mtime": 1790435231.6700163,
+    "seen": 1790435954.0257232,
+    "ast_hash": "a0e4d192b9e2e17256124dbfc8e24e6a",
+    "semantic_hash": "a0e4d192b9e2e17256124dbfc8e24e6a"
+  },
+  ".agents/workflows/graphify.md": {
+    "mtime": 1790435231.6730392,
+    "seen": 1790435954.025725,
+    "ast_hash": "a831cf3669f1e6ab85d8a80ebe655f99",
+    "semantic_hash": "a831cf3669f1e6ab85d8a80ebe655f99"
+  },
+  "App/DESIGN.md": {
+    "mtime": 1790404416.2386024,
+    "seen": 1790435954.025727,
+    "ast_hash": "1561466bc0cf0a2a5a9c2da6a1502d92",
+    "semantic_hash": "1561466bc0cf0a2a5a9c2da6a1502d92"
+  },
+  "App/MAINTENANCE.md": {
+    "mtime": 1790405466.5690057,
+    "seen": 1790435954.0257285,
+    "ast_hash": "b9b7904b108dbc98de04119e60ccd158",
+    "semantic_hash": "b9b7904b108dbc98de04119e60ccd158"
+  },
+  "App/index.html": {
+    "mtime": 1790434331.373757,
+    "seen": 1790435954.02573,
+    "ast_hash": "3dfab590d3b3ef1c9d216d90a1379858",
+    "semantic_hash": "3dfab590d3b3ef1c9d216d90a1379858"
+  },
+  "Profile Produk'/index.html": {
+    "mtime": 1790434527.4450486,
+    "seen": 1790435954.025731,
+    "ast_hash": "c95fcae939920f8d108f2e2059718bba",
+    "semantic_hash": "c95fcae939920f8d108f2e2059718bba"
+  },
+  "App/icon.svg": {
+    "mtime": 1790404434.574516,
+    "seen": 1790435954.0257325,
+    "ast_hash": "60df90c643f62cf1f063fa2a5871d358",
+    "semantic_hash": "60df90c643f62cf1f063fa2a5871d358"
+  },
+  "App/icon.png": {
+    "mtime": 1790428607.109,
+    "seen": 1790437122.3239074,
+    "ast_hash": "1967f4ee42c5bec1eb1152d5ecf30b2b",
+    "semantic_hash": ""
+  },
+  "Profile Produk'/icon.png": {
+    "mtime": 1790428607.109,
+    "seen": 1790437122.3239162,
+    "ast_hash": "1967f4ee42c5bec1eb1152d5ecf30b2b",
+    "semantic_hash": ""
+  },
+  "Profile Produk'/icon.svg": {
+    "mtime": 1790404434.574516,
+    "seen": 1790437122.32392,
+    "ast_hash": "60df90c643f62cf1f063fa2a5871d358",
+    "semantic_hash": ""
+  }
+}

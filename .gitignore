@@ -1,6 +1,11 @@
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 build/
+**/build/
 .DS_Store
 Thumbs.db
 *.log
+graphify-out/cache/
+graphify-out/.graphify_*

@@ -93,6 +93,72 @@ const UTILS = {
   }
 };
 
+const CODE128_PATTERNS = [
+  '212222','222122','222221','121223','121322','131222','122213','122312','132212','221213',
+  '221312','231212','112232','122132','122231','113222','123122','123221','223211','221132',
+  '221231','213212','223112','312131','311222','321122','321221','312212','322112','322211',
+  '212123','212321','232121','111323','131123','131321','112313','132113','132311','211313',
+  '231113','231311','112133','112331','132131','113123','113321','133121','313121','211331',
+  '231131','213113','213311','213131','311123','311321','331121','312113','312311','332111',
+  '314111','221411','431111','111224','111422','121124','121421','141122','141221','112214',
+  '112412','122114','122411','142112','142211','241211','221114','413111','241112','134111',
+  '111242','121142','121241','114212','124112','124211','411212','421112','421211','212141',
+  '214121','412121','111143','111341','131141','114113','114311','411113','411311','113141',
+  '114131','311141','411131','211412','211214','211232','2331112'
+];
+
+function generateCode128Svg(inputText, height = 45, barScale = 2) {
+  const clean = String(inputText || '').trim();
+  if (!clean) return '<svg width="100" height="40"></svg>';
+
+  const indices = [104];
+  for (let i = 0; i < clean.length; i++) {
+    const code = clean.charCodeAt(i);
+    const charIndex = code >= 32 && code <= 126 ? code - 32 : 0;
+    indices.push(charIndex);
+  }
+
+  let checksum = indices[0];
+  for (let i = 1; i < indices.length; i++) {
+    checksum += indices[i] * i;
+  }
+  indices.push(checksum % 103);
+  indices.push(106);
+
+  let modules = '';
+  for (const idx of indices) {
+    const pattern = CODE128_PATTERNS[idx] || '212222';
+    for (let p = 0; p < pattern.length; p++) {
+      const width = parseInt(pattern[p], 10);
+      const isBar = p % 2 === 0;
+      modules += (isBar ? '1' : '0').repeat(width);
+    }
+  }
+
+  const fullModules = '0000000000' + modules + '0000000000';
+  const svgWidth = fullModules.length * barScale;
+
+  let rects = '';
+  let inBar = false;
+  let startX = 0;
+
+  for (let i = 0; i < fullModules.length; i++) {
+    const bit = fullModules[i];
+    if (bit === '1' && !inBar) {
+      inBar = true;
+      startX = i;
+    } else if (bit === '0' && inBar) {
+      inBar = false;
+      rects += `<rect x="${startX * barScale}" y="0" width="${(i - startX) * barScale}" height="${height}" fill="#000000" />`;
+    }
+  }
+  if (inBar) {
+    rects += `<rect x="${startX * barScale}" y="0" width="${(fullModules.length - startX) * barScale}" height="${height}" fill="#000000" />`;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Barcode ${clean}">${rects}</svg>`;
+}
+
 const SoundFeedback = {
   ctx: null,
   init() {
@@ -185,7 +251,12 @@ const Store = {
   saveOutlet() {
     try {
       localStorage.setItem(CONFIG.STORAGE_KEYS.OUTLET, JSON.stringify(this.outlet));
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Gagal menyimpan profil toko ke localStorage:', e);
+      if (typeof UI !== 'undefined' && UI.showScannerToast) {
+        UI.showScannerToast('Gagal menyimpan profil toko, memori lokal penuh', true);
+      }
+    }
   },
 
   addProduct(productData) {
@@ -263,6 +334,9 @@ const Store = {
 
   clearCart() {
     this.cart = [];
+    if (typeof UI !== 'undefined' && UI.dom && UI.dom.customerNameInput) {
+      UI.dom.customerNameInput.value = '';
+    }
   },
 
   getCartCalculations() {
@@ -282,7 +356,9 @@ const Store = {
     return { subtotal, totalCost, totalCount };
   },
 
-  checkout(cashGiven) {
+  activeReportPeriod: 'all',
+
+  checkout(cashGiven, customerName = '') {
     const { subtotal, totalCost } = this.getCartCalculations();
     if (this.cart.length === 0 || subtotal <= 0) return { error: 'Keranjang belanja masih kosong.' };
 
@@ -310,6 +386,7 @@ const Store = {
     const transaction = {
       id: 'TRX-' + Date.now().toString(36).toUpperCase(),
       timestamp: new Date().toISOString(),
+      customerName: (customerName || '').trim() || 'Umum',
       items: this.cart.map(i => {
         const prod = this.products.find(p => p.id === i.productId);
         return {
@@ -323,7 +400,7 @@ const Store = {
       }),
       total: subtotal,
       cogs: totalCost,
-      profit: subtotal - totalCost,
+      profit: Math.round(subtotal - totalCost),
       cash,
       change
     };
@@ -334,19 +411,73 @@ const Store = {
     return { success: true, transaction };
   },
 
-  getFinancialSummary() {
+  getFilteredTransactions(period = this.activeReportPeriod) {
+    const now = new Date();
+    if (period === 'all') return this.transactions;
+
+    return this.transactions.filter(t => {
+      const d = new Date(t.timestamp);
+      if (isNaN(d.getTime())) return false;
+
+      if (period === 'daily') {
+        return d.getFullYear() === now.getFullYear() &&
+               d.getMonth() === now.getMonth() &&
+               d.getDate() === now.getDate();
+      }
+
+      if (period === 'weekly') {
+        const start = new Date(now);
+        start.setDate(now.getDate() - 6);
+        start.setHours(0, 0, 0, 0);
+        return d >= start && d <= now;
+      }
+
+      if (period === 'monthly') {
+        return d.getFullYear() === now.getFullYear() &&
+               d.getMonth() === now.getMonth();
+      }
+
+      if (period === 'yearly') {
+        return d.getFullYear() === now.getFullYear();
+      }
+
+      return true;
+    });
+  },
+
+  getPeriodDisplayLabel(period = this.activeReportPeriod) {
+    const now = new Date();
+    if (period === 'daily') {
+      return `Hari Ini (${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })})`;
+    }
+    if (period === 'weekly') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 6);
+      return `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    }
+    if (period === 'monthly') {
+      return `Bulan ${now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+    }
+    if (period === 'yearly') {
+      return `Tahun ${now.getFullYear()}`;
+    }
+    return 'Semua Riwayat Transaksi';
+  },
+
+  getFinancialSummary(period = this.activeReportPeriod) {
+    const list = this.getFilteredTransactions(period);
     let revenue = 0;
     let cogs = 0;
     let profit = 0;
 
-    this.transactions.forEach(t => {
+    list.forEach(t => {
       revenue += t.total || 0;
       cogs += t.cogs || 0;
       profit += t.profit || 0;
     });
 
     const marginPct = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
-    return { revenue, cogs, profit, marginPct, count: this.transactions.length };
+    return { revenue, cogs, profit, marginPct, count: list.length, transactions: list };
   }
 };
 
@@ -392,7 +523,19 @@ const UI = {
       receiptContainer: document.getElementById('thermal-receipt'),
       scannerToast: document.getElementById('scanner-toast'),
       settingPrinterSelect: document.getElementById('setting-printer'),
-      printerDetectHint: document.getElementById('printer-detect-hint')
+      printerDetectHint: document.getElementById('printer-detect-hint'),
+      customerNameInput: document.getElementById('customer-name-input'),
+      reportPeriodPills: document.getElementById('report-period-pills'),
+      periodDateDisplay: document.getElementById('period-date-display'),
+      statStockSafe: document.getElementById('stat-stock-safe'),
+      statStockWarn: document.getElementById('stat-stock-warn'),
+      shelfPreviewShop: document.getElementById('shelf-preview-shop'),
+      shelfPreviewName: document.getElementById('shelf-preview-name'),
+      shelfPreviewPrice: document.getElementById('shelf-preview-price'),
+      shelfPreviewBarcode: document.getElementById('shelf-preview-barcode'),
+      shelfPreviewDigits: document.getElementById('shelf-preview-digits'),
+      shelfBarcodeStrip: document.getElementById('shelf-barcode-strip'),
+      printShelfContainer: document.getElementById('print-shelf-label')
     };
 
     this.catalogRenderLimit = 48;
@@ -709,10 +852,17 @@ const UI = {
   },
 
   renderInventory() {
-    if (Store.products.length === 0) {
+    const totalProducts = Store.products.length;
+    const safeCount = Store.products.filter(p => (p.stock || 0) > 5).length;
+    const warnCount = Store.products.filter(p => (p.stock || 0) <= 5).length;
+
+    if (this.dom.statStockSafe) this.dom.statStockSafe.textContent = `Stok Aman: ${safeCount}`;
+    if (this.dom.statStockWarn) this.dom.statStockWarn.textContent = `Perlu Kulakan: ${warnCount}`;
+
+    if (totalProducts === 0) {
       this.dom.inventoryTbody.innerHTML = `
         <tr>
-          <td colspan="7" style="padding:0; border:none;">
+          <td colspan="8" style="padding:0; border:none;">
             <div class="table-empty-state">
               <div class="table-empty-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -729,35 +879,42 @@ const UI = {
           </td>
         </tr>
       `;
+      if (this.dom.shelfBarcodeStrip) this.dom.shelfBarcodeStrip.style.display = 'none';
       return;
     }
 
+    if (this.dom.shelfBarcodeStrip) this.dom.shelfBarcodeStrip.style.display = 'grid';
+
     this.dom.inventoryTbody.innerHTML = Store.products.map(p => {
       const margin = (p.price || 0) - (p.cost || 0);
-      const marginPct = p.price > 0 ? Math.round((margin / p.price) * 100) : 0;
+      const marginPct = p.price > 0 ? ((margin / p.price) * 100).toFixed(1) : '0';
+      const marginSign = margin > 0 ? '+' : '';
+      const marginColor = margin > 0 ? 'text-emerald' : (margin < 0 ? 'text-danger' : '');
       const stockBadge = p.stock <= 0
-        ? '<span class="badge-tag badge-red">Habis (0)</span>'
-        : (p.stock <= 5 ? `<span class="badge-tag badge-red">Kritis (${p.stock})</span>` : `<span class="badge-tag badge-green">${p.stock} item</span>`);
+        ? '<span class="badge-stock critical">Habis (0)</span>'
+        : (p.stock <= 5 ? `<span class="badge-stock critical">${p.stock} item (Kritis)</span>` : `<span class="badge-stock safe">${p.stock} item</span>`);
 
-      const barcodeLabel = p.barcode ? `<div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Barcode: ${p.barcode}</div>` : '';
+      const barcodeVal = p.barcode || p.id;
 
       return `
         <tr>
           <td>
-            <a href="Profile Produk'/index.html?id=${encodeURIComponent(p.id)}" class="font-bold" style="color:var(--text-main); text-decoration:none;" title="Klik untuk melihat profil detail ${p.name}">
+            <button type="button" onclick="App.openEditProduct('${p.id}')" class="font-bold" style="background:none; border:none; padding:0; color:var(--text-main); font-weight:700; cursor:pointer; text-align:left; font-size:inherit; font-family:inherit;" title="Klik untuk edit ${p.name}">
               ${p.name}
-            </a>
-            ${barcodeLabel}
+            </button>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">SKU: ${barcodeVal}</div>
           </td>
           <td><span class="badge-tag badge-gray">${p.category || 'Umum'}</span></td>
           <td class="text-right font-mono">${FORMAT.currency(p.cost)}</td>
           <td class="text-right font-mono font-bold">${FORMAT.currency(p.price)}</td>
-          <td class="text-center font-mono" title="Laba kotor: ${FORMAT.currency(margin)}">${marginPct}%</td>
+          <td class="text-center font-mono font-bold ${marginColor}">${marginSign}${marginPct}% (${FORMAT.currency(margin)})</td>
           <td class="text-center">${stockBadge}</td>
+          <td class="text-center">
+            <button type="button" class="btn-mini-barcode" onclick="App.previewShelfBarcode('${p.id}')" title="Lihat dan cetak barcode rak">
+              Lihat Barcode
+            </button>
+          </td>
           <td class="text-right">
-            <a href="Profile Produk'/index.html?id=${encodeURIComponent(p.id)}" class="btn-icon" title="Lihat Profil, Mutasi Stok & Cetak Barcode" aria-label="Lihat Profil ${p.name}" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none;">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            </a>
             <button type="button" class="btn-icon" onclick="App.openEditProduct('${p.id}')" title="Edit produk" aria-label="Edit ${p.name}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </button>
@@ -768,17 +925,36 @@ const UI = {
         </tr>
       `;
     }).join('');
+
+    const targetProduct = Store.products.find(p => p.id === App.activeShelfProductId) || Store.products[0];
+    if (targetProduct) {
+      App.previewShelfBarcode(targetProduct.id, false);
+    }
   },
 
   renderReports() {
-    const stats = Store.getFinancialSummary();
+    const stats = Store.getFinancialSummary(Store.activeReportPeriod);
     this.dom.statRevenue.textContent = FORMAT.currency(stats.revenue);
     this.dom.statCogs.textContent = FORMAT.currency(stats.cogs);
     this.dom.statProfit.textContent = FORMAT.currency(stats.profit);
     this.dom.statMargin.textContent = `Persentase keuntungan: ${stats.marginPct}%`;
-    this.dom.statCount.textContent = `${stats.count} transaksi selesai`;
+    this.dom.statCount.textContent = `${stats.count} transaksi (${Store.getPeriodDisplayLabel(Store.activeReportPeriod)})`;
 
-    if (Store.transactions.length === 0) {
+    if (this.dom.periodDateDisplay) {
+      this.dom.periodDateDisplay.textContent = Store.getPeriodDisplayLabel(Store.activeReportPeriod);
+    }
+
+    if (this.dom.reportPeriodPills) {
+      const pills = this.dom.reportPeriodPills.querySelectorAll('.period-pill');
+      pills.forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.period === Store.activeReportPeriod);
+      });
+    }
+
+    const filteredTrx = stats.transactions || [];
+
+    if (filteredTrx.length === 0) {
+      const isFiltered = Store.activeReportPeriod !== 'all';
       this.dom.transactionsTbody.innerHTML = `
         <tr>
           <td colspan="5" style="padding:0; border:none;">
@@ -786,9 +962,9 @@ const UI = {
               <div class="table-empty-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               </div>
-              <h4 class="table-empty-title">Belum Ada Transaksi Penjualan</h4>
+              <h4 class="table-empty-title">${isFiltered ? 'Tidak Ada Transaksi pada Periode Ini' : 'Belum Ada Transaksi Penjualan'}</h4>
               <p class="table-empty-desc">
-                Data omzet, modal pokok (HPP), dan estimasi keuntungan bersih akan terhitung otomatis setelah Anda menyelesaikan transaksi kasir.
+                ${isFiltered ? `Belum ditemukan transaksi pada filter ${Store.getPeriodDisplayLabel(Store.activeReportPeriod)}. Pilih periode lain atau selesaikan transaksi kasir baru.` : 'Data omzet, modal pokok (HPP), dan estimasi keuntungan bersih akan terhitung otomatis setelah Anda menyelesaikan transaksi kasir.'}
               </p>
               <button type="button" class="btn-primary" onclick="App.switchView('pos')">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -802,16 +978,19 @@ const UI = {
     }
 
     const maxDisplayTrx = 50;
-    const displayedTransactions = Store.transactions.slice(0, maxDisplayTrx);
-    const hasMore = Store.transactions.length > maxDisplayTrx;
+    const displayedTransactions = filteredTrx.slice(0, maxDisplayTrx);
+    const hasMore = filteredTrx.length > maxDisplayTrx;
 
     let rowsHtml = displayedTransactions.map(t => {
       const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join(', ');
+      const customerBadge = t.customerName ? `<div style="font-size:0.75rem; color:var(--color-primary); font-weight:600; margin-top:2px;">👤 ${t.customerName}</div>` : `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">👤 Umum</div>`;
+
       return `
         <tr>
           <td>
             <div class="font-bold">${t.id}</div>
             <div style="font-size:0.75rem; color:var(--text-muted);">${FORMAT.dateTime(t.timestamp)}</div>
+            ${customerBadge}
           </td>
           <td style="max-width: 250px; font-size:0.8rem; line-height: 1.3;">${itemsText}</td>
           <td class="text-right font-mono font-bold">${FORMAT.currency(t.total)}</td>
@@ -829,7 +1008,7 @@ const UI = {
       rowsHtml += `
         <tr>
           <td colspan="5" style="text-align:center; padding:1rem; color:var(--text-muted); background:var(--bg-subtle); font-size:0.825rem;">
-            Menampilkan 50 transaksi terbaru dari total ${Store.transactions.length} transaksi. Gunakan tombol <strong>"Unduh Berkas CSV"</strong> di atas untuk mengekspor seluruh riwayat.
+            Menampilkan 50 transaksi terbaru dari total ${filteredTrx.length} transaksi pada periode ini. Gunakan tombol <strong>"Unduh Berkas CSV"</strong> di atas untuk mengekspor data periode ini.
           </td>
         </tr>
       `;
@@ -854,6 +1033,8 @@ const UI = {
       </tr>
     `).join('');
 
+    const customerDisplay = trx.customerName || 'Umum';
+
     this.dom.receiptContainer.innerHTML = `
       <div class="receipt-header">
         ${Store.outlet.brandLogo ? `<div style="text-align:center; margin-bottom:4px;"><img src="${Store.outlet.brandLogo}" style="max-height:48px; max-width:120px; object-fit:contain;" alt="Logo"></div>` : ''}
@@ -861,6 +1042,7 @@ const UI = {
         <div style="font-weight:600; font-size:12px; margin-top:2px;">${Store.outlet.name || ''}</div>
         <div class="receipt-meta">${Store.outlet.address || ''}</div>
         <div class="receipt-meta">No: ${trx.id} | ${FORMAT.dateTime(trx.timestamp)}</div>
+        <div class="receipt-meta">Pelanggan: <strong>${customerDisplay.toUpperCase()}</strong></div>
       </div>
       <div class="receipt-divider"></div>
       <table class="receipt-table">
@@ -966,6 +1148,8 @@ const CameraScanner = {
   html5QrCode: null,
   activeTarget: 'pos',
   isScanning: false,
+  lastScannedCode: '',
+  lastScanTime: 0,
 
   async open(target = 'pos') {
     this.activeTarget = target;
@@ -1041,6 +1225,15 @@ const CameraScanner = {
   async onScanSuccess(decodedText) {
     if (!decodedText) return;
     const code = decodedText.trim();
+    const now = Date.now();
+
+    // Cooldown 1.5 seconds for same code to prevent continuous burst scanning
+    if (code === this.lastScannedCode && (now - this.lastScanTime) < 1500) {
+      return;
+    }
+    this.lastScannedCode = code;
+    this.lastScanTime = now;
+
     SoundFeedback.playScan(true);
 
     if (this.activeTarget === 'pos') {
@@ -1066,7 +1259,7 @@ const CameraScanner = {
 
   async close() {
     try {
-      if (this.html5QrCode && this.html5QrCode.isScanning) {
+      if (this.html5QrCode && this.isScanning) {
         await this.html5QrCode.stop();
         this.html5QrCode.clear();
       }
@@ -1074,6 +1267,7 @@ const CameraScanner = {
       console.warn('Gagal menghentikan scanner kamera:', e);
     }
     this.isScanning = false;
+    this.lastScannedCode = '';
     const modal = document.getElementById('camera-scanner-modal');
     if (modal) modal.classList.remove('active');
   }
@@ -1249,6 +1443,105 @@ const App = {
     UI.dom.productModal.classList.remove('active');
   },
 
+  activeShelfProductId: null,
+
+  previewShelfBarcode(productId, shouldHighlight = true) {
+    const prod = Store.products.find(p => p.id === productId);
+    if (!prod) return;
+
+    this.activeShelfProductId = prod.id;
+    const code = prod.barcode || prod.id;
+
+    if (UI.dom.shelfPreviewShop) {
+      UI.dom.shelfPreviewShop.textContent = (Store.outlet.name || 'TOKO BERKAH BERSAMA').toUpperCase();
+    }
+    if (UI.dom.shelfPreviewName) {
+      UI.dom.shelfPreviewName.textContent = prod.name;
+    }
+    if (UI.dom.shelfPreviewPrice) {
+      UI.dom.shelfPreviewPrice.textContent = FORMAT.currency(prod.price);
+    }
+    if (UI.dom.shelfPreviewBarcode) {
+      UI.dom.shelfPreviewBarcode.innerHTML = generateCode128Svg(code, 48, 2);
+    }
+    if (UI.dom.shelfPreviewDigits) {
+      UI.dom.shelfPreviewDigits.textContent = code;
+    }
+
+    if (shouldHighlight && UI.dom.shelfBarcodeStrip) {
+      UI.dom.shelfBarcodeStrip.classList.add('highlighted');
+      setTimeout(() => {
+        if (UI.dom.shelfBarcodeStrip) UI.dom.shelfBarcodeStrip.classList.remove('highlighted');
+      }, 1200);
+
+      UI.dom.shelfBarcodeStrip.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  },
+
+  async printShelfLabel() {
+    const prod = Store.products.find(p => p.id === this.activeShelfProductId) || Store.products[0];
+    if (!prod) {
+      AppDialog.alert({
+        title: 'Produk Kosong',
+        message: 'Belum ada produk untuk dicetak label raknya.',
+        icon: '🏷️'
+      });
+      return;
+    }
+
+    const code = prod.barcode || prod.id;
+    const shopName = (Store.outlet.name || 'TOKO BERKAH BERSAMA').toUpperCase();
+    const barcodeSvgHtml = generateCode128Svg(code, 44, 2);
+
+    const labelHtml = `
+      <div class="print-shelf-shop">${shopName}</div>
+      <div class="print-shelf-name">${prod.name}</div>
+      <div class="print-shelf-price">${FORMAT.currency(prod.price)}</div>
+      <div class="print-shelf-barcode">${barcodeSvgHtml}</div>
+      <div class="print-shelf-digits">${code}</div>
+    `;
+
+    if (UI.dom.printShelfContainer) {
+      UI.dom.printShelfContainer.innerHTML = labelHtml;
+    }
+
+    if (window.posBridge && Store.outlet.silentPrint) {
+      try {
+        await window.posBridge.printReceipt({
+          receiptHtml: labelHtml,
+          deviceName: Store.outlet.printerName || undefined,
+          paperWidth: '58mm',
+          silent: true
+        });
+        UI.showScannerToast(`🏷️ Label rak "${prod.name}" terkirim ke printer thermal`, false);
+      } catch (err) {
+        document.body.classList.add('printing-shelf-label');
+        window.print();
+        setTimeout(() => document.body.classList.remove('printing-shelf-label'), 600);
+      }
+    } else {
+      document.body.classList.add('printing-shelf-label');
+      window.print();
+      setTimeout(() => document.body.classList.remove('printing-shelf-label'), 600);
+    }
+  },
+
+  copyShelfBarcode() {
+    const prod = Store.products.find(p => p.id === this.activeShelfProductId) || Store.products[0];
+    if (!prod) return;
+    const code = prod.barcode || prod.id;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(() => {
+        UI.showScannerToast(`📋 Angka barcode "${code}" berhasil disalin`, false);
+      }).catch(() => {
+        UI.showScannerToast(`Barcode: ${code}`, false);
+      });
+    } else {
+      UI.showScannerToast(`Barcode: ${code}`, false);
+    }
+  },
+
   openSettings() {
     this.tempLogo = Store.outlet.brandLogo || '';
     const brandInput = document.getElementById('setting-brand-title');
@@ -1315,7 +1608,8 @@ const App = {
       return;
     }
 
-    const result = Store.checkout(cashVal);
+    const customerName = (UI.dom.customerNameInput ? UI.dom.customerNameInput.value : '').trim() || 'Umum';
+    const result = Store.checkout(cashVal, customerName);
     if (result.error) {
       AppDialog.alert({
         title: 'Gagal Transaksi',
@@ -1356,7 +1650,7 @@ const App = {
     } else {
       const wantPrint = await AppDialog.confirm({
         title: 'Transaksi Berhasil',
-        message: `Total Belanja: ${FORMAT.currency(trx.total)}\nUang Tunai: ${FORMAT.currency(trx.cash)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`,
+        message: `Pelanggan: ${trx.customerName || 'Umum'}\nTotal Belanja: ${FORMAT.currency(trx.total)}\nUang Tunai: ${FORMAT.currency(trx.cash)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`,
         confirmText: 'Cetak Struk',
         cancelText: 'Selesai (Tanpa Cetak)',
         icon: '🧾'
@@ -1366,6 +1660,9 @@ const App = {
       }
     }
 
+    if (UI.dom.customerNameInput) {
+      UI.dom.customerNameInput.value = '';
+    }
     UI.renderCart();
     UI.renderCatalog();
     UI.dom.posCartPanel.classList.remove('mobile-open');
@@ -1394,26 +1691,30 @@ const App = {
   },
 
   exportCSV() {
-    if (Store.transactions.length === 0) {
+    const period = Store.activeReportPeriod || 'all';
+    const list = Store.getFilteredTransactions(period);
+
+    if (list.length === 0) {
       AppDialog.alert({
         title: 'Data Masih Kosong',
-        message: 'Belum ada transaksi yang tercatat untuk diekspor ke CSV.',
+        message: `Belum ada transaksi pada periode ${Store.getPeriodDisplayLabel(period)} untuk diekspor ke CSV.`,
         icon: '📊'
       });
       return;
     }
 
-    let csv = 'ID_Transaksi,Waktu,Total_Penjualan,Modal_HPP,Laba_Bersih,Daftar_Barang\n';
-    Store.transactions.forEach(t => {
-      const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join('; ');
-      csv += `"${t.id}","${t.timestamp}",${t.total},${t.cogs},${t.profit},"${itemsText}"\n`;
+    let csv = '\uFEFFID_Transaksi,Waktu,Nama_Pelanggan,Total_Penjualan,Modal_HPP,Laba_Bersih,Daftar_Barang\n';
+    list.forEach(t => {
+      const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join('; ').replace(/"/g, '""');
+      const custName = (t.customerName || 'Umum').replace(/"/g, '""');
+      csv += `"${t.id}","${t.timestamp}","${custName}",${Math.round(t.total || 0)},${Math.round(t.cogs || 0)},${Math.round(t.profit || 0)},"${itemsText}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Laporan_BukuKasir_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `Laporan_BukuKasir_${period}_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
   },
 
@@ -1460,6 +1761,8 @@ const App = {
             UI.renderCategoryFilter();
             UI.renderCatalog();
             UI.renderCart();
+            UI.renderInventory();
+            UI.renderReports();
             UI.showScannerToast('✓ Data toko berhasil dipulihkan', false);
           }
         } else {
@@ -1525,6 +1828,7 @@ const App = {
         });
         if (ok) {
           Store.clearCart();
+          if (UI.dom.customerNameInput) UI.dom.customerNameInput.value = '';
           UI.renderCart();
           UI.showScannerToast('Keranjang telah dikosongkan', false);
         }
@@ -1557,7 +1861,7 @@ const App = {
       const category = document.getElementById('prod-category').value.trim() || 'Umum';
       const cost = FORMAT.parseRaw(UI.dom.prodCost.value);
       const price = FORMAT.parseRaw(UI.dom.prodPrice.value);
-      const stock = parseInt(document.getElementById('prod-stock').value, 10) || 0;
+      const stock = Math.max(0, parseInt(document.getElementById('prod-stock').value, 10) || 0);
 
       // Validation 1: Product name required
       if (!name) {
@@ -1629,13 +1933,37 @@ const App = {
       logoInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Compress image using offscreen canvas to prevent QuotaExceededError in LocalStorage
         const reader = new FileReader();
         reader.onload = (evt) => {
-          this.tempLogo = evt.target.result;
-          const preview = document.getElementById('setting-logo-preview');
-          if (preview) {
-            preview.innerHTML = `<img src="${this.tempLogo}" alt="Preview Logo">`;
-          }
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 240;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            this.tempLogo = canvas.toDataURL('image/jpeg', 0.85);
+
+            const preview = document.getElementById('setting-logo-preview');
+            if (preview) {
+              preview.innerHTML = `<img src="${this.tempLogo}" alt="Preview Logo">`;
+            }
+          };
+          img.src = evt.target.result;
         };
         reader.readAsDataURL(file);
       });
@@ -1697,6 +2025,19 @@ const App = {
       e.target.value = '';
     });
 
+    const reportPeriodPills = document.getElementById('report-period-pills');
+    if (reportPeriodPills) {
+      reportPeriodPills.addEventListener('click', (e) => {
+        const btn = e.target.closest('.period-pill');
+        if (!btn) return;
+        const period = btn.dataset.period;
+        if (period) {
+          Store.activeReportPeriod = period;
+          UI.renderReports();
+        }
+      });
+    }
+
     // Global Key Listener for F-keys and Hardware Laser Scanner
     window.addEventListener('keydown', (e) => {
       const now = Date.now();
@@ -1727,13 +2068,20 @@ const App = {
         }
       }
 
+      const isModalActive = (UI.dom.productModal && UI.dom.productModal.classList.contains('active')) ||
+                            (UI.dom.settingsModal && UI.dom.settingsModal.classList.contains('active')) ||
+                            (AppDialog.overlay && AppDialog.overlay.classList.contains('active')) ||
+                            (CameraScanner.isScanning);
+
       if (e.key === 'F2') {
+        if (isModalActive) return;
         e.preventDefault();
         this.switchView('pos');
         UI.dom.posSearch.focus();
         return;
       }
       if (e.key === 'F4') {
+        if (isModalActive) return;
         e.preventDefault();
         this.switchView('pos');
         if (!UI.dom.btnCheckout.disabled) {
@@ -1776,7 +2124,12 @@ const App = {
         return;
       }
 
-      // Collect characters into scanner buffer
+      // Collect characters into scanner buffer (protect normal form inputs from accidental burst triggers)
+      const activeEl = document.activeElement;
+      const isFormInput = activeEl && (
+        activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA'
+      ) && activeEl !== UI.dom.posSearch;
+
       if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
         if (interval > 85) {
           this.barcodeBuffer = e.key;
@@ -1785,8 +2138,9 @@ const App = {
         }
 
         // Auto-detect idle timeout for scanners without Enter/Tab terminator
+        // Only run auto-detect if NOT actively typing in a normal form input
         clearTimeout(this.barcodeTimer);
-        if (this.barcodeBuffer.length >= 4) {
+        if (!isFormInput && this.barcodeBuffer.length >= 4) {
           this.barcodeTimer = setTimeout(() => {
             if (this.barcodeBuffer.length >= 4) {
               const code = this.barcodeBuffer;
@@ -1805,6 +2159,9 @@ const App = {
     console.assert(FORMAT.terbilang(10000000) === 'Sepuluh Juta Rupiah', 'Sanity failed: FORMAT.terbilang 10jt');
     console.assert(FORMAT.terbilang(100000) === 'Seratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 100rb');
     console.assert(FORMAT.terbilang(1500000) === 'Satu Juta Lima Ratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 1.5jt');
+    console.assert(Array.isArray(Store.getFilteredTransactions('all')), 'Sanity failed: Store.getFilteredTransactions');
+    console.assert(typeof Store.getPeriodDisplayLabel('daily') === 'string', 'Sanity failed: Store.getPeriodDisplayLabel');
+    console.assert(generateCode128Svg('TEST-123').includes('<svg'), 'Sanity failed: generateCode128Svg');
   }
 };
 
@@ -1812,8 +2169,9 @@ if (typeof window !== 'undefined') {
   window.App = App;
   window.CameraScanner = CameraScanner;
   window.AppDialog = AppDialog;
+  window.generateCode128Svg = generateCode128Svg;
   document.addEventListener('DOMContentLoaded', () => App.init());
 }
 if (typeof module !== 'undefined') {
-  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App, CameraScanner, AppDialog };
+  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App, CameraScanner, AppDialog, generateCode128Svg };
 }

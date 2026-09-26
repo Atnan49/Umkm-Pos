@@ -593,6 +593,46 @@ body {
   gap: 0.75rem;
 }
 
+.cart-customer-row {
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px dashed var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.customer-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.65rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.customer-input-wrap:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.customer-icon {
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.customer-input-wrap input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  background: transparent;
+  color: var(--text-main);
+  font-family: inherit;
+}
+
 .summary-row {
   display: flex;
   justify-content: space-between;
@@ -997,6 +1037,252 @@ body {
 .btn-icon.danger:hover {
   background: var(--color-danger-light);
   color: var(--color-danger);
+}
+
+/* ==========================================================================
+   Stock & Shelf Barcode Code 128 Module
+   ========================================================================== */
+.stock-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stock-quick-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.stat-pill.good {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.stat-pill.warn {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.badge-stock {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.badge-stock.safe {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-stock.critical {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.btn-mini-barcode {
+  padding: 0.35rem 0.75rem;
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  min-height: 34px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-mini-barcode:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.barcode-preview-strip {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.25rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  margin-top: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.barcode-preview-strip.highlighted {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.barcode-shelf-card {
+  background-color: #ffffff;
+  border: 2px dashed #0f172a;
+  padding: 0.875rem 1rem;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.shelf-shop-title {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.shelf-item-name {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.shelf-item-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #047857;
+  margin-bottom: 0.35rem;
+}
+
+.shelf-barcode-svg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  margin-bottom: 2px;
+}
+
+.shelf-barcode-svg svg {
+  max-width: 100%;
+  height: 48px;
+}
+
+.shelf-digits {
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.shelf-info-side h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.shelf-info-side p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+
+.shelf-actions-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Financial Report Period Filters Toolbar */
+.report-filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.15rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  flex-wrap: wrap;
+}
+
+.filter-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.period-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.period-pill {
+  min-height: 36px;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.period-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.period-pill.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.period-date-display {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
 /* Financial Metrics Grid - Responsive Reflow (antislop-layoutmobile R-03, R-35) */
@@ -1642,6 +1928,53 @@ input[type="number"] {
     font-size: 0.8rem;
   }
 
+  /* Financial Report Filters Mobile Reflow */
+  .report-filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+
+  .filter-controls-left {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .period-pills-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+  }
+
+  .period-pill {
+    padding: 0 0.4rem;
+    font-size: 0.75rem;
+    text-align: center;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .period-date-display {
+    text-align: center;
+    width: 100%;
+    font-size: 0.75rem;
+  }
+
+  .stock-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .barcode-preview-strip {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
   /* Financial Metrics: 1 column stack */
   .metrics-grid {
     grid-template-columns: 1fr;
@@ -1881,5 +2214,69 @@ input[type="number"] {
 
   .receipt-tear-feed {
     height: 12mm;
+  }
+
+  /* Printing Shelf Label Barcode Sticker */
+  body.printing-shelf-label .print-receipt-container,
+  body.printing-shelf-label .print-receipt-container * {
+    visibility: hidden !important;
+    display: none !important;
+  }
+
+  body.printing-shelf-label .print-shelf-container,
+  body.printing-shelf-label .print-shelf-container * {
+    visibility: visible !important;
+  }
+
+  .print-shelf-container {
+    display: none;
+  }
+
+  body.printing-shelf-label .print-shelf-container {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 56mm;
+    text-align: center;
+    padding: 3mm 2mm;
+    border: 1.5px dashed #000;
+    background: #fff;
+    color: #000;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .print-shelf-shop {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+
+  .print-shelf-name {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+
+  .print-shelf-price {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .print-shelf-barcode svg {
+    max-width: 100%;
+    height: 44px;
+    margin: 0 auto;
+  }
+
+  .print-shelf-digits {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    margin-top: 2px;
   }
 }

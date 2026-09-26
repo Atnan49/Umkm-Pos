@@ -1,0 +1,75 @@
+{
+  "name": "bukukasir-umkm",
+  "version": "1.0.0",
+  "description": "Aplikasi Kasir POS Desktop UMKM dengan Integrasi Laser Scanner dan Printer Thermal",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "pos",
+    "kasir",
+    "umkm",
+    "desktop",
+    "electron",
+    "thermal-printer",
+    "laser-scanner"
+  ],
+  "author": "Atnan49",
+  "license": "SEE LICENSE IN LICENSE",
+  "build": {
+    "appId": "com.atnan49.bukukasir",
+    "productName": "BukuKasir UMKM",
+    "copyright": "Copyright (c) 2026 Atnan49. All rights reserved.",
+    "files": [
+      "**/*",
+      "!node_modules/.cache/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "icon.ico",
+      "publisherName": "Atnan49 UMKM Solutions"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BukuKasir UMKM"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "icon.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "sharp": "^0.35.4"
+  },
+  "dependencies": {
+    "html5-qrcode": "^2.3.8"
+  }
+}

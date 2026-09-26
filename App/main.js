@@ -59,6 +59,9 @@ ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, sil
       }
     });
 
+    const isShelfLabel = typeof receiptHtml === 'string' && receiptHtml.includes('print-shelf-');
+    const hasTearFeed = typeof receiptHtml === 'string' && receiptHtml.includes('receipt-tear-feed');
+
     const fullHtml = `
       <!DOCTYPE html>
       <html>
@@ -85,11 +88,19 @@ ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, sil
           .receipt-totals td { padding: 2px 0; }
           .receipt-footer { text-align: center; margin-top: 8px; font-size: ${is80mm ? '11px' : '10px'}; border-top: 1px dashed #000; padding-top: 6px; }
           .receipt-tear-feed { height: 12mm; }
+
+          /* Shelf Label Styles for Thermal Stickers */
+          .print-shelf-shop { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+          .print-shelf-name { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 3px; }
+          .print-shelf-price { font-family: monospace; font-size: 16px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+          .print-shelf-barcode { text-align: center; }
+          .print-shelf-barcode svg { max-width: 100%; height: 44px; margin: 0 auto; display: block; }
+          .print-shelf-digits { font-family: monospace; font-size: 11px; font-weight: 700; text-align: center; letter-spacing: 0.15em; margin-top: 2px; }
         </style>
       </head>
       <body>
         ${receiptHtml}
-        <div class="receipt-tear-feed"></div>
+        ${(!isShelfLabel && !hasTearFeed) ? '<div class="receipt-tear-feed"></div>' : ''}
       </body>
       </html>
     `;

@@ -2,17 +2,18 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>BukuKasir UMKM - Kasir dan Pembukuan Toko</title>
   <meta name="description" content="Aplikasi kasir penjualan, manajemen stok barang, dan laporan laba bersih untuk UMKM Indonesia. Cepat, ringan, dan bekerja offline.">
   <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png" type="image/png">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.png">
   <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <script src="html5-qrcode.min.js" defer></script>
 </head>
 <body>
@@ -35,7 +36,7 @@
         </button>
         <button type="button" class="tab-btn" data-view="inventory">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-          Kelola Produk dan Stok
+          Stok &amp; Barcode Rak
         </button>
         <button type="button" class="tab-btn" data-view="reports">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -45,10 +46,6 @@
 
       <!-- Aksi Header: Pengaturan & Backup -->
       <div class="header-actions">
-        <a href="Profile Produk'/index.html" class="btn-secondary" title="Buka Detail Profil & Analisis Produk" aria-label="Profil Produk">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <span class="btn-label-desktop">Profil Produk</span>
-        </a>
         <button type="button" class="btn-secondary" id="btn-open-settings" title="Ubah Nama Toko dan Info Struk" aria-label="Pengaturan Toko">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span class="btn-label-desktop">Toko</span>
@@ -113,6 +110,15 @@
             </div>
 
             <div class="cart-summary">
+              <!-- Input Nama Pelanggan untuk Struk -->
+              <div class="cart-customer-row">
+                <label for="customer-name-input" class="label-sm">Nama Pelanggan / Catatan Struk:</label>
+                <div class="customer-input-wrap">
+                  <span class="customer-icon" aria-hidden="true">👤</span>
+                  <input type="text" id="customer-name-input" placeholder="Umum / Nama Pembeli..." maxlength="35" autocomplete="off" aria-label="Nama Pelanggan pada Struk">
+                </div>
+              </div>
+
               <div class="summary-row">
                 <span>Jumlah Barang</span>
                 <span id="cart-item-count" class="font-mono">0 item</span>
@@ -154,19 +160,19 @@
         </div>
       </section>
 
-      <!-- 2. TAMPILAN: KELOLA PRODUK & STOK -->
+      <!-- 2. TAMPILAN: KELOLA PRODUK, STOK & BARCODE RAK -->
       <section id="view-inventory" class="app-view" aria-labelledby="view-inventory-heading">
         <div class="section-container">
           <div class="section-header">
             <div>
-              <h2 id="view-inventory-heading" class="section-title">Katalog dan Persediaan Stok</h2>
-              <p class="section-desc">Atur nama barang, kategori, harga modal, harga jual, dan jumlah stok tersisa.</p>
+              <h2 id="view-inventory-heading" class="section-title">Katalog Stok, Harga Modal (HPP), dan Barcode Code 128</h2>
+              <p class="section-desc">Mengetahui margin keuntungan pasti di setiap barang dan siap cetak label harga rak dengan laser barcode.</p>
             </div>
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <a href="Profile Produk'/index.html" class="btn-secondary" style="text-decoration:none;" title="Lihat Profil Lengkap, Margin, dan Barcode Produk">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span>Buka Profil Produk</span>
-              </a>
+            <div class="stock-header-actions">
+              <div class="stock-quick-stats" aria-label="Ringkasan Ketersediaan Stok">
+                <span class="stat-pill good" id="stat-stock-safe">Stok Aman: 0</span>
+                <span class="stat-pill warn" id="stat-stock-warn">Perlu Kulakan: 0</span>
+              </div>
               <button type="button" class="btn-primary" id="btn-add-product">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>Tambah Produk Baru</span>
@@ -180,12 +186,13 @@
                 <caption class="sr-only">Daftar inventaris barang dan harga</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Nama Barang</th>
+                    <th scope="col">Kode &amp; Nama Produk</th>
                     <th scope="col">Kategori</th>
-                    <th scope="col" class="text-right">Harga Modal</th>
+                    <th scope="col" class="text-right">Harga Modal (HPP)</th>
                     <th scope="col" class="text-right">Harga Jual</th>
                     <th scope="col" class="text-center">Margin Untung</th>
                     <th scope="col" class="text-center">Sisa Stok</th>
+                    <th scope="col" class="text-center">Barcode Rak</th>
                     <th scope="col" class="text-right">Tindakan</th>
                   </tr>
                 </thead>
@@ -193,6 +200,31 @@
                   <!-- Baris produk dirender oleh JavaScript -->
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Preview Label Rak & Barcode Code 128 Siap Cetak -->
+          <div class="barcode-preview-strip" id="shelf-barcode-strip">
+            <div class="barcode-shelf-card" id="shelf-label-card">
+              <div class="shelf-shop-title" id="shelf-preview-shop">TOKO BERKAH BERSAMA</div>
+              <div class="shelf-item-name" id="shelf-preview-name">Pilih Produk</div>
+              <div class="shelf-item-price font-mono" id="shelf-preview-price">Rp 0</div>
+              <div class="shelf-barcode-svg" id="shelf-preview-barcode"></div>
+              <div class="shelf-digits font-mono" id="shelf-preview-digits">-</div>
+            </div>
+            <div class="shelf-info-side">
+              <h4>Barcode Rak Code 128 Siap Cetak</h4>
+              <p>Cetak label barcode langsung ke kertas stiker atau printer thermal kasir untuk ditempel di rak barang. Mempercepat kasir melayani transaksi tanpa salah hitung harga.</p>
+              <div class="shelf-actions-row">
+                <button type="button" class="btn-primary" id="btn-print-shelf-label" onclick="App.printShelfLabel()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span>Cetak Label Rak Ini</span>
+                </button>
+                <button type="button" class="btn-secondary" id="btn-copy-barcode-val" onclick="App.copyShelfBarcode()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>Salin Angka Barcode</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -210,6 +242,23 @@
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
               <span>Unduh Berkas CSV</span>
             </button>
+          </div>
+
+          <!-- Filter Periode Laporan Keuangan -->
+          <div class="report-filters-bar" role="toolbar" aria-label="Filter Periode Laporan Keuangan">
+            <div class="filter-controls-left">
+              <span class="filter-label">Filter Periode:</span>
+              <div class="period-pills-row" id="report-period-pills">
+                <button type="button" class="period-pill active" data-period="all">Semua</button>
+                <button type="button" class="period-pill" data-period="daily">Harian</button>
+                <button type="button" class="period-pill" data-period="weekly">Mingguan</button>
+                <button type="button" class="period-pill" data-period="monthly">Bulanan</button>
+                <button type="button" class="period-pill" data-period="yearly">Tahunan</button>
+              </div>
+            </div>
+            <div class="period-date-display" id="period-date-display">
+              Semua Riwayat Transaksi
+            </div>
           </div>
 
           <!-- Kartu Metrik Keuangan -->
@@ -469,6 +518,9 @@
 
   <!-- Templat Cetak Struk Thermal (Disembunyikan pada layar, aktif otomatis saat cetak) -->
   <div id="thermal-receipt" class="print-receipt-container" aria-hidden="true"></div>
+
+  <!-- Templat Cetak Label Rak Thermal / Stiker (Aktif saat cetak label barcode) -->
+  <div id="print-shelf-label" class="print-shelf-container" aria-hidden="true"></div>
 
   <script src="app.js"></script>
 </body>
