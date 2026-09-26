@@ -150,7 +150,10 @@ const Store = {
     try {
       localStorage.setItem(CONFIG.STORAGE_KEYS.PRODUCTS, JSON.stringify(this.products));
     } catch (e) {
-      alert('Peringatan: Gagal menyimpan ke memori lokal. Pastikan ruang penyimpanan perangkat Anda mencukupi.');
+      console.warn('Gagal menyimpan ke localStorage:', e);
+      if (typeof UI !== 'undefined' && UI.showScannerToast) {
+        UI.showScannerToast('Memori lokal penuh, periksa penyimpanan perangkat', true);
+      }
     }
   },
 
@@ -158,7 +161,10 @@ const Store = {
     try {
       localStorage.setItem(CONFIG.STORAGE_KEYS.TRANSACTIONS, JSON.stringify(this.transactions));
     } catch (e) {
-      alert('Peringatan: Gagal menyimpan riwayat transaksi ke memori lokal.');
+      console.warn('Gagal menyimpan riwayat transaksi ke localStorage:', e);
+      if (typeof UI !== 'undefined' && UI.showScannerToast) {
+        UI.showScannerToast('Memori lokal penuh saat menyimpan transaksi', true);
+      }
     }
   },
 
@@ -232,7 +238,9 @@ const Store = {
       this.cart.splice(idx, 1);
     } else {
       if (prod && newQty > prod.stock) {
-        alert(`Jumlah melebihi sisa stok (${prod.stock} item).`);
+        if (typeof UI !== 'undefined' && UI.showScannerToast) {
+          UI.showScannerToast(`Jumlah melebihi sisa stok (${prod.stock} item)`, true);
+        }
         return;
       }
       this.cart[idx].qty = newQty;
@@ -504,7 +512,7 @@ const UI = {
       const selectItem = () => {
         const res = Store.addToCart(card.dataset.id);
         if (!res.success) {
-          alert(res.message);
+          this.showScannerToast(res.message, true);
         } else {
           SoundFeedback.playScan(true);
           this.renderCart();
@@ -774,6 +782,78 @@ const UI = {
   }
 };
 
+const AppDialog = {
+  overlay: null,
+  titleEl: null,
+  msgEl: null,
+  iconEl: null,
+  cancelBtn: null,
+  confirmBtn: null,
+  resolveFn: null,
+
+  init() {
+    this.overlay = document.getElementById('app-dialog-overlay');
+    this.titleEl = document.getElementById('app-dialog-title');
+    this.msgEl = document.getElementById('app-dialog-message');
+    this.iconEl = document.getElementById('app-dialog-icon');
+    this.cancelBtn = document.getElementById('app-dialog-cancel');
+    this.confirmBtn = document.getElementById('app-dialog-confirm');
+
+    if (this.cancelBtn) {
+      this.cancelBtn.addEventListener('click', () => this.close(false));
+    }
+    if (this.confirmBtn) {
+      this.confirmBtn.addEventListener('click', () => this.close(true));
+    }
+  },
+
+  confirm({ title = 'Konfirmasi Tindakan', message, confirmText = 'Lanjutkan', cancelText = 'Batal', isDanger = false, icon = '⚠️' }) {
+    return new Promise((resolve) => {
+      this.resolveFn = resolve;
+      if (this.titleEl) this.titleEl.textContent = title;
+      if (this.msgEl) this.msgEl.textContent = message;
+      if (this.iconEl) this.iconEl.textContent = icon;
+      if (this.confirmBtn) {
+        this.confirmBtn.textContent = confirmText;
+        this.confirmBtn.className = isDanger ? 'btn-primary btn-danger-action' : 'btn-primary';
+      }
+      if (this.cancelBtn) {
+        this.cancelBtn.textContent = cancelText;
+        this.cancelBtn.style.display = 'inline-flex';
+      }
+      if (this.overlay) this.overlay.classList.add('active');
+      if (this.confirmBtn) this.confirmBtn.focus();
+    });
+  },
+
+  alert({ title = 'Pemberitahuan', message, confirmText = 'Mengerti', icon = 'ℹ️' }) {
+    return new Promise((resolve) => {
+      this.resolveFn = resolve;
+      if (this.titleEl) this.titleEl.textContent = title;
+      if (this.msgEl) this.msgEl.textContent = message;
+      if (this.iconEl) this.iconEl.textContent = icon;
+      if (this.confirmBtn) {
+        this.confirmBtn.textContent = confirmText;
+        this.confirmBtn.className = 'btn-primary';
+      }
+      if (this.cancelBtn) {
+        this.cancelBtn.style.display = 'none';
+      }
+      if (this.overlay) this.overlay.classList.add('active');
+      if (this.confirmBtn) this.confirmBtn.focus();
+    });
+  },
+
+  close(result) {
+    if (this.overlay) this.overlay.classList.remove('active');
+    if (this.resolveFn) {
+      const fn = this.resolveFn;
+      this.resolveFn = null;
+      fn(result);
+    }
+  }
+};
+
 const CameraScanner = {
   html5QrCode: null,
   activeTarget: 'pos',
@@ -793,7 +873,11 @@ const CameraScanner = {
     if (modal) modal.classList.add('active');
 
     if (typeof Html5Qrcode === 'undefined') {
-      alert('Pustaka scanner kamera belum siap.');
+      AppDialog.alert({
+        title: 'Pustaka Kamera',
+        message: 'Pustaka scanner kamera belum siap. Muat ulang halaman.',
+        icon: '📷'
+      });
       return;
     }
 
@@ -828,11 +912,19 @@ const CameraScanner = {
             () => {}
           );
         } else {
-          alert('Tidak ada kamera aktif yang terdeteksi di perangkat ini.');
+          AppDialog.alert({
+            title: 'Kamera Tidak Ditemukan',
+            message: 'Tidak ada kamera aktif yang terdeteksi di perangkat ini.',
+            icon: '📷'
+          });
           await this.close();
         }
       } catch (cameraErr) {
-        alert('Tidak dapat mengaktifkan kamera: ' + (cameraErr.message || 'Izin akses kamera ditolak.'));
+        AppDialog.alert({
+          title: 'Izin Akses Kamera',
+          message: 'Tidak dapat mengaktifkan kamera: ' + (cameraErr.message || 'Izin akses kamera ditolak.'),
+          icon: '📷'
+        });
         await this.close();
       }
     }
@@ -904,6 +996,7 @@ const App = {
   },
 
   async init() {
+    AppDialog.init();
     Store.init();
     UI.init();
     SoundFeedback.init();
@@ -984,15 +1077,24 @@ const App = {
     }
   },
 
-  handleDeleteProduct(id) {
+  async handleDeleteProduct(id) {
     const prod = Store.products.find(p => p.id === id);
     if (!prod) return;
-    if (confirm(`Hapus produk "${prod.name}" dari katalog toko?`)) {
+    const ok = await AppDialog.confirm({
+      title: 'Hapus Produk',
+      message: `Hapus "${prod.name}" dari katalog toko? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: 'Hapus Produk',
+      cancelText: 'Batal',
+      isDanger: true,
+      icon: '🗑️'
+    });
+    if (ok) {
       Store.deleteProduct(id);
       UI.renderInventory();
       UI.renderCategoryFilter();
       UI.renderCatalog();
       UI.renderCart();
+      UI.showScannerToast(`✓ Produk "${prod.name}" berhasil dihapus`, false);
     }
   },
 
@@ -1076,26 +1178,42 @@ const App = {
   async executeCheckout() {
     const { subtotal } = Store.getCartCalculations();
     if (Store.cart.length === 0 || subtotal <= 0) {
-      alert('Keranjang pesanan masih kosong. Silakan pilih produk atau scan barcode terlebih dahulu.');
+      AppDialog.alert({
+        title: 'Keranjang Masih Kosong',
+        message: 'Pilih produk dari katalog atau scan barcode terlebih dahulu.',
+        icon: '🛒'
+      });
       return;
     }
 
     const cashVal = FORMAT.parseRaw(UI.dom.cashInput.value);
     if (cashVal === 0) {
-      alert('Silakan masukkan nominal uang yang diterima dari pembeli atau klik tombol "Uang Pas".');
+      AppDialog.alert({
+        title: 'Nominal Pembayaran',
+        message: 'Silakan masukkan nominal uang yang diterima dari pembeli atau klik tombol "Uang Pas".',
+        icon: '💵'
+      });
       UI.dom.cashInput.focus();
       return;
     }
 
     if (cashVal < subtotal) {
-      alert(`Uang pembayaran kurang sebesar ${FORMAT.currency(subtotal - cashVal)}!`);
+      AppDialog.alert({
+        title: 'Uang Pembayaran Kurang',
+        message: `Uang pembayaran masih kurang sebesar ${FORMAT.currency(subtotal - cashVal)}!`,
+        icon: '⚠️'
+      });
       UI.dom.cashInput.focus();
       return;
     }
 
     const result = Store.checkout(cashVal);
     if (result.error) {
-      alert(`Gagal menyelesaikan transaksi: ${result.error}`);
+      AppDialog.alert({
+        title: 'Gagal Transaksi',
+        message: `Gagal menyelesaikan transaksi: ${result.error}`,
+        icon: '❌'
+      });
       return;
     }
 
@@ -1115,15 +1233,27 @@ const App = {
           UI.showScannerToast('✓ Transaksi Selesai & Struk Tercetak Otomatis', false);
         } else {
           console.warn('Printer hardware error, fallback ke dialog:', res.error);
-          if (confirm(`Gagal mencetak ke printer otomatis (${res.error || 'Perangkat tidak merespon'}). Cetak manual lewat dialog peramban?`)) {
-            window.print();
-          }
+          const wantManual = await AppDialog.confirm({
+            title: 'Printer Tidak Merespon',
+            message: `Gagal mencetak otomatis (${(res && res.error) || 'Perangkat tidak merespon'}). Cetak manual lewat dialog sistem?`,
+            confirmText: 'Cetak Manual',
+            cancelText: 'Lewati',
+            icon: '🖨️'
+          });
+          if (wantManual) window.print();
         }
       } catch (err) {
         window.print();
       }
     } else {
-      if (confirm(`Transaksi Berhasil Disimpan!\nTotal: ${FORMAT.currency(trx.total)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`)) {
+      const wantPrint = await AppDialog.confirm({
+        title: 'Transaksi Berhasil',
+        message: `Total Belanja: ${FORMAT.currency(trx.total)}\nUang Tunai: ${FORMAT.currency(trx.cash)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`,
+        confirmText: 'Cetak Struk',
+        cancelText: 'Selesai (Tanpa Cetak)',
+        icon: '🧾'
+      });
+      if (wantPrint) {
         window.print();
       }
     }
@@ -1157,7 +1287,11 @@ const App = {
 
   exportCSV() {
     if (Store.transactions.length === 0) {
-      alert('Belum ada transaksi untuk diekspor.');
+      AppDialog.alert({
+        title: 'Data Masih Kosong',
+        message: 'Belum ada transaksi yang tercatat untuk diekspor ke CSV.',
+        icon: '📊'
+      });
       return;
     }
 
@@ -1194,11 +1328,19 @@ const App = {
   importJSON(file) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = JSON.parse(e.target.result);
         if (Array.isArray(data.products) && Array.isArray(data.transactions)) {
-          if (confirm('Pulihkan data dari cadangan ini? Data toko saat ini akan diperbarui.')) {
+          const ok = await AppDialog.confirm({
+            title: 'Pulihkan Data Toko',
+            message: 'Pulihkan data dari cadangan ini? Data produk dan riwayat toko saat ini akan digantikan.',
+            confirmText: 'Pulihkan Sekarang',
+            cancelText: 'Batal',
+            isDanger: true,
+            icon: '⚠️'
+          });
+          if (ok) {
             Store.products = data.products;
             Store.transactions = data.transactions;
             if (data.outlet) Store.outlet = { ...CONFIG.DEFAULT_OUTLET, ...data.outlet };
@@ -1210,13 +1352,21 @@ const App = {
             UI.renderCategoryFilter();
             UI.renderCatalog();
             UI.renderCart();
-            alert('Data toko berhasil dipulihkan.');
+            UI.showScannerToast('✓ Data toko berhasil dipulihkan', false);
           }
         } else {
-          alert('Format berkas cadangan tidak dikenali.');
+          AppDialog.alert({
+            title: 'Format Berkas Salah',
+            message: 'Format berkas cadangan tidak dikenali. Pastikan memilih berkas .json yang valid.',
+            icon: '❌'
+          });
         }
       } catch (err) {
-        alert('Gagal membaca berkas: ' + err.message);
+        AppDialog.alert({
+          title: 'Gagal Membaca Berkas',
+          message: 'Berkas cadangan tidak dapat diproses: ' + err.message,
+          icon: '❌'
+        });
       }
     };
     reader.readAsText(file);
@@ -1250,10 +1400,21 @@ const App = {
       UI.renderCatalog();
     });
 
-    document.getElementById('btn-clear-cart').addEventListener('click', () => {
-      if (Store.cart.length > 0 && confirm('Kosongkan semua pesanan dalam keranjang?')) {
-        Store.clearCart();
-        UI.renderCart();
+    document.getElementById('btn-clear-cart').addEventListener('click', async () => {
+      if (Store.cart.length > 0) {
+        const ok = await AppDialog.confirm({
+          title: 'Kosongkan Keranjang',
+          message: 'Kosongkan semua pesanan dalam keranjang?',
+          confirmText: 'Kosongkan',
+          cancelText: 'Batal',
+          isDanger: true,
+          icon: '🗑️'
+        });
+        if (ok) {
+          Store.clearCart();
+          UI.renderCart();
+          UI.showScannerToast('Keranjang telah dikosongkan', false);
+        }
       }
     });
 
@@ -1264,7 +1425,7 @@ const App = {
         UI.dom.cashInput.value = FORMAT.number(subtotal);
         UI.updateCashChange();
       } else {
-        alert('Keranjang masih kosong, belum ada total tagihan.');
+        UI.showScannerToast('Keranjang masih kosong, belum ada total tagihan.', true);
       }
     });
 
@@ -1275,7 +1436,7 @@ const App = {
     document.getElementById('modal-product-cancel').addEventListener('click', () => this.closeProductModal());
 
     // Product Modal Validation & Submission Handler
-    UI.dom.formProduct.addEventListener('submit', (e) => {
+    UI.dom.formProduct.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('prod-id').value;
       const name = document.getElementById('prod-name').value.trim();
@@ -1321,9 +1482,15 @@ const App = {
       // Validation 4: Selling below cost warning
       if (cost > 0 && price < cost) {
         const diff = cost - price;
-        if (!confirm(`Peringatan: Harga jual (${FORMAT.currency(price)}) lebih rendah dari harga modal (${FORMAT.currency(cost)}).\nAnda akan mengalami kerugian sebesar ${FORMAT.currency(diff)} per unit.\n\nTetap ingin menyimpan produk ini?`)) {
-          return;
-        }
+        const ok = await AppDialog.confirm({
+          title: 'Peringatan Harga Jual Rugi',
+          message: `Harga jual (${FORMAT.currency(price)}) lebih rendah dari harga modal (${FORMAT.currency(cost)}).\nAnda akan mengalami potensi kerugian ${FORMAT.currency(diff)} per unit.\n\nTetap ingin menyimpan produk ini?`,
+          confirmText: 'Tetap Simpan',
+          cancelText: 'Perbaiki Harga',
+          isDanger: true,
+          icon: '⚠️'
+        });
+        if (!ok) return;
       }
 
       const productPayload = { name, barcode, category, cost, price, stock };
@@ -1424,6 +1591,10 @@ const App = {
       this.lastKeyTime = now;
 
       if (e.key === 'Escape') {
+        if (AppDialog.overlay && AppDialog.overlay.classList.contains('active')) {
+          AppDialog.close(false);
+          return;
+        }
         const scannerModal = document.getElementById('camera-scanner-modal');
         if (CameraScanner.isScanning || (scannerModal && scannerModal.classList.contains('active'))) {
           CameraScanner.close();
@@ -1433,6 +1604,14 @@ const App = {
         this.closeSettings();
         UI.dom.posCartPanel.classList.remove('mobile-open');
         return;
+      }
+
+      if (e.key === 'Enter') {
+        if (AppDialog.overlay && AppDialog.overlay.classList.contains('active')) {
+          e.preventDefault();
+          AppDialog.close(true);
+          return;
+        }
       }
 
       if (e.key === 'F2') {
@@ -1519,8 +1698,9 @@ const App = {
 if (typeof window !== 'undefined') {
   window.App = App;
   window.CameraScanner = CameraScanner;
+  window.AppDialog = AppDialog;
   document.addEventListener('DOMContentLoaded', () => App.init());
 }
 if (typeof module !== 'undefined') {
-  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App, CameraScanner };
+  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App, CameraScanner, AppDialog };
 }

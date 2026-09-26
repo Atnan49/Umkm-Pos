@@ -422,6 +422,23 @@
     </div>
   </div>
 
+  <!-- Modal Dialog Konfirmasi & Peringatan In-App -->
+  <div class="modal-overlay" id="app-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="app-dialog-title" style="z-index: 60;">
+    <div class="modal-box app-dialog-box">
+      <div class="app-dialog-header">
+        <div class="app-dialog-icon" id="app-dialog-icon">⚠️</div>
+        <div class="app-dialog-text">
+          <h3 id="app-dialog-title" class="app-dialog-title">Konfirmasi</h3>
+          <p id="app-dialog-message" class="app-dialog-message"></p>
+        </div>
+      </div>
+      <div class="app-dialog-footer">
+        <button type="button" class="btn-secondary" id="app-dialog-cancel">Batal</button>
+        <button type="button" class="btn-primary" id="app-dialog-confirm">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notifikasi Scanner Laser -->
   <div id="scanner-toast" class="scanner-toast" aria-live="assertive"></div>
 
