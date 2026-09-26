@@ -15,6 +15,8 @@ const CONFIG = {
     OUTLET: 'bukukasir_outlet'
   },
   DEFAULT_OUTLET: {
+    brandTitle: 'BukuKasir UMKM',
+    brandLogo: '',
     name: 'Toko Berkah Bersama',
     address: 'Jl. Usaha Raya No. 12, Pasar Anyar',
     footer: 'Terima kasih atas kunjungan Anda!',
@@ -330,6 +332,8 @@ const UI = {
 
   init() {
     this.dom = {
+      brandIconDisplay: document.getElementById('brand-icon-display'),
+      brandTitleDisplay: document.getElementById('brand-title-display'),
       outletNameDisplay: document.getElementById('outlet-name-display'),
       productGrid: document.getElementById('product-grid'),
       categoryPills: document.getElementById('category-pills'),
@@ -376,8 +380,18 @@ const UI = {
   },
 
   updateOutletHeader() {
+    if (this.dom.brandTitleDisplay) {
+      this.dom.brandTitleDisplay.textContent = Store.outlet.brandTitle || 'BukuKasir UMKM';
+    }
     if (this.dom.outletNameDisplay) {
       this.dom.outletNameDisplay.textContent = Store.outlet.name || CONFIG.DEFAULT_OUTLET.name;
+    }
+    if (this.dom.brandIconDisplay) {
+      if (Store.outlet.brandLogo) {
+        this.dom.brandIconDisplay.innerHTML = `<img src="${Store.outlet.brandLogo}" alt="Logo Brand">`;
+      } else {
+        this.dom.brandIconDisplay.textContent = '🏪';
+      }
     }
   },
 
@@ -720,7 +734,9 @@ const UI = {
 
     this.dom.receiptContainer.innerHTML = `
       <div class="receipt-header">
-        <div class="receipt-title">${Store.outlet.name || 'BUKUKASIR UMKM'}</div>
+        ${Store.outlet.brandLogo ? `<div style="text-align:center; margin-bottom:4px;"><img src="${Store.outlet.brandLogo}" style="max-height:48px; max-width:120px; object-fit:contain;" alt="Logo"></div>` : ''}
+        <div class="receipt-title">${(Store.outlet.brandTitle || 'BUKUKASIR UMKM').toUpperCase()}</div>
+        <div style="font-weight:600; font-size:12px; margin-top:2px;">${Store.outlet.name || ''}</div>
         <div class="receipt-meta">${Store.outlet.address || ''}</div>
         <div class="receipt-meta">No: ${trx.id} | ${FORMAT.dateTime(trx.timestamp)}</div>
       </div>
@@ -748,6 +764,111 @@ const UI = {
         <div style="margin-top:2px;">Barang yang sudah dibeli tidak dapat ditukar</div>
       </div>
     `;
+  }
+};
+
+const CameraScanner = {
+  html5QrCode: null,
+  activeTarget: 'pos',
+  isScanning: false,
+
+  async open(target = 'pos') {
+    this.activeTarget = target;
+    const modal = document.getElementById('camera-scanner-modal');
+    const statusBox = document.getElementById('camera-scanner-status');
+    const title = document.getElementById('modal-scanner-title');
+    if (statusBox) statusBox.style.display = 'none';
+    if (title) {
+      title.textContent = target === 'pos' 
+        ? 'Scan Barcode Produk ke Keranjang' 
+        : 'Scan Barcode Kemasan Barang';
+    }
+    if (modal) modal.classList.add('active');
+
+    if (typeof Html5Qrcode === 'undefined') {
+      alert('Pustaka scanner kamera belum siap.');
+      return;
+    }
+
+    try {
+      if (!this.html5QrCode) {
+        this.html5QrCode = new Html5Qrcode('camera-scanner-reader');
+      }
+
+      this.isScanning = true;
+      const config = {
+        fps: 15,
+        qrbox: { width: 260, height: 180 },
+        aspectRatio: 1.333333
+      };
+
+      await this.html5QrCode.start(
+        { facingMode: 'environment' },
+        config,
+        (decodedText) => this.onScanSuccess(decodedText),
+        () => {}
+      );
+    } catch (err) {
+      console.warn('Percobaan kamera environment gagal, mencoba kamera alternatif:', err);
+      try {
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          const cameraId = cameras[0].id;
+          await this.html5QrCode.start(
+            cameraId,
+            { fps: 15, qrbox: { width: 260, height: 180 }, aspectRatio: 1.333333 },
+            (decodedText) => this.onScanSuccess(decodedText),
+            () => {}
+          );
+        } else {
+          alert('Tidak ada kamera aktif yang terdeteksi di perangkat ini.');
+          await this.close();
+        }
+      } catch (cameraErr) {
+        alert('Tidak dapat mengaktifkan kamera: ' + (cameraErr.message || 'Izin akses kamera ditolak.'));
+        await this.close();
+      }
+    }
+  },
+
+  async onScanSuccess(decodedText) {
+    if (!decodedText) return;
+    const code = decodedText.trim();
+    SoundFeedback.playScan(true);
+
+    if (this.activeTarget === 'pos') {
+      App.handleBarcodeScan(code);
+      const statusBox = document.getElementById('camera-scanner-status');
+      if (statusBox) {
+        statusBox.textContent = `✓ Berhasil scan: ${code}`;
+        statusBox.className = 'scanner-status-box success';
+        statusBox.style.display = 'block';
+      }
+      setTimeout(() => {
+        if (statusBox) statusBox.style.display = 'none';
+      }, 1500);
+    } else if (this.activeTarget === 'product-form') {
+      const barcodeInput = document.getElementById('prod-barcode');
+      if (barcodeInput) {
+        barcodeInput.value = code;
+      }
+      UI.showScannerToast(`✓ Barcode ${code} terisi ke form`, false);
+      await this.close();
+    }
+  },
+
+  async close() {
+    try {
+      if (this.html5QrCode && this.html5QrCode.isScanning) {
+        await this.html5QrCode.stop();
+        this.html5QrCode.clear();
+      }
+    } catch (e) {
+      console.warn('Gagal menghentikan scanner kamera:', e);
+    }
+    this.isScanning = false;
+    const modal = document.getElementById('camera-scanner-modal');
+    if (modal) modal.classList.remove('active');
   }
 };
 
@@ -892,11 +1013,25 @@ const App = {
   },
 
   openSettings() {
+    this.tempLogo = Store.outlet.brandLogo || '';
+    const brandInput = document.getElementById('setting-brand-title');
+    if (brandInput) {
+      brandInput.value = Store.outlet.brandTitle || 'BukuKasir UMKM';
+    }
     document.getElementById('setting-outlet-name').value = Store.outlet.name || '';
     document.getElementById('setting-outlet-address').value = Store.outlet.address || '';
     document.getElementById('setting-outlet-footer').value = Store.outlet.footer || '';
     document.getElementById('setting-silent-print').checked = Store.outlet.silentPrint !== false;
     document.getElementById('setting-sound-beep').checked = Store.outlet.soundBeep !== false;
+
+    const preview = document.getElementById('setting-logo-preview');
+    if (preview) {
+      if (this.tempLogo) {
+        preview.innerHTML = `<img src="${this.tempLogo}" alt="Preview Logo">`;
+      } else {
+        preview.textContent = '🏪';
+      }
+    }
 
     this.initHardwareIntegrations();
     UI.dom.settingsModal.classList.add('active');
@@ -1176,9 +1311,41 @@ const App = {
     document.getElementById('modal-settings-close').addEventListener('click', () => this.closeSettings());
     document.getElementById('modal-settings-cancel').addEventListener('click', () => this.closeSettings());
 
+    const logoInput = document.getElementById('setting-logo-input');
+    if (logoInput) {
+      logoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          this.tempLogo = evt.target.result;
+          const preview = document.getElementById('setting-logo-preview');
+          if (preview) {
+            preview.innerHTML = `<img src="${this.tempLogo}" alt="Preview Logo">`;
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const btnResetLogo = document.getElementById('btn-reset-logo');
+    if (btnResetLogo) {
+      btnResetLogo.addEventListener('click', () => {
+        this.tempLogo = '';
+        const preview = document.getElementById('setting-logo-preview');
+        if (preview) preview.textContent = '🏪';
+        if (logoInput) logoInput.value = '';
+      });
+    }
+
     UI.dom.formSettings.addEventListener('submit', (e) => {
       e.preventDefault();
+      const brandInput = document.getElementById('setting-brand-title');
+      Store.outlet.brandTitle = brandInput ? brandInput.value.trim() || 'BukuKasir UMKM' : 'BukuKasir UMKM';
       Store.outlet.name = document.getElementById('setting-outlet-name').value.trim() || CONFIG.DEFAULT_OUTLET.name;
+      if (this.tempLogo !== undefined) {
+        Store.outlet.brandLogo = this.tempLogo;
+      }
       Store.outlet.address = document.getElementById('setting-outlet-address').value.trim();
       Store.outlet.footer = document.getElementById('setting-outlet-footer').value.trim();
       Store.outlet.printerName = document.getElementById('setting-printer').value;
@@ -1189,6 +1356,24 @@ const App = {
       UI.updateOutletHeader();
       this.closeSettings();
     });
+
+    // Camera Barcode Scanner Listeners
+    const btnPosCamera = document.getElementById('btn-pos-camera-scan');
+    if (btnPosCamera) {
+      btnPosCamera.addEventListener('click', () => CameraScanner.open('pos'));
+    }
+    const btnProdCamera = document.getElementById('btn-scan-product-barcode');
+    if (btnProdCamera) {
+      btnProdCamera.addEventListener('click', () => CameraScanner.open('product-form'));
+    }
+    const btnScannerClose = document.getElementById('modal-scanner-close');
+    if (btnScannerClose) {
+      btnScannerClose.addEventListener('click', () => CameraScanner.close());
+    }
+    const btnScannerCancel = document.getElementById('modal-scanner-cancel');
+    if (btnScannerCancel) {
+      btnScannerCancel.addEventListener('click', () => CameraScanner.close());
+    }
 
     document.getElementById('btn-export-csv').addEventListener('click', () => this.exportCSV());
     document.getElementById('btn-export-data').addEventListener('click', () => this.exportJSON());
@@ -1204,6 +1389,11 @@ const App = {
       this.lastKeyTime = now;
 
       if (e.key === 'Escape') {
+        const scannerModal = document.getElementById('camera-scanner-modal');
+        if (CameraScanner.isScanning || (scannerModal && scannerModal.classList.contains('active'))) {
+          CameraScanner.close();
+          return;
+        }
         this.closeProductModal();
         this.closeSettings();
         UI.dom.posCartPanel.classList.remove('mobile-open');
@@ -1231,8 +1421,22 @@ const App = {
         // Laser scanner burst check (< 80ms interval between characters)
         if (this.barcodeBuffer.length >= 3 && interval < 80) {
           e.preventDefault();
-          this.handleBarcodeScan(this.barcodeBuffer.trim());
+          const scannedCode = this.barcodeBuffer.trim();
           this.barcodeBuffer = '';
+
+          // If product modal is open, auto-fill barcode input field
+          if (UI.dom.productModal && UI.dom.productModal.classList.contains('active')) {
+            const barcodeInput = document.getElementById('prod-barcode');
+            if (barcodeInput) {
+              barcodeInput.value = scannedCode;
+              barcodeInput.focus();
+            }
+            SoundFeedback.playScan(true);
+            UI.showScannerToast(`✓ Barcode ${scannedCode} terisi ke form`, false);
+            return;
+          }
+
+          this.handleBarcodeScan(scannedCode);
           return;
         }
 
@@ -1279,8 +1483,9 @@ const App = {
 
 if (typeof window !== 'undefined') {
   window.App = App;
+  window.CameraScanner = CameraScanner;
   document.addEventListener('DOMContentLoaded', () => App.init());
 }
 if (typeof module !== 'undefined') {
-  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App };
+  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App, CameraScanner };
 }
