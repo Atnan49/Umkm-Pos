@@ -659,7 +659,25 @@ const UI = {
 
   renderInventory() {
     if (Store.products.length === 0) {
-      this.dom.inventoryTbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:2rem;">Belum ada data barang.</td></tr>`;
+      this.dom.inventoryTbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="padding:0; border:none;">
+            <div class="table-empty-state">
+              <div class="table-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </div>
+              <h4 class="table-empty-title">Katalog Produk Masih Kosong</h4>
+              <p class="table-empty-desc">
+                Tambahkan produk barang atau sembako toko Anda untuk mulai mencatat stok dan melayani transaksi kasir.
+              </p>
+              <button type="button" class="btn-primary" onclick="App.openAddProduct()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Tambah Produk Pertama</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
       return;
     }
 
@@ -705,7 +723,25 @@ const UI = {
     this.dom.statCount.textContent = `${stats.count} transaksi selesai`;
 
     if (Store.transactions.length === 0) {
-      this.dom.transactionsTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:2rem;">Belum ada riwayat transaksi penjualan.</td></tr>`;
+      this.dom.transactionsTbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="padding:0; border:none;">
+            <div class="table-empty-state">
+              <div class="table-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <h4 class="table-empty-title">Belum Ada Transaksi Penjualan</h4>
+              <p class="table-empty-desc">
+                Data omzet, modal pokok (HPP), dan estimasi keuntungan bersih akan terhitung otomatis setelah Anda menyelesaikan transaksi kasir.
+              </p>
+              <button type="button" class="btn-primary" onclick="App.switchView('pos')">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span>Buka Kasir Penjualan</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
       return;
     }
 

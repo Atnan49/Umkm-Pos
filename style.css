@@ -977,41 +977,140 @@ body {
   color: var(--color-danger);
 }
 
-/* Financial Metrics */
+/* Financial Metrics Grid - Responsive Reflow (antislop-layoutmobile R-03, R-35) */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
 }
 
 .metric-card {
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
+  border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
+  padding: 1.35rem 1.25rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 125px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.metric-card:hover {
+  border-color: var(--border-medium);
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08);
+}
+
+/* Profit Card receives distinct thematic background, NOT a generic colored left border (antislop-ui R-01, R-31) */
 .metric-card.highlight-profit {
-  border-left: 4px solid var(--color-success);
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.metric-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
 }
 
 .metric-label {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
+}
+
+.metric-card.highlight-profit .metric-label {
+  color: #166534;
+}
+
+.metric-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.metric-card.highlight-profit .metric-icon-badge {
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .metric-value {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin: 0.35rem 0;
-  color: var(--text-main);
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #0f172a;
+  margin-bottom: 0.45rem;
+  letter-spacing: -0.02em;
+}
+
+.metric-card.highlight-profit .metric-value {
+  color: #15803d;
 }
 
 .metric-sub {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.metric-card.highlight-profit .metric-sub {
+  color: #166534;
+}
+
+/* Rich In-App Empty State for Tables (antislop-ui R-27) */
+.table-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  background: var(--bg-surface);
+}
+
+.table-empty-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.table-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.table-empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  line-height: 1.5;
+  margin-bottom: 1.35rem;
+}
+
+.table-empty-state .btn-primary {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.25rem;
 }
 
 /* Accessible Modals */
@@ -1376,6 +1475,84 @@ input[type="number"] {
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 999px;
+  }
+}
+
+/* Tablet & Mobile Layout Reflow (antislop-layoutmobile R-03, R-05, R-35) */
+@media (max-width: 992px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .metrics-grid .metric-card:last-child {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-container {
+    padding: 1rem 0.875rem 5.5rem 0.875rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .section-header .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .section-desc {
+    font-size: 0.8125rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .metrics-grid .metric-card:last-child {
+    grid-column: span 1;
+  }
+
+  .metric-card {
+    padding: 1.15rem 1rem;
+    min-height: auto;
+  }
+
+  .metric-value {
+    font-size: 1.55rem;
+  }
+
+  .metric-sub {
+    font-size: 0.78rem;
+  }
+
+  .table-card {
+    border-radius: var(--radius-sm);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.75rem 0.65rem;
+    font-size: 0.8125rem;
+  }
+
+  .table-empty-state {
+    padding: 2.5rem 1rem;
+  }
+
+  .table-empty-desc {
+    font-size: 0.8125rem;
   }
 }
 
