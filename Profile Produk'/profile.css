@@ -1,0 +1,449 @@
+/* ==========================================================================
+   BukuKasir UMKM - Halaman Profil Produk
+   Prinsip Desain: ENERGY 1, RHYTHM 1, MOTION 1 (WCAG AA Compliant)
+   Palet: Slate (#0f172a, #475569) & Teal (#0f766e) & Netral (#f8fafc, #ffffff)
+   ========================================================================== */
+
+/* Layout & Kontainer */
+.profile-page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem 1rem;
+}
+
+/* Navigasi Atas & Toolbar Profil */
+.profile-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-back:hover {
+  background-color: var(--bg-subtle);
+  border-color: var(--text-muted);
+}
+
+.quick-product-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-product-switcher label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.select-product-dropdown {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  min-height: 44px;
+  max-width: 260px;
+}
+
+.select-product-dropdown:focus {
+  border-color: var(--border-focus);
+}
+
+/* Header Profil Produk */
+.product-header-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.product-identity {
+  flex: 1 1 320px;
+}
+
+.product-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stock-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stock-status-pill.safe {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.stock-status-pill.low {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.stock-status-pill.out {
+  background-color: #f1f5f9;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+}
+
+.product-title {
+  font-size: 1.625rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+}
+
+.product-meta-codes {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  flex-wrap: wrap;
+}
+
+.product-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Grid Metrik Keuangan Produk */
+.product-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.125rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.kpi-card.highlight {
+  border-color: #99f6e4;
+  background-color: #f0fdfa;
+}
+
+.kpi-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpi-value {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.kpi-value.green {
+  color: var(--color-success);
+}
+
+.kpi-subtext {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Tata Letak Konten 2 Kolom */
+.profile-content-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .profile-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel Kotak Standar */
+.profile-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: #fafbfc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.panel-body {
+  padding: 1.25rem;
+}
+
+/* Visual Barcode & Label Rak */
+.barcode-visual-card {
+  text-align: center;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.barcode-svg-container {
+  display: inline-block;
+  margin: 0.5rem auto;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.barcode-svg-container svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.barcode-digits {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-main);
+  margin-top: 0.25rem;
+}
+
+.barcode-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+/* Form Penyesuaian Stok (Opname) */
+.stock-adjust-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.adjust-type-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.adjust-radio-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: var(--bg-surface);
+  user-select: none;
+  min-height: 44px;
+}
+
+.adjust-radio-btn input {
+  margin: 0;
+}
+
+.adjust-radio-btn.active-in {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.adjust-radio-btn.active-out {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Tabel Riwayat Transaksi & Mutasi */
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.data-table th, .data-table td {
+  padding: 0.75rem 0.875rem;
+}
+
+.badge-in {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-out {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Templat Cetak Stiker / Label Rak Toko (Print Only) */
+#print-label-area {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #print-label-area, #print-label-area * {
+    visibility: visible;
+  }
+
+  #print-label-area {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    margin: 0;
+    padding: 2mm 3mm;
+    font-family: var(--font-sans);
+    color: #000000;
+    background: #ffffff;
+  }
+
+  .label-outlet-name {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 2px;
+    margin-bottom: 3px;
+  }
+
+  .label-prod-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .label-barcode-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  .label-barcode-text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-align: center;
+    letter-spacing: 1px;
+    margin-top: 1px;
+  }
+
+  .label-price-box {
+    margin-top: 4px;
+    padding-top: 3px;
+    border-top: 1px solid #000;
+    text-align: center;
+  }
+
+  .label-price-caption {
+    font-size: 8px;
+    text-transform: uppercase;
+  }
+
+  .label-price-val {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+  }
+}

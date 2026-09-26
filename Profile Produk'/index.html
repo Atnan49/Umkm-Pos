@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Produk & Mutasi Stok - BukuKasir UMKM</title>
+  <meta name="description" content="Informasi lengkap profil barang, analisis margin laba, pencetakan barcode harga, dan mutasi persediaan stok UMKM.">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="profile.js" defer></script>
+</head>
+<body>
+  <!-- Header Aplikasi -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">🏪</div>
+      <div>
+        <h1 class="brand-title">BukuKasir UMKM</h1>
+        <p class="brand-subtitle" id="topbar-outlet-name">Toko Berkah Bersama</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="../index.html" class="btn-secondary" title="Kembali ke Layar Kasir & Inventaris">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span class="btn-label-desktop">Kasir & Toko</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="profile-page-wrapper">
+    <!-- Topbar Halaman: Tombol Kembali & Pemilih Cepat Produk -->
+    <div class="profile-topbar">
+      <div class="profile-topbar-left">
+        <a href="../index.html" class="btn-back" title="Kembali ke halaman utama toko">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Kembali ke Inventaris</span>
+        </a>
+      </div>
+
+      <div class="quick-product-switcher">
+        <label for="product-select-dropdown">Pilih Produk:</label>
+        <select id="product-select-dropdown" class="select-product-dropdown" aria-label="Ganti Produk"></select>
+      </div>
+    </div>
+
+    <!-- Empty State jika tidak ada produk dalam database -->
+    <div id="profile-empty-content" style="display:none; text-align:center; padding: 4rem 1rem; background-color:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--text-main); margin-bottom:0.5rem;">Tidak Ada Produk yang Dipilih</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Belum ada data barang di penyimpanan kasir. Silakan tambahkan produk baru terlebih dahulu di halaman utama.</p>
+      <a href="../index.html" class="btn-primary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Buka Halaman Inventaris</span>
+      </a>
+    </div>
+
+    <!-- Konten Utama Profil Produk -->
+    <div id="profile-main-content">
+      <!-- 1. Header Identitas Produk -->
+      <section class="product-header-card" aria-labelledby="prod-title">
+        <div class="product-identity">
+          <div class="product-badges-row">
+            <span class="category-tag" id="prod-category-tag">Sembako</span>
+            <span class="stock-status-pill safe" id="prod-stock-status-pill">Stok Aman (15 item)</span>
+          </div>
+          <h2 class="product-title" id="prod-title">Memuat nama produk...</h2>
+          <div class="product-meta-codes">
+            <span id="prod-id-badge">ID: PRD-1</span>
+            <span id="prod-barcode-badge">Barcode: 8999999195431</span>
+          </div>
+        </div>
+
+        <div class="product-header-actions">
+          <button type="button" class="btn-secondary" id="btn-print-barcode" title="Cetak label harga dan barcode untuk rak toko">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Cetak Label Rak</span>
+          </button>
+          <button type="button" class="btn-primary" id="btn-open-edit-modal" title="Ubah nama, harga, atau kode produk">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span>Edit Produk</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Grid Indikator Finansial & Profitabilitas -->
+      <section class="product-kpi-grid" aria-label="Analisis Finansial Produk">
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Harga Modal (Kulakan)</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div class="kpi-value font-mono" id="kpi-cost">Rp 0</div>
+          <div class="kpi-subtext">HPP per unit produk</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Harga Jual Toko</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="kpi-value font-mono" id="kpi-price">Rp 0</div>
+          <div class="kpi-subtext">Harga eceran ke pembeli</div>
+        </div>
+
+        <div class="kpi-card highlight">
+          <div class="kpi-label">
+            <span>Laba Kotor per Unit</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+          <div class="kpi-value font-mono green" id="kpi-margin">Rp 0</div>
+          <div class="kpi-subtext" id="kpi-margin-pct">Margin kotor: 0%</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Nilai Aset Persediaan</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="kpi-value font-mono" id="kpi-stock-asset">Rp 0</div>
+          <div class="kpi-subtext" id="kpi-stock-revenue">Potensi omzet: Rp 0</div>
+        </div>
+      </section>
+
+      <!-- 3. Konten 2 Kolom: Operasional & Riwayat -->
+      <div class="profile-content-grid">
+        <!-- Kolom Kiri: Barcode, Penyesuaian Stok, & Mutasi -->
+        <aside aria-label="Operasional Stok dan Barcode">
+          <!-- Panel Barcode & Label Rak -->
+          <div class="profile-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">Barcode Toko (Code 128)</h3>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Siap Scan Laser</span>
+            </div>
+            <div class="panel-body">
+              <div class="barcode-visual-card">
+                <div class="barcode-svg-container" id="barcode-render-box"></div>
+                <div class="barcode-digits" id="barcode-text-display">-</div>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; text-align:center;">
+                Format Code 128 presisi tinggi dapat dibaca oleh scanner barcode retail maupun kamera ponsel kasir.
+              </p>
+            </div>
+          </div>
+
+          <!-- Panel Penyesuaian Stok Cepat (Opname) -->
+          <div class="profile-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">Penyesuaian Stok (Opname Fisik)</h3>
+            </div>
+            <div class="panel-body">
+              <form id="form-adjust-stock" class="stock-adjust-form">
+                <div class="adjust-type-toggle">
+                  <label class="adjust-radio-btn active-in">
+                    <input type="radio" name="adjust-type" value="IN" checked>
+                    <span>+ Masuk (Kulakan)</span>
+                  </label>
+                  <label class="adjust-radio-btn">
+                    <input type="radio" name="adjust-type" value="OUT">
+                    <span>- Keluar (Koreksi)</span>
+                  </label>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0.75rem;">
+                  <label for="adjust-qty" style="font-size:0.8125rem;">Jumlah Unit *</label>
+                  <input type="number" id="adjust-qty" required min="1" placeholder="Contoh: 10" style="min-height:44px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom:0.75rem;">
+                  <label for="adjust-note" style="font-size:0.8125rem;">Keterangan / Alasan</label>
+                  <input type="text" id="adjust-note" placeholder="Misal: Pasokan baru agen, kemasan bocor" style="min-height:44px;">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width:100%; justify-content:center; min-height:44px;">
+                  Simpan Perubahan Stok
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Panel Riwayat Mutasi Stok -->
+          <div class="profile-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">Log Mutasi Fisik</h3>
+            </div>
+            <div class="history-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Waktu</th>
+                    <th>Perubahan</th>
+                    <th>Alasan</th>
+                    <th class="text-right">Sisa</th>
+                  </tr>
+                </thead>
+                <tbody id="stock-history-tbody">
+                  <!-- Diisi oleh JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Kolom Kanan: Performa Penjualan & Transaksi -->
+        <section aria-labelledby="sales-history-heading">
+          <div class="profile-panel">
+            <div class="panel-header">
+              <h3 class="panel-title" id="sales-history-heading">Performa & Penjualan di Kasir</h3>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Riwayat Otomatis</span>
+            </div>
+            <div class="panel-body" style="padding-bottom: 0.5rem;">
+              <!-- 3 Chip Rangkuman Penjualan -->
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
+                <div style="background-color:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Total Terjual</div>
+                  <div class="font-mono font-bold" id="sales-stat-qty" style="font-size:1.15rem; color:var(--text-main); margin-top:2px;">0 item</div>
+                </div>
+                <div style="background-color:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Total Omzet Produk</div>
+                  <div class="font-mono font-bold" id="sales-stat-revenue" style="font-size:1.15rem; color:var(--color-primary); margin-top:2px;">Rp 0</div>
+                </div>
+                <div style="background-color:var(--bg-subtle); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Kontribusi Laba Bersih</div>
+                  <div class="font-mono font-bold text-emerald" id="sales-stat-profit" style="font-size:1.15rem; margin-top:2px;">Rp 0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabel Transaksi Penjualan Produk Ini -->
+            <div class="history-table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>No. Struk</th>
+                    <th>Waktu Transaksi</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-right">Subtotal</th>
+                    <th class="text-right">Laba Kotor</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-history-tbody">
+                  <!-- Diisi oleh JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Edit Produk Cepat -->
+  <div class="modal-overlay" id="modal-edit-product" role="dialog" aria-modal="true" aria-labelledby="modal-edit-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-edit-title">Edit Data Produk</h3>
+        <button type="button" class="modal-close" id="modal-edit-close" aria-label="Tutup popup edit">&times;</button>
+      </div>
+      <form id="form-edit-product" class="modal-body">
+        <div class="form-group">
+          <label for="edit-prod-name">Nama Produk *</label>
+          <input type="text" id="edit-prod-name" required placeholder="Nama barang">
+        </div>
+        <div class="form-group">
+          <label for="edit-prod-barcode">Kode Barcode</label>
+          <input type="text" id="edit-prod-barcode" placeholder="Ketik atau scan barcode">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-prod-category">Kategori</label>
+            <input type="text" id="edit-prod-category" placeholder="Makanan, Minuman, Sembako">
+          </div>
+          <div class="form-group">
+            <label for="edit-prod-stock">Jumlah Stok Fisik</label>
+            <input type="number" id="edit-prod-stock" min="0" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-prod-cost">Harga Modal / Kulakan *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix font-mono" aria-hidden="true">Rp</span>
+              <input type="text" id="edit-prod-cost" required placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-prod-price">Harga Jual Toko *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix font-mono" aria-hidden="true">Rp</span>
+              <input type="text" id="edit-prod-price" required placeholder="0" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modal-edit-cancel">Batal</button>
+          <button type="submit" class="btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Area Cetak Stiker / Label Rak 58mm (Hanya Muncul Saat Print) -->
+  <div id="print-label-area" aria-hidden="true"></div>
+</body>
+</html>

@@ -744,7 +744,9 @@ const UI = {
       return `
         <tr>
           <td>
-            <div class="font-bold">${p.name}</div>
+            <a href="Profile Produk'/index.html?id=${encodeURIComponent(p.id)}" class="font-bold" style="color:var(--text-main); text-decoration:none;" title="Klik untuk melihat profil detail ${p.name}">
+              ${p.name}
+            </a>
             ${barcodeLabel}
           </td>
           <td><span class="badge-tag badge-gray">${p.category || 'Umum'}</span></td>
@@ -753,6 +755,9 @@ const UI = {
           <td class="text-center font-mono" title="Laba kotor: ${FORMAT.currency(margin)}">${marginPct}%</td>
           <td class="text-center">${stockBadge}</td>
           <td class="text-right">
+            <a href="Profile Produk'/index.html?id=${encodeURIComponent(p.id)}" class="btn-icon" title="Lihat Profil, Mutasi Stok & Cetak Barcode" aria-label="Lihat Profil ${p.name}" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none;">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </a>
             <button type="button" class="btn-icon" onclick="App.openEditProduct('${p.id}')" title="Edit produk" aria-label="Edit ${p.name}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             </button>
