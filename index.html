@@ -113,12 +113,15 @@
 
               <!-- Pembayaran Tunai & Kembalian -->
               <div class="payment-box">
-                <label for="cash-input" class="label-sm">Uang Diterima dari Pembeli</label>
-                <div class="cash-input-wrap">
-                  <span class="cash-prefix font-mono" aria-hidden="true">Rp</span>
-                  <input type="number" id="cash-input" placeholder="0" min="0" step="500" inputmode="numeric" aria-label="Nominal uang tunai diterima">
-                  <button type="button" class="btn-exact" id="btn-exact-cash" title="Setel nominal sesuai total belanja">Uang Pas</button>
+                <div class="payment-box-header">
+                  <label for="cash-input" class="label-sm">Uang Diterima dari Pembeli</label>
+                  <button type="button" class="btn-exact" id="btn-exact-cash" title="Setel nominal sesuai total tagihan">Uang Pas</button>
                 </div>
+                <div class="cash-input-wrap" id="cash-input-wrap">
+                  <span class="cash-prefix font-mono" aria-hidden="true">Rp</span>
+                  <input type="text" id="cash-input" placeholder="0" inputmode="numeric" autocomplete="off" aria-label="Nominal uang tunai diterima">
+                </div>
+                <div id="cash-terbilang" class="verbal-amount-hint font-mono" aria-live="polite"></div>
                 <div class="quick-cash-chips" id="quick-cash-chips" aria-label="Pilihan Cepat Nominal Uang">
                   <!-- Pilihan pecahan uang dirender oleh JavaScript -->
                 </div>
@@ -126,6 +129,7 @@
                   <span id="label-change">Kembalian</span>
                   <span id="cart-change" class="font-mono font-bold" aria-labelledby="label-change">Rp 0</span>
                 </div>
+                <div id="cash-error-alert" class="cash-error-alert" style="display:none;" role="alert"></div>
               </div>
 
               <div class="cart-actions">
@@ -291,14 +295,23 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="prod-cost">Harga Modal / Kulakan (Rp) *</label>
-            <input type="number" id="prod-cost" required min="0" step="500" placeholder="10000" inputmode="numeric">
+            <label for="prod-cost">Harga Modal / Kulakan *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix font-mono" aria-hidden="true">Rp</span>
+              <input type="text" id="prod-cost" required placeholder="0" inputmode="numeric" autocomplete="off">
+            </div>
+            <div id="prod-cost-hint" class="field-verbal-hint font-mono"></div>
           </div>
           <div class="form-group">
-            <label for="prod-price">Harga Jual Pembeli (Rp) *</label>
-            <input type="number" id="prod-price" required min="0" step="500" placeholder="15000" inputmode="numeric">
+            <label for="prod-price">Harga Jual Pembeli *</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix font-mono" aria-hidden="true">Rp</span>
+              <input type="text" id="prod-price" required placeholder="0" inputmode="numeric" autocomplete="off">
+            </div>
+            <div id="prod-price-hint" class="field-verbal-hint font-mono"></div>
           </div>
         </div>
+        <div id="product-error-alert" class="modal-error-alert" style="display:none;" role="alert"></div>
         <div class="modal-footer">
           <button type="button" class="btn-secondary" id="modal-product-cancel">Batal</button>
           <button type="submit" class="btn-primary">Simpan Data Produk</button>

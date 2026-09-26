@@ -1,9 +1,11 @@
 /**
  * BukuKasir UMKM - Arsitektur Modular Desktop POS
  * 
- * Integrasi Perangkat Keras:
- * - Scanner Laser: HID Keyboard timing interceptor (< 60ms keystroke buffer) & audio synth feedback
- * - Printer Thermal: Integrasi Electron IPC untuk silent printing langsung ke printer POS kasir
+ * Integrasi & Pemformatan:
+ * - Format Otomatis Rupiah: Pemisah ribuan titik (.) real-time & teks terbilang rupiah
+ * - Penanganan Error Komprehensif: Validasi uang kurang, stok habis, barcode ganda, dan harga jual rugi
+ * - Scanner Laser: Interceptor HID keyboard timing burst (< 80ms) & suara beep
+ * - Printer Thermal: Silent direct printing via Electron IPC
  */
 
 const CONFIG = {
@@ -36,11 +38,41 @@ const FORMAT = {
   currency(amount) {
     return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
   },
+  number(amount) {
+    const n = Number(amount || 0);
+    return n === 0 ? '0' : n.toLocaleString('id-ID');
+  },
+  parseRaw(str) {
+    if (typeof str === 'number') return Math.max(0, Math.floor(str));
+    const clean = String(str || '').replace(/\D/g, '');
+    return clean === '' ? 0 : parseInt(clean, 10);
+  },
   dateTime(isoString) {
     const d = new Date(isoString);
     return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + 
            ' ' + 
            d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  },
+  terbilang(number) {
+    const n = Math.abs(parseInt(number, 10) || 0);
+    if (n === 0) return 'Nol Rupiah';
+
+    const units = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+
+    function toWords(num) {
+      if (num < 12) return units[num];
+      if (num < 20) return toWords(num - 10) + ' Belas';
+      if (num < 100) return toWords(Math.floor(num / 10)) + ' Puluh' + (num % 10 !== 0 ? ' ' + toWords(num % 10) : '');
+      if (num < 200) return 'Seratus' + (num - 100 !== 0 ? ' ' + toWords(num - 100) : '');
+      if (num < 1000) return toWords(Math.floor(num / 100)) + ' Ratus' + (num % 100 !== 0 ? ' ' + toWords(num % 100) : '');
+      if (num < 2000) return 'Seribu' + (num - 1000 !== 0 ? ' ' + toWords(num - 1000) : '');
+      if (num < 1000000) return toWords(Math.floor(num / 1000)) + ' Ribu' + (num % 1000 !== 0 ? ' ' + toWords(num % 1000) : '');
+      if (num < 1000000000) return toWords(Math.floor(num / 1000000)) + ' Juta' + (num % 1000000 !== 0 ? ' ' + toWords(num % 1000000) : '');
+      if (num < 1000000000000) return toWords(Math.floor(num / 1000000000)) + ' Miliar' + (num % 1000000000 !== 0 ? ' ' + toWords(num % 1000000000) : '');
+      return '';
+    }
+
+    return toWords(n).trim() + ' Rupiah';
   }
 };
 
@@ -71,14 +103,12 @@ const SoundFeedback = {
       gain.connect(this.ctx.destination);
 
       if (success) {
-        // High-pitch 1760Hz POS scanner beep
         osc.frequency.setValueAtTime(1760, this.ctx.currentTime);
         gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
         osc.start(this.ctx.currentTime);
         osc.stop(this.ctx.currentTime + 0.08);
       } else {
-        // Low double buzz for scan error
         osc.frequency.setValueAtTime(350, this.ctx.currentTime);
         gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
@@ -114,15 +144,25 @@ const Store = {
   },
 
   saveProducts() {
-    localStorage.setItem(CONFIG.STORAGE_KEYS.PRODUCTS, JSON.stringify(this.products));
+    try {
+      localStorage.setItem(CONFIG.STORAGE_KEYS.PRODUCTS, JSON.stringify(this.products));
+    } catch (e) {
+      alert('Peringatan: Gagal menyimpan ke memori lokal. Pastikan ruang penyimpanan perangkat Anda mencukupi.');
+    }
   },
 
   saveTransactions() {
-    localStorage.setItem(CONFIG.STORAGE_KEYS.TRANSACTIONS, JSON.stringify(this.transactions));
+    try {
+      localStorage.setItem(CONFIG.STORAGE_KEYS.TRANSACTIONS, JSON.stringify(this.transactions));
+    } catch (e) {
+      alert('Peringatan: Gagal menyimpan riwayat transaksi ke memori lokal.');
+    }
   },
 
   saveOutlet() {
-    localStorage.setItem(CONFIG.STORAGE_KEYS.OUTLET, JSON.stringify(this.outlet));
+    try {
+      localStorage.setItem(CONFIG.STORAGE_KEYS.OUTLET, JSON.stringify(this.outlet));
+    } catch (e) {}
   },
 
   addProduct(productData) {
@@ -151,13 +191,14 @@ const Store = {
 
   addToCart(productId) {
     const prod = this.products.find(p => p.id === productId);
-    if (!prod || prod.stock <= 0) return { success: false, message: 'Barang tidak tersedia atau stok habis.' };
+    if (!prod) return { success: false, message: 'Barang tidak ditemukan dalam sistem.' };
+    if (prod.stock <= 0) return { success: false, message: `Stok "${prod.name}" sudah habis (0 item).` };
 
     const item = this.cart.find(i => i.productId === productId);
     const curQty = item ? item.qty : 0;
 
     if (curQty + 1 > prod.stock) {
-      return { success: false, message: `Stok hanya tersisa ${prod.stock} item.` };
+      return { success: false, message: `Stok "${prod.name}" tersisa ${prod.stock} item, tidak dapat menambah lagi.` };
     }
 
     if (item) {
@@ -187,7 +228,10 @@ const Store = {
     if (newQty <= 0) {
       this.cart.splice(idx, 1);
     } else {
-      if (prod && newQty > prod.stock) return;
+      if (prod && newQty > prod.stock) {
+        alert(`Jumlah melebihi sisa stok (${prod.stock} item).`);
+        return;
+      }
       this.cart[idx].qty = newQty;
     }
   },
@@ -215,12 +259,21 @@ const Store = {
 
   checkout(cashGiven) {
     const { subtotal, totalCost } = this.getCartCalculations();
-    if (this.cart.length === 0 || subtotal <= 0) return null;
+    if (this.cart.length === 0 || subtotal <= 0) return { error: 'Keranjang belanja masih kosong.' };
 
     const cash = parseFloat(cashGiven) || subtotal;
     const change = cash - subtotal;
-    if (change < 0) return null;
+    if (change < 0) return { error: `Uang pembayaran masih kurang sebesar ${FORMAT.currency(Math.abs(change))}.` };
 
+    // Stock verification check
+    for (const item of this.cart) {
+      const prod = this.products.find(p => p.id === item.productId);
+      if (!prod || prod.stock < item.qty) {
+        return { error: `Stok barang "${prod ? prod.name : 'Item'}" tidak mencukupi saat proses checkout.` };
+      }
+    }
+
+    // Deduct stock
     this.cart.forEach(item => {
       const prod = this.products.find(p => p.id === item.productId);
       if (prod) {
@@ -253,7 +306,7 @@ const Store = {
     this.transactions.unshift(transaction);
     this.saveTransactions();
     this.clearCart();
-    return transaction;
+    return { success: true, transaction };
   },
 
   getFinancialSummary() {
@@ -284,8 +337,11 @@ const UI = {
       cartItems: document.getElementById('cart-items'),
       cartTotal: document.getElementById('cart-total'),
       cartItemCount: document.getElementById('cart-item-count'),
+      cashInputWrap: document.getElementById('cash-input-wrap'),
       cashInput: document.getElementById('cash-input'),
+      cashTerbilang: document.getElementById('cash-terbilang'),
       cartChange: document.getElementById('cart-change'),
+      cashErrorAlert: document.getElementById('cash-error-alert'),
       btnCheckout: document.getElementById('btn-checkout'),
       quickCashChips: document.getElementById('quick-cash-chips'),
       mobileCartBadge: document.getElementById('mobile-cart-badge'),
@@ -299,6 +355,11 @@ const UI = {
       statCount: document.getElementById('stat-trans-count'),
       productModal: document.getElementById('product-modal'),
       formProduct: document.getElementById('form-product'),
+      prodCost: document.getElementById('prod-cost'),
+      prodPrice: document.getElementById('prod-price'),
+      prodCostHint: document.getElementById('prod-cost-hint'),
+      prodPriceHint: document.getElementById('prod-price-hint'),
+      productErrorAlert: document.getElementById('product-error-alert'),
       settingsModal: document.getElementById('settings-modal'),
       formSettings: document.getElementById('form-settings'),
       receiptContainer: document.getElementById('thermal-receipt'),
@@ -311,6 +372,7 @@ const UI = {
     this.renderCategoryFilter();
     this.renderCatalog();
     this.renderCart();
+    this.setupCurrencyMasking();
   },
 
   updateOutletHeader() {
@@ -328,6 +390,37 @@ const UI = {
     this._toastTimer = setTimeout(() => {
       this.dom.scannerToast.classList.remove('active');
     }, 2200);
+  },
+
+  setupCurrencyMasking() {
+    // 1. Cash Input Realtime Masking
+    this.dom.cashInput.addEventListener('input', () => {
+      const raw = FORMAT.parseRaw(this.dom.cashInput.value);
+      this.dom.cashInput.value = raw > 0 ? FORMAT.number(raw) : '';
+      this.updateCashChange();
+    });
+
+    // 2. Product Modal Cost Input Realtime Masking
+    if (this.dom.prodCost) {
+      this.dom.prodCost.addEventListener('input', () => {
+        const raw = FORMAT.parseRaw(this.dom.prodCost.value);
+        this.dom.prodCost.value = raw > 0 ? FORMAT.number(raw) : '';
+        if (this.dom.prodCostHint) {
+          this.dom.prodCostHint.textContent = raw > 0 ? 'Terbilang: ' + FORMAT.terbilang(raw) : '';
+        }
+      });
+    }
+
+    // 3. Product Modal Price Input Realtime Masking
+    if (this.dom.prodPrice) {
+      this.dom.prodPrice.addEventListener('input', () => {
+        const raw = FORMAT.parseRaw(this.dom.prodPrice.value);
+        this.dom.prodPrice.value = raw > 0 ? FORMAT.number(raw) : '';
+        if (this.dom.prodPriceHint) {
+          this.dom.prodPriceHint.textContent = raw > 0 ? 'Terbilang: ' + FORMAT.terbilang(raw) : '';
+        }
+      });
+    }
   },
 
   renderCategoryFilter() {
@@ -426,6 +519,16 @@ const UI = {
       this.dom.cashInput.value = '';
       this.dom.cartChange.textContent = 'Rp 0';
       this.dom.btnCheckout.disabled = true;
+      if (this.dom.cashTerbilang) {
+        this.dom.cashTerbilang.textContent = '';
+        this.dom.cashTerbilang.classList.remove('active');
+      }
+      if (this.dom.cashErrorAlert) {
+        this.dom.cashErrorAlert.style.display = 'none';
+      }
+      if (this.dom.cashInputWrap) {
+        this.dom.cashInputWrap.classList.remove('has-error');
+      }
     } else {
       this.dom.cartItems.innerHTML = Store.cart.map(item => {
         const prod = Store.products.find(p => p.id === item.productId);
@@ -445,7 +548,6 @@ const UI = {
           </div>
         `;
       }).join('');
-      this.dom.btnCheckout.disabled = false;
     }
 
     this.dom.cartTotal.textContent = FORMAT.currency(subtotal);
@@ -473,7 +575,8 @@ const UI = {
 
     this.dom.quickCashChips.querySelectorAll('.cash-chip').forEach(btn => {
       btn.addEventListener('click', () => {
-        this.dom.cashInput.value = btn.dataset.val;
+        const val = parseInt(btn.dataset.val, 10);
+        this.dom.cashInput.value = FORMAT.number(val);
         this.updateCashChange();
       });
     });
@@ -481,21 +584,53 @@ const UI = {
 
   updateCashChange() {
     const { subtotal } = Store.getCartCalculations();
-    const cash = parseFloat(this.dom.cashInput.value) || 0;
+    const cash = FORMAT.parseRaw(this.dom.cashInput.value);
     const change = cash - subtotal;
 
-    if (cash === 0 || subtotal === 0) {
+    // Update Live Terbilang Text
+    if (this.dom.cashTerbilang) {
+      if (cash >= 1000) {
+        this.dom.cashTerbilang.textContent = 'Terbilang: ' + FORMAT.terbilang(cash);
+        this.dom.cashTerbilang.classList.add('active');
+      } else {
+        this.dom.cashTerbilang.textContent = '';
+        this.dom.cashTerbilang.classList.remove('active');
+      }
+    }
+
+    if (subtotal === 0) {
       this.dom.cartChange.textContent = 'Rp 0';
       this.dom.cartChange.style.color = 'var(--text-main)';
-      this.dom.btnCheckout.disabled = subtotal === 0;
+      this.dom.btnCheckout.disabled = true;
+      if (this.dom.cashInputWrap) this.dom.cashInputWrap.classList.remove('has-error');
+      if (this.dom.cashErrorAlert) this.dom.cashErrorAlert.style.display = 'none';
+      return;
+    }
+
+    if (cash === 0) {
+      this.dom.cartChange.textContent = 'Rp 0';
+      this.dom.cartChange.style.color = 'var(--text-main)';
+      this.dom.btnCheckout.disabled = true;
+      if (this.dom.cashInputWrap) this.dom.cashInputWrap.classList.remove('has-error');
+      if (this.dom.cashErrorAlert) this.dom.cashErrorAlert.style.display = 'none';
     } else if (change < 0) {
-      this.dom.cartChange.textContent = `Kurang ${FORMAT.currency(Math.abs(change))}`;
+      const shortage = Math.abs(change);
+      this.dom.cartChange.textContent = `Kurang ${FORMAT.currency(shortage)}`;
       this.dom.cartChange.style.color = 'var(--color-danger)';
       this.dom.btnCheckout.disabled = true;
+
+      if (this.dom.cashInputWrap) this.dom.cashInputWrap.classList.add('has-error');
+      if (this.dom.cashErrorAlert) {
+        this.dom.cashErrorAlert.textContent = `Uang pembayaran masih kurang ${FORMAT.currency(shortage)}. Silakan minta kekurangan kepada pembeli.`;
+        this.dom.cashErrorAlert.style.display = 'block';
+      }
     } else {
       this.dom.cartChange.textContent = FORMAT.currency(change);
       this.dom.cartChange.style.color = 'var(--color-success)';
       this.dom.btnCheckout.disabled = false;
+
+      if (this.dom.cashInputWrap) this.dom.cashInputWrap.classList.remove('has-error');
+      if (this.dom.cashErrorAlert) this.dom.cashErrorAlert.style.display = 'none';
     }
   },
 
@@ -630,7 +765,6 @@ const App = {
   },
 
   async initHardwareIntegrations() {
-    // Detect system printers via Electron Bridge
     if (window.posBridge && window.posBridge.getPrinters) {
       try {
         const printers = await window.posBridge.getPrinters();
@@ -718,14 +852,19 @@ const App = {
     const prod = Store.products.find(p => p.id === id);
     if (!prod) return;
 
+    if (UI.dom.productErrorAlert) UI.dom.productErrorAlert.style.display = 'none';
     document.getElementById('modal-product-title').textContent = 'Edit Data Produk';
     document.getElementById('prod-id').value = prod.id;
     document.getElementById('prod-name').value = prod.name;
     document.getElementById('prod-barcode').value = prod.barcode || '';
     document.getElementById('prod-category').value = prod.category || '';
-    document.getElementById('prod-cost').value = prod.cost || 0;
-    document.getElementById('prod-price').value = prod.price || 0;
     document.getElementById('prod-stock').value = prod.stock || 0;
+
+    UI.dom.prodCost.value = FORMAT.number(prod.cost || 0);
+    UI.dom.prodPrice.value = FORMAT.number(prod.price || 0);
+
+    if (UI.dom.prodCostHint) UI.dom.prodCostHint.textContent = prod.cost ? 'Terbilang: ' + FORMAT.terbilang(prod.cost) : '';
+    if (UI.dom.prodPriceHint) UI.dom.prodPriceHint.textContent = prod.price ? 'Terbilang: ' + FORMAT.terbilang(prod.price) : '';
 
     UI.dom.productModal.classList.add('active');
     document.getElementById('prod-name').focus();
@@ -733,10 +872,16 @@ const App = {
 
   openAddProduct() {
     UI.dom.formProduct.reset();
+    if (UI.dom.productErrorAlert) UI.dom.productErrorAlert.style.display = 'none';
     document.getElementById('modal-product-title').textContent = 'Tambah Produk Baru';
     document.getElementById('prod-id').value = '';
     document.getElementById('prod-barcode').value = '';
     document.getElementById('prod-stock').value = 10;
+
+    UI.dom.prodCost.value = '';
+    UI.dom.prodPrice.value = '';
+    if (UI.dom.prodCostHint) UI.dom.prodCostHint.textContent = '';
+    if (UI.dom.prodPriceHint) UI.dom.prodPriceHint.textContent = '';
 
     UI.dom.productModal.classList.add('active');
     document.getElementById('prod-name').focus();
@@ -763,16 +908,35 @@ const App = {
   },
 
   async executeCheckout() {
-    const cashVal = parseFloat(UI.dom.cashInput.value);
-    const trx = Store.checkout(cashVal);
-    if (!trx) {
-      alert('Pembayaran gagal: Keranjang kosong atau nominal uang belum mencukupi.');
+    const { subtotal } = Store.getCartCalculations();
+    if (Store.cart.length === 0 || subtotal <= 0) {
+      alert('Keranjang pesanan masih kosong. Silakan pilih produk atau scan barcode terlebih dahulu.');
       return;
     }
 
+    const cashVal = FORMAT.parseRaw(UI.dom.cashInput.value);
+    if (cashVal === 0) {
+      alert('Silakan masukkan nominal uang yang diterima dari pembeli atau klik tombol "Uang Pas".');
+      UI.dom.cashInput.focus();
+      return;
+    }
+
+    if (cashVal < subtotal) {
+      alert(`Uang pembayaran kurang sebesar ${FORMAT.currency(subtotal - cashVal)}!`);
+      UI.dom.cashInput.focus();
+      return;
+    }
+
+    const result = Store.checkout(cashVal);
+    if (result.error) {
+      alert(`Gagal menyelesaikan transaksi: ${result.error}`);
+      return;
+    }
+
+    const trx = result.transaction;
     UI.renderThermalReceipt(trx);
 
-    // Hardware Printing: If running in Electron and Silent Print enabled
+    // Hardware Printing via Electron IPC
     if (window.posBridge && Store.outlet.silentPrint) {
       try {
         const res = await window.posBridge.printReceipt({
@@ -783,7 +947,10 @@ const App = {
         if (res && res.success) {
           UI.showScannerToast('✓ Transaksi Selesai & Struk Tercetak Otomatis', false);
         } else {
-          window.print();
+          console.warn('Printer hardware error, fallback ke dialog:', res.error);
+          if (confirm(`Gagal mencetak ke printer otomatis (${res.error || 'Perangkat tidak merespon'}). Cetak manual lewat dialog peramban?`)) {
+            window.print();
+          }
         }
       } catch (err) {
         window.print();
@@ -805,12 +972,16 @@ const App = {
     UI.renderThermalReceipt(trx);
 
     if (window.posBridge && Store.outlet.silentPrint) {
-      await window.posBridge.printReceipt({
-        receiptHtml: UI.dom.receiptContainer.innerHTML,
-        deviceName: Store.outlet.printerName || undefined,
-        silent: true
-      });
-      UI.showScannerToast('✓ Cetak Ulang Struk Terkirim ke Printer', false);
+      try {
+        await window.posBridge.printReceipt({
+          receiptHtml: UI.dom.receiptContainer.innerHTML,
+          deviceName: Store.outlet.printerName || undefined,
+          silent: true
+        });
+        UI.showScannerToast('✓ Cetak Ulang Struk Terkirim ke Printer', false);
+      } catch (e) {
+        window.print();
+      }
     } else {
       window.print();
     }
@@ -918,12 +1089,15 @@ const App = {
       }
     });
 
-    UI.dom.cashInput.addEventListener('input', () => UI.updateCashChange());
-
+    // Uang Pas button sets exact subtotal with dots
     document.getElementById('btn-exact-cash').addEventListener('click', () => {
       const { subtotal } = Store.getCartCalculations();
-      UI.dom.cashInput.value = subtotal;
-      UI.updateCashChange();
+      if (subtotal > 0) {
+        UI.dom.cashInput.value = FORMAT.number(subtotal);
+        UI.updateCashChange();
+      } else {
+        alert('Keranjang masih kosong, belum ada total tagihan.');
+      }
     });
 
     UI.dom.btnCheckout.addEventListener('click', () => this.executeCheckout());
@@ -932,22 +1106,64 @@ const App = {
     document.getElementById('modal-product-close').addEventListener('click', () => this.closeProductModal());
     document.getElementById('modal-product-cancel').addEventListener('click', () => this.closeProductModal());
 
+    // Product Modal Validation & Submission Handler
     UI.dom.formProduct.addEventListener('submit', (e) => {
       e.preventDefault();
       const id = document.getElementById('prod-id').value;
-      const data = {
-        name: document.getElementById('prod-name').value.trim(),
-        barcode: document.getElementById('prod-barcode').value.trim(),
-        category: document.getElementById('prod-category').value.trim() || 'Umum',
-        cost: parseFloat(document.getElementById('prod-cost').value) || 0,
-        price: parseFloat(document.getElementById('prod-price').value) || 0,
-        stock: parseInt(document.getElementById('prod-stock').value, 10) || 0
-      };
+      const name = document.getElementById('prod-name').value.trim();
+      const barcode = document.getElementById('prod-barcode').value.trim();
+      const category = document.getElementById('prod-category').value.trim() || 'Umum';
+      const cost = FORMAT.parseRaw(UI.dom.prodCost.value);
+      const price = FORMAT.parseRaw(UI.dom.prodPrice.value);
+      const stock = parseInt(document.getElementById('prod-stock').value, 10) || 0;
+
+      // Validation 1: Product name required
+      if (!name) {
+        if (UI.dom.productErrorAlert) {
+          UI.dom.productErrorAlert.textContent = 'Nama produk wajib diisi.';
+          UI.dom.productErrorAlert.style.display = 'block';
+        }
+        document.getElementById('prod-name').focus();
+        return;
+      }
+
+      // Validation 2: Price must be positive
+      if (price <= 0) {
+        if (UI.dom.productErrorAlert) {
+          UI.dom.productErrorAlert.textContent = 'Harga jual konsumen harus lebih besar dari Rp 0.';
+          UI.dom.productErrorAlert.style.display = 'block';
+        }
+        UI.dom.prodPrice.focus();
+        return;
+      }
+
+      // Validation 3: Duplicate barcode check
+      if (barcode) {
+        const duplicate = Store.products.find(p => p.id !== id && p.barcode && p.barcode.toLowerCase() === barcode.toLowerCase());
+        if (duplicate) {
+          if (UI.dom.productErrorAlert) {
+            UI.dom.productErrorAlert.textContent = `Kode barcode "${barcode}" sudah terdaftar pada produk "${duplicate.name}". Harap gunakan barcode unik.`;
+            UI.dom.productErrorAlert.style.display = 'block';
+          }
+          document.getElementById('prod-barcode').focus();
+          return;
+        }
+      }
+
+      // Validation 4: Selling below cost warning
+      if (cost > 0 && price < cost) {
+        const diff = cost - price;
+        if (!confirm(`Peringatan: Harga jual (${FORMAT.currency(price)}) lebih rendah dari harga modal (${FORMAT.currency(cost)}).\nAnda akan mengalami kerugian sebesar ${FORMAT.currency(diff)} per unit.\n\nTetap ingin menyimpan produk ini?`)) {
+          return;
+        }
+      }
+
+      const productPayload = { name, barcode, category, cost, price, stock };
 
       if (id) {
-        Store.updateProduct(id, data);
+        Store.updateProduct(id, productPayload);
       } else {
-        Store.addProduct(data);
+        Store.addProduct(productPayload);
       }
 
       this.closeProductModal();
@@ -981,13 +1197,12 @@ const App = {
       e.target.value = '';
     });
 
-    // Hardware Laser Barcode Scanner Interceptor (< 60ms latency burst)
+    // Global Key Listener for F-keys and Hardware Laser Scanner
     window.addEventListener('keydown', (e) => {
       const now = Date.now();
       const interval = now - this.lastKeyTime;
       this.lastKeyTime = now;
 
-      // Escape key modal handling
       if (e.key === 'Escape') {
         this.closeProductModal();
         this.closeSettings();
@@ -995,7 +1210,6 @@ const App = {
         return;
       }
 
-      // POS Cashier F-keys
       if (e.key === 'F2') {
         e.preventDefault();
         this.switchView('pos');
@@ -1007,14 +1221,14 @@ const App = {
         this.switchView('pos');
         if (!UI.dom.btnCheckout.disabled) {
           this.executeCheckout();
+        } else {
+          UI.dom.cashInput.focus();
         }
         return;
       }
 
-      const isModalOpen = UI.dom.productModal.classList.contains('active') || UI.dom.settingsModal.classList.contains('active');
-
       if (e.key === 'Enter') {
-        // If rapid keystrokes were captured from a laser scanner
+        // Laser scanner burst check (< 80ms interval between characters)
         if (this.barcodeBuffer.length >= 3 && interval < 80) {
           e.preventDefault();
           this.handleBarcodeScan(this.barcodeBuffer.trim());
@@ -1022,7 +1236,7 @@ const App = {
           return;
         }
 
-        // If user pressed enter in the search input
+        // Enter on search input
         if (document.activeElement === UI.dom.posSearch) {
           const q = Store.searchQuery.toLowerCase().trim();
           const matched = Store.products.filter(p =>
@@ -1043,7 +1257,7 @@ const App = {
         return;
       }
 
-      // Collect single character keys into scanner buffer
+      // Collect characters into scanner buffer
       if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
         if (interval > 80) {
           this.barcodeBuffer = e.key;
@@ -1055,11 +1269,18 @@ const App = {
   },
 
   runSanityCheck() {
-    const calc = Store.getFinancialSummary();
-    console.assert(typeof calc.revenue === 'number', 'Sanity failed: revenue must be number');
-    console.assert(FORMAT.currency(1000) === 'Rp 1.000', 'Sanity failed: currency formatting');
+    console.assert(FORMAT.number(10000000) === '10.000.000', 'Sanity failed: FORMAT.number');
+    console.assert(FORMAT.parseRaw('10.000.000') === 10000000, 'Sanity failed: FORMAT.parseRaw');
+    console.assert(FORMAT.terbilang(10000000) === 'Sepuluh Juta Rupiah', 'Sanity failed: FORMAT.terbilang 10jt');
+    console.assert(FORMAT.terbilang(100000) === 'Seratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 100rb');
+    console.assert(FORMAT.terbilang(1500000) === 'Satu Juta Lima Ratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 1.5jt');
   }
 };
 
-window.App = App;
-document.addEventListener('DOMContentLoaded', () => App.init());
+if (typeof window !== 'undefined') {
+  window.App = App;
+  document.addEventListener('DOMContentLoaded', () => App.init());
+}
+if (typeof module !== 'undefined') {
+  module.exports = { CONFIG, FORMAT, Store, SoundFeedback, UI, App };
+}
