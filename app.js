@@ -79,6 +79,20 @@ const FORMAT = {
   }
 };
 
+const UTILS = {
+  debounce(func, wait = 120) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+};
+
 const SoundFeedback = {
   ctx: null,
   init() {
@@ -381,11 +395,51 @@ const UI = {
       printerDetectHint: document.getElementById('printer-detect-hint')
     };
 
+    this.catalogRenderLimit = 48;
     this.updateOutletHeader();
     this.renderCategoryFilter();
+    this.setupProductGridDelegation();
     this.renderCatalog();
     this.renderCart();
     this.setupCurrencyMasking();
+  },
+
+  setupProductGridDelegation() {
+    if (!this.dom.productGrid) return;
+
+    const handleAction = (target) => {
+      const loadMoreBtn = target.closest('#btn-load-more-catalog');
+      if (loadMoreBtn) {
+        this.catalogRenderLimit += 48;
+        this.renderCatalog();
+        return;
+      }
+
+      const card = target.closest('.product-card');
+      if (!card || !card.dataset.id) return;
+
+      const res = Store.addToCart(card.dataset.id);
+      if (!res.success) {
+        this.showScannerToast(res.message, true);
+      } else {
+        SoundFeedback.playScan(true);
+        this.renderCart();
+      }
+    };
+
+    this.dom.productGrid.addEventListener('click', (e) => {
+      handleAction(e.target);
+    });
+
+    this.dom.productGrid.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const card = e.target.closest('.product-card') || e.target.closest('#btn-load-more-catalog');
+        if (card) {
+          e.preventDefault();
+          handleAction(e.target);
+        }
+      }
+    });
   },
 
   updateOutletHeader() {
@@ -457,6 +511,7 @@ const UI = {
     this.dom.categoryPills.querySelectorAll('.category-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         Store.activeCategory = btn.dataset.cat;
+        this.catalogRenderLimit = 48;
         this.renderCategoryFilter();
         this.renderCatalog();
       });
@@ -484,7 +539,8 @@ const UI = {
       return;
     }
 
-    this.dom.productGrid.innerHTML = filtered.map(p => {
+    const visibleProducts = filtered.slice(0, this.catalogRenderLimit);
+    let cardsHtml = visibleProducts.map(p => {
       const isOut = p.stock <= 0;
       const isLow = p.stock > 0 && p.stock <= 5;
       const barcodeSnippet = p.barcode ? `<span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">[${p.barcode}]</span>` : '';
@@ -508,24 +564,19 @@ const UI = {
       `;
     }).join('');
 
-    this.dom.productGrid.querySelectorAll('.product-card').forEach(card => {
-      const selectItem = () => {
-        const res = Store.addToCart(card.dataset.id);
-        if (!res.success) {
-          this.showScannerToast(res.message, true);
-        } else {
-          SoundFeedback.playScan(true);
-          this.renderCart();
-        }
-      };
-      card.addEventListener('click', selectItem);
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectItem();
-        }
-      });
-    });
+    if (filtered.length > this.catalogRenderLimit) {
+      const remaining = filtered.length - this.catalogRenderLimit;
+      const nextBatch = Math.min(48, remaining);
+      cardsHtml += `
+        <div class="catalog-load-more" style="grid-column: 1/-1; text-align: center; padding: 1.25rem 0.5rem;">
+          <button type="button" class="btn-secondary" id="btn-load-more-catalog" style="margin: 0 auto; min-height: 44px; padding: 0 1.5rem;">
+            Tampilkan ${nextBatch} Produk Lagi (${remaining} tersisa)
+          </button>
+        </div>
+      `;
+    }
+
+    this.dom.productGrid.innerHTML = cardsHtml;
   },
 
   renderCart() {
@@ -745,7 +796,11 @@ const UI = {
       return;
     }
 
-    this.dom.transactionsTbody.innerHTML = Store.transactions.map(t => {
+    const maxDisplayTrx = 50;
+    const displayedTransactions = Store.transactions.slice(0, maxDisplayTrx);
+    const hasMore = Store.transactions.length > maxDisplayTrx;
+
+    let rowsHtml = displayedTransactions.map(t => {
       const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join(', ');
       return `
         <tr>
@@ -764,6 +819,18 @@ const UI = {
         </tr>
       `;
     }).join('');
+
+    if (hasMore) {
+      rowsHtml += `
+        <tr>
+          <td colspan="5" style="text-align:center; padding:1rem; color:var(--text-muted); background:var(--bg-subtle); font-size:0.825rem;">
+            Menampilkan 50 transaksi terbaru dari total ${Store.transactions.length} transaksi. Gunakan tombol <strong>"Unduh Berkas CSV"</strong> di atas untuk mengekspor seluruh riwayat.
+          </td>
+        </tr>
+      `;
+    }
+
+    this.dom.transactionsTbody.innerHTML = rowsHtml;
   },
 
   renderThermalReceipt(trx) {
@@ -1431,9 +1498,14 @@ const App = {
       });
     }
 
-    UI.dom.posSearch.addEventListener('input', (e) => {
-      Store.searchQuery = e.target.value;
+    const debouncedCatalogSearch = UTILS.debounce((val) => {
+      Store.searchQuery = val;
+      UI.catalogRenderLimit = 48;
       UI.renderCatalog();
+    }, 120);
+
+    UI.dom.posSearch.addEventListener('input', (e) => {
+      debouncedCatalogSearch(e.target.value);
     });
 
     document.getElementById('btn-clear-cart').addEventListener('click', async () => {
