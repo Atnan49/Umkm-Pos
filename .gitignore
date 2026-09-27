@@ -9,3 +9,11 @@ Thumbs.db
 *.log
 graphify-out/cache/
 graphify-out/.graphify_*
+**/graphify-out/cache/
+App/graphify-out/
+dist-apk/
+**/dist-apk/
+.gradle/
+**/.gradle/
+App/www/
+

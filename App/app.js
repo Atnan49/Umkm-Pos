@@ -171,6 +171,14 @@ const SoundFeedback = {
       console.warn('AudioContext tidak didukung di lingkungan ini', e);
     }
   },
+  unlockAudio() {
+    try {
+      if (!this.ctx) this.init();
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    } catch (e) {}
+  },
   playScan(success = true) {
     if (!Store.outlet.soundBeep) return;
     try {
@@ -1025,11 +1033,11 @@ const UI = {
 
     const itemsHtml = trx.items.map(it => `
       <tr>
-        <td colspan="2" style="font-weight:600;">${it.name}</td>
+        <td colspan="2" style="font-weight:600; padding-top:2px;">${it.name}</td>
       </tr>
       <tr>
-        <td style="color:#222;">${it.qty} x ${FORMAT.currency(it.price)}</td>
-        <td style="text-align:right;">${FORMAT.currency(it.subtotal)}</td>
+        <td style="color:#222; white-space:nowrap;">${it.qty} x ${FORMAT.currency(it.price)}</td>
+        <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(it.subtotal)}</td>
       </tr>
     `).join('');
 
@@ -1037,7 +1045,7 @@ const UI = {
 
     this.dom.receiptContainer.innerHTML = `
       <div class="receipt-header">
-        ${Store.outlet.brandLogo ? `<div style="text-align:center; margin-bottom:4px;"><img src="${Store.outlet.brandLogo}" style="max-height:48px; max-width:120px; object-fit:contain;" alt="Logo"></div>` : ''}
+        ${Store.outlet.brandLogo ? `<div style="text-align:center; margin-bottom:4px;"><img src="${Store.outlet.brandLogo}" style="max-height:48px; max-width:120px; object-fit:contain; background-color:#ffffff;" alt="Logo"></div>` : ''}
         <div class="receipt-title">${(Store.outlet.brandTitle || 'BUKUKASIR UMKM').toUpperCase()}</div>
         <div style="font-weight:600; font-size:12px; margin-top:2px;">${Store.outlet.name || ''}</div>
         <div class="receipt-meta">${Store.outlet.address || ''}</div>
@@ -1052,15 +1060,15 @@ const UI = {
       <table class="receipt-totals">
         <tr>
           <td><strong>TOTAL</strong></td>
-          <td style="text-align:right;"><strong>${FORMAT.currency(trx.total)}</strong></td>
+          <td style="text-align:right; white-space:nowrap;"><strong>${FORMAT.currency(trx.total)}</strong></td>
         </tr>
         <tr>
           <td>Tunai</td>
-          <td style="text-align:right;">${FORMAT.currency(trx.cash)}</td>
+          <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(trx.cash)}</td>
         </tr>
         <tr>
           <td>Kembali</td>
-          <td style="text-align:right;">${FORMAT.currency(trx.change)}</td>
+          <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(trx.change)}</td>
         </tr>
       </table>
       <div class="receipt-footer">
@@ -1094,6 +1102,11 @@ const AppDialog = {
     }
     if (this.confirmBtn) {
       this.confirmBtn.addEventListener('click', () => this.close(true));
+    }
+    if (this.overlay) {
+      this.overlay.addEventListener('click', (e) => {
+        if (e.target === this.overlay) this.close(false);
+      });
     }
   },
 
@@ -1330,6 +1343,14 @@ const App = {
       } catch (err) {
         console.warn('Gagal memuat printer:', err);
       }
+    } else if (window.AndroidBridge) {
+      if (UI.dom.settingPrinterSelect) {
+        UI.dom.settingPrinterSelect.innerHTML = '<option value="">Layanan Cetak Android (Bluetooth / USB / Wi-Fi / PDF)</option>';
+      }
+      if (UI.dom.printerDetectHint) {
+        UI.dom.printerDetectHint.textContent = '✓ Mode Android: Terintegrasi dengan dialog cetak sistem & berbagi struk WhatsApp.';
+        UI.dom.printerDetectHint.style.color = 'var(--color-success)';
+      }
     } else {
       if (UI.dom.printerDetectHint) {
         UI.dom.printerDetectHint.textContent = 'Mode Web Standar (Menjalankan dialog cetak browser).';
@@ -1505,16 +1526,53 @@ const App = {
       UI.dom.printShelfContainer.innerHTML = labelHtml;
     }
 
-    if (window.posBridge && Store.outlet.silentPrint) {
+    const fullLabelHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page { size: auto; margin: 0; }
+          body {
+            margin: 0;
+            padding: 4px;
+            font-family: system-ui, -apple-system, sans-serif;
+            width: 56mm;
+            text-align: center;
+          }
+          .print-shelf-shop { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
+          .print-shelf-name { font-size: 13px; font-weight: 800; line-height: 1.2; margin-bottom: 3px; }
+          .print-shelf-price { font-family: monospace; font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+          .print-shelf-barcode svg { max-width: 100%; height: 44px; margin: 0 auto; display: block; }
+          .print-shelf-digits { font-family: monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; margin-top: 2px; }
+        </style>
+      </head>
+      <body>
+        ${labelHtml}
+      </body>
+      </html>
+    `;
+
+    if (window.posBridge) {
       try {
+        const isSilent = Store.outlet.silentPrint !== false;
         await window.posBridge.printReceipt({
           receiptHtml: labelHtml,
           deviceName: Store.outlet.printerName || undefined,
           paperWidth: '58mm',
-          silent: true
+          silent: isSilent
         });
         UI.showScannerToast(`🏷️ Label rak "${prod.name}" terkirim ke printer thermal`, false);
       } catch (err) {
+        document.body.classList.add('printing-shelf-label');
+        window.print();
+        setTimeout(() => document.body.classList.remove('printing-shelf-label'), 600);
+      }
+    } else if (window.AndroidBridge && window.AndroidBridge.printReceiptHtml) {
+      try {
+        window.AndroidBridge.printReceiptHtml(`Label_${prod.name}`, fullLabelHtml);
+        UI.showScannerToast(`🏷️ Label rak dikirim ke layanan cetak`, false);
+      } catch (e) {
         document.body.classList.add('printing-shelf-label');
         window.print();
         setTimeout(() => document.body.classList.remove('printing-shelf-label'), 600);
@@ -1524,19 +1582,45 @@ const App = {
       window.print();
       setTimeout(() => document.body.classList.remove('printing-shelf-label'), 600);
     }
+
+    setTimeout(() => {
+      if (UI.dom.printShelfContainer) {
+        UI.dom.printShelfContainer.innerHTML = '';
+      }
+    }, 1200);
   },
 
-  copyShelfBarcode() {
+  async copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {}
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async copyShelfBarcode() {
     const prod = Store.products.find(p => p.id === this.activeShelfProductId) || Store.products[0];
     if (!prod) return;
     const code = prod.barcode || prod.id;
 
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(code).then(() => {
-        UI.showScannerToast(`📋 Angka barcode "${code}" berhasil disalin`, false);
-      }).catch(() => {
-        UI.showScannerToast(`Barcode: ${code}`, false);
-      });
+    const ok = await this.copyText(code);
+    if (ok) {
+      UI.showScannerToast(`📋 Angka barcode "${code}" berhasil disalin`, false);
     } else {
       UI.showScannerToast(`Barcode: ${code}`, false);
     }
@@ -1622,43 +1706,8 @@ const App = {
     const trx = result.transaction;
     UI.renderThermalReceipt(trx);
 
-    // Hardware Printing via Electron IPC
-    if (window.posBridge && Store.outlet.silentPrint) {
-      try {
-        const res = await window.posBridge.printReceipt({
-          receiptHtml: UI.dom.receiptContainer.innerHTML,
-          deviceName: Store.outlet.printerName || undefined,
-          paperWidth: Store.outlet.paperWidth || '58mm',
-          silent: true
-        });
-        if (res && res.success) {
-          UI.showScannerToast('✓ Transaksi Selesai & Struk Tercetak Otomatis', false);
-        } else {
-          console.warn('Printer hardware error, fallback ke dialog:', res.error);
-          const wantManual = await AppDialog.confirm({
-            title: 'Printer Tidak Merespon',
-            message: `Gagal mencetak otomatis (${(res && res.error) || 'Perangkat tidak merespon'}). Cetak manual lewat dialog sistem?`,
-            confirmText: 'Cetak Manual',
-            cancelText: 'Lewati',
-            icon: '🖨️'
-          });
-          if (wantManual) window.print();
-        }
-      } catch (err) {
-        window.print();
-      }
-    } else {
-      const wantPrint = await AppDialog.confirm({
-        title: 'Transaksi Berhasil',
-        message: `Pelanggan: ${trx.customerName || 'Umum'}\nTotal Belanja: ${FORMAT.currency(trx.total)}\nUang Tunai: ${FORMAT.currency(trx.cash)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`,
-        confirmText: 'Cetak Struk',
-        cancelText: 'Selesai (Tanpa Cetak)',
-        icon: '🧾'
-      });
-      if (wantPrint) {
-        window.print();
-      }
-    }
+    // Prompt user for printing or digital receipt
+    await this.promptPrintReceipt(trx);
 
     if (UI.dom.customerNameInput) {
       UI.dom.customerNameInput.value = '';
@@ -1668,29 +1717,321 @@ const App = {
     UI.dom.posCartPanel.classList.remove('mobile-open');
   },
 
-  async reprintReceipt(transId) {
-    const trx = Store.transactions.find(t => t.id === transId);
-    if (!trx) return;
-    UI.renderThermalReceipt(trx);
-
-    if (window.posBridge && Store.outlet.silentPrint) {
-      try {
-        await window.posBridge.printReceipt({
-          receiptHtml: UI.dom.receiptContainer.innerHTML,
-          deviceName: Store.outlet.printerName || undefined,
-          paperWidth: Store.outlet.paperWidth || '58mm',
-          silent: true
-        });
-        UI.showScannerToast('✓ Cetak Ulang Struk Terkirim ke Printer', false);
-      } catch (e) {
-        window.print();
-      }
-    } else {
-      window.print();
+  async promptPrintReceipt(trx) {
+    const wantPrint = await AppDialog.confirm({
+      title: 'Transaksi Berhasil',
+      message: `Pelanggan: ${trx.customerName || 'Umum'}\nTotal Belanja: ${FORMAT.currency(trx.total)}\nUang Tunai: ${FORMAT.currency(trx.cash)}\nKembalian: ${FORMAT.currency(trx.change)}\n\nCetak struk belanja sekarang?`,
+      confirmText: 'Cetak Struk',
+      cancelText: 'Selesai (Tanpa Cetak)',
+      icon: '🧾'
+    });
+    if (wantPrint) {
+      await this.executePrintReceipt(trx);
     }
   },
 
-  exportCSV() {
+  generateReceiptHtml(trx) {
+    const is80mm = Store.outlet.paperWidth === '80mm';
+    const width = is80mm ? '74mm' : '56mm';
+    const fontSize = is80mm ? '13px' : '11px';
+
+    const itemsRows = (trx.items || []).map(it => `
+      <tr>
+        <td colspan="2" style="font-weight:bold; padding-top:2px;">${it.name}</td>
+      </tr>
+      <tr>
+        <td style="color:#222; white-space:nowrap;">${it.qty} x ${FORMAT.currency(it.price)}</td>
+        <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(it.subtotal)}</td>
+      </tr>
+    `).join('');
+
+    const customerDisplay = (trx.customerName || 'Umum').toUpperCase();
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Struk_${trx.id}</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          @page { size: auto; margin: 0; }
+          body {
+            margin: 0;
+            padding: 6mm 4mm 6mm 8mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: ${fontSize};
+            line-height: 1.25;
+            color: #000;
+            width: ${width};
+            max-width: 100%;
+            word-break: break-word;
+          }
+          .receipt-header { text-align: center; margin-bottom: 6px; border-bottom: 1px dashed #000; padding-bottom: 6px; }
+          .receipt-header img { max-height: 48px; max-width: 120px; object-fit: contain; background-color: #ffffff; }
+          .receipt-title { font-size: ${is80mm ? '15px' : '13px'}; font-weight: bold; text-transform: uppercase; }
+          .receipt-meta { font-size: ${is80mm ? '11px' : '10px'}; margin-top: 2px; }
+          .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+          .receipt-table td { padding: 2px 0; vertical-align: top; }
+          .receipt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
+          .receipt-totals { width: 100%; margin-top: 4px; border-collapse: collapse; }
+          .receipt-totals td { padding: 2px 0; }
+          .receipt-footer { text-align: center; margin-top: 8px; font-size: ${is80mm ? '11px' : '10px'}; border-top: 1px dashed #000; padding-top: 6px; }
+          .receipt-tear-feed { height: 10mm; }
+        </style>
+      </head>
+      <body>
+        <div class="receipt-header">
+          ${Store.outlet.brandLogo ? `<div style="text-align:center; margin-bottom:4px;"><img src="${Store.outlet.brandLogo}" style="max-height:48px; max-width:120px; object-fit:contain; background-color:#ffffff;" alt="Logo"></div>` : ''}
+          <div class="receipt-title">${(Store.outlet.brandTitle || 'BUKUKASIR UMKM').toUpperCase()}</div>
+          <div style="font-weight:bold; font-size:${is80mm ? '13px' : '11px'}; margin-top:2px;">${Store.outlet.name || ''}</div>
+          <div class="receipt-meta">${Store.outlet.address || ''}</div>
+          <div class="receipt-meta">No: ${trx.id} | ${FORMAT.dateTime(trx.timestamp)}</div>
+          <div class="receipt-meta">Pelanggan: <strong>${customerDisplay}</strong></div>
+        </div>
+        <div class="receipt-divider"></div>
+        <table class="receipt-table">
+          <tbody>${itemsRows}</tbody>
+        </table>
+        <div class="receipt-divider"></div>
+        <table class="receipt-totals">
+          <tr>
+            <td><strong>TOTAL</strong></td>
+            <td style="text-align:right; white-space:nowrap;"><strong>${FORMAT.currency(trx.total)}</strong></td>
+          </tr>
+          <tr>
+            <td>Tunai</td>
+            <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(trx.cash)}</td>
+          </tr>
+          <tr>
+            <td>Kembali</td>
+            <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(trx.change)}</td>
+          </tr>
+        </table>
+        <div class="receipt-footer">
+          <div>${Store.outlet.footer || 'Terima kasih atas kunjungan Anda!'}</div>
+          <div style="margin-top:2px;">Barang yang sudah dibeli tidak dapat ditukar</div>
+        </div>
+        <div class="receipt-tear-feed"></div>
+      </body>
+      </html>
+    `;
+  },
+
+  formatReceiptText(trx) {
+    const itemsList = (trx.items || []).map(it => `• ${it.name}\n  ${it.qty}x @ ${FORMAT.currency(it.price)} = ${FORMAT.currency(it.subtotal)}`).join('\n');
+    return `🧾 *${(Store.outlet.brandTitle || 'BUKUKASIR UMKM').toUpperCase()}*\n` +
+           `*${Store.outlet.name || 'Toko'}*\n` +
+           `${Store.outlet.address ? Store.outlet.address + '\n' : ''}` +
+           `--------------------------------\n` +
+           `No: ${trx.id}\n` +
+           `Waktu: ${FORMAT.dateTime(trx.timestamp)}\n` +
+           `Pelanggan: ${(trx.customerName || 'Umum').toUpperCase()}\n` +
+           `--------------------------------\n` +
+           `${itemsList}\n` +
+           `--------------------------------\n` +
+           `*TOTAL: ${FORMAT.currency(trx.total)}*\n` +
+           `Tunai: ${FORMAT.currency(trx.cash)}\n` +
+           `Kembali: ${FORMAT.currency(trx.change)}\n` +
+           `--------------------------------\n` +
+           `${Store.outlet.footer || 'Terima kasih atas kunjungan Anda!'}\n` +
+           `Barang yang sudah dibeli tidak dapat ditukar.`;
+  },
+
+  async executePrintReceipt(trx) {
+    UI.renderThermalReceipt(trx);
+    const receiptHtml = this.generateReceiptHtml(trx);
+
+    // 1. Electron Desktop Hardware Printing
+    if (window.posBridge) {
+      try {
+        const isSilent = Store.outlet.silentPrint !== false;
+        const res = await window.posBridge.printReceipt({
+          receiptHtml: UI.dom.receiptContainer.innerHTML,
+          deviceName: Store.outlet.printerName || undefined,
+          paperWidth: Store.outlet.paperWidth || '58mm',
+          silent: isSilent
+        });
+        if (res && res.success) {
+          UI.showScannerToast(isSilent ? '✓ Transaksi Selesai & Struk Tercetak' : '✓ Dialog Cetak Dibuka', false);
+          return true;
+        } else {
+          console.warn('Printer hardware error:', res && res.error);
+          return await this.handlePrinterError(trx, res ? res.error : 'Perangkat tidak merespon');
+        }
+      } catch (err) {
+        console.warn('Printer error:', err);
+        return await this.handlePrinterError(trx, err.message);
+      }
+    }
+
+    // 2. Android Native Print Integration
+    if (window.AndroidBridge && window.AndroidBridge.printReceiptHtml) {
+      try {
+        const success = window.AndroidBridge.printReceiptHtml(`Struk_${trx.id}`, receiptHtml);
+        if (success) {
+          UI.showScannerToast('✓ Membuka dialog pencetakan struk...', false);
+          return true;
+        } else {
+          return await this.handlePrinterError(trx, 'Layanan pencetakan tidak tersedia');
+        }
+      } catch (err) {
+        console.warn('AndroidBridge print error:', err);
+        return await this.handlePrinterError(trx, err.message);
+      }
+    }
+
+    // 3. Web Standard Dialog Print
+    try {
+      window.print();
+      return true;
+    } catch (err) {
+      return await this.handlePrinterError(trx, err.message);
+    }
+  },
+
+  async handlePrinterError(trx, errorMsg) {
+    const wantShare = await AppDialog.confirm({
+      title: 'Perangkat Printer Belum Terhubung',
+      message: `Tidak dapat mencetak ke printer fisik (${errorMsg || 'Perangkat tidak terdeteksi'}).\n\nPetunjuk:\n1. Pastikan printer thermal (Bluetooth/USB) dalam keadaan MENYALA (ON).\n2. Hubungkan/pairing printer di menu Bluetooth HP Anda.\n3. Anda juga dapat menggunakan aplikasi driver seperti 'RawBT Print Service' dari Play Store.\n\nKirim struk digital sekarang via WhatsApp?`,
+      confirmText: 'Kirim via WhatsApp',
+      cancelText: 'Tutup',
+      icon: '🖨️'
+    });
+
+    if (wantShare) {
+      await this.shareReceiptWhatsApp(trx);
+    }
+    return false;
+  },
+
+  async shareReceiptWhatsApp(trx) {
+    const text = this.formatReceiptText(trx);
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Struk Belanja ${trx.id}`,
+          text: text
+        });
+        UI.showScannerToast('✓ Struk berhasil dibagikan', false);
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    if (window.AndroidBridge && window.AndroidBridge.openUrl) {
+      window.AndroidBridge.openUrl(waUrl);
+    } else {
+      window.open(waUrl, '_blank');
+    }
+  },
+
+  handleHardwareBack() {
+    if (CameraScanner.isScanning || (document.getElementById('camera-scanner-modal') && document.getElementById('camera-scanner-modal').classList.contains('active'))) {
+      CameraScanner.close();
+      return true;
+    }
+    if (AppDialog.overlay && AppDialog.overlay.classList.contains('active')) {
+      AppDialog.close(false);
+      return true;
+    }
+    if (UI.dom.productModal && UI.dom.productModal.classList.contains('active')) {
+      this.closeProductModal();
+      return true;
+    }
+    if (UI.dom.settingsModal && UI.dom.settingsModal.classList.contains('active')) {
+      this.closeSettings();
+      return true;
+    }
+    if (UI.dom.posCartPanel && UI.dom.posCartPanel.classList.contains('mobile-open')) {
+      UI.dom.posCartPanel.classList.remove('mobile-open');
+      return true;
+    }
+    const activeView = document.querySelector('.app-view.active');
+    if (activeView && activeView.id !== 'view-pos') {
+      this.switchView('pos');
+      return true;
+    }
+    return false;
+  },
+
+  async reprintReceipt(transId) {
+    const trx = Store.transactions.find(t => t.id === transId);
+    if (!trx) {
+      AppDialog.alert({
+        title: 'Transaksi Tidak Ditemukan',
+        message: 'Data struk untuk transaksi ini tidak tersedia.',
+        icon: '⚠️'
+      });
+      return;
+    }
+    await this.executePrintReceipt(trx);
+  },
+
+  async saveOrShareFile(filename, content, mimeType, title) {
+    // 1. Android Bridge Native Save to Downloads & Share
+    if (window.AndroidBridge) {
+      try {
+        const saved = window.AndroidBridge.saveFileToDownloads(filename, content, mimeType);
+        window.AndroidBridge.shareFile(filename, content, mimeType, title);
+        if (saved) {
+          UI.showScannerToast(`✓ Berkas tersimpan di folder Download/BukuKasir`, false);
+        }
+        return true;
+      } catch (err) {
+        console.warn('AndroidBridge file handling error:', err);
+      }
+    }
+
+    // 2. Web Share API with File
+    const blob = new Blob([content], { type: mimeType });
+    if (navigator.canShare) {
+      try {
+        const file = new File([blob], filename, { type: mimeType });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: title || filename,
+            text: `Berkas ${filename} dari BukuKasir UMKM`
+          });
+          UI.showScannerToast(`✓ Berkas ${filename} berhasil dibagikan`, false);
+          return true;
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          return true;
+        }
+        console.warn('Web Share failed, fallback to anchor download:', err);
+      }
+    }
+
+    // 3. Desktop Electron & Standard Web Anchor Download
+    try {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 2000);
+      UI.showScannerToast(`✓ Berkas ${filename} siap diunduh`, false);
+      return true;
+    } catch (err) {
+      console.error('Download failed:', err);
+      AppDialog.alert({
+        title: 'Gagal Mengunduh Berkas',
+        message: 'Tidak dapat menyimpan atau membagikan berkas: ' + err.message,
+        icon: '⚠️'
+      });
+      return false;
+    }
+  },
+
+  async exportCSV() {
     const period = Store.activeReportPeriod || 'all';
     const list = Store.getFilteredTransactions(period);
 
@@ -1703,55 +2044,92 @@ const App = {
       return;
     }
 
-    let csv = '\uFEFFID_Transaksi,Waktu,Nama_Pelanggan,Total_Penjualan,Modal_HPP,Laba_Bersih,Daftar_Barang\n';
-    list.forEach(t => {
-      const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join('; ').replace(/"/g, '""');
-      const custName = (t.customerName || 'Umum').replace(/"/g, '""');
-      csv += `"${t.id}","${t.timestamp}","${custName}",${Math.round(t.total || 0)},${Math.round(t.cogs || 0)},${Math.round(t.profit || 0)},"${itemsText}"\n`;
-    });
+    try {
+      let csv = '\uFEFFID_Transaksi,Waktu,Nama_Pelanggan,Total_Penjualan,Modal_HPP,Laba_Bersih,Daftar_Barang\n';
+      list.forEach(t => {
+        const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join('; ').replace(/"/g, '""');
+        const custName = (t.customerName || 'Umum').replace(/"/g, '""');
+        csv += `"${t.id}","${t.timestamp}","${custName}",${Math.round(t.total || 0)},${Math.round(t.cogs || 0)},${Math.round(t.profit || 0)},"${itemsText}"\n`;
+      });
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Laporan_BukuKasir_${period}_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+      const filename = `Laporan_BukuKasir_${period}_${new Date().toISOString().slice(0, 10)}.csv`;
+      await this.saveOrShareFile(filename, csv, 'text/csv;charset=utf-8;', `Laporan Transaksi BukuKasir (${period})`);
+    } catch (err) {
+      AppDialog.alert({
+        title: 'Gagal Ekspor CSV',
+        message: 'Terjadi kesalahan saat memproses laporan CSV: ' + err.message,
+        icon: '⚠️'
+      });
+    }
   },
 
-  exportJSON() {
-    const data = {
-      outlet: Store.outlet,
-      products: Store.products,
-      transactions: Store.transactions,
-      exportDate: new Date().toISOString(),
-      schemaVersion: 2
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Cadangan_BukuKasir_${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
+  async exportJSON() {
+    try {
+      const data = {
+        outlet: Store.outlet,
+        products: Store.products,
+        transactions: Store.transactions,
+        exportDate: new Date().toISOString(),
+        schemaVersion: 2
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const filename = `Cadangan_BukuKasir_${new Date().toISOString().slice(0, 10)}.json`;
+      await this.saveOrShareFile(filename, jsonStr, 'application/json', 'Cadangan Data Toko BukuKasir');
+    } catch (err) {
+      AppDialog.alert({
+        title: 'Gagal Cadangkan Data',
+        message: 'Terjadi kesalahan saat membuat berkas cadangan: ' + err.message,
+        icon: '⚠️'
+      });
+    }
   },
 
   importJSON(file) {
-    if (!file) return;
+    if (!file) {
+      AppDialog.alert({
+        title: 'Tidak Ada Berkas',
+        message: 'Silakan pilih berkas cadangan .json untuk dipulihkan.',
+        icon: 'ℹ️'
+      });
+      return;
+    }
+
+    if (file.size > 25 * 1024 * 1024) {
+      AppDialog.alert({
+        title: 'Ukuran Berkas Terlalu Besar',
+        message: 'Ukuran berkas cadangan melebihi batas 25 MB.',
+        icon: '⚠️'
+      });
+      return;
+    }
+
     const reader = new FileReader();
+    reader.onerror = () => {
+      AppDialog.alert({
+        title: 'Gagal Membaca Berkas',
+        message: 'Sistem tidak dapat membaca berkas yang dipilih.',
+        icon: '❌'
+      });
+    };
     reader.onload = async (e) => {
       try {
-        const data = JSON.parse(e.target.result);
-        if (Array.isArray(data.products) && Array.isArray(data.transactions)) {
+        const text = e.target.result;
+        const data = JSON.parse(text);
+        if (data && (Array.isArray(data.products) || Array.isArray(data.transactions))) {
+          const prodCount = (data.products && data.products.length) || 0;
+          const trCount = (data.transactions && data.transactions.length) || 0;
+
           const ok = await AppDialog.confirm({
             title: 'Pulihkan Data Toko',
-            message: 'Pulihkan data dari cadangan ini? Data produk dan riwayat toko saat ini akan digantikan.',
+            message: `Ditemukan berkas cadangan:\n• Produk: ${prodCount} barang\n• Transaksi: ${trCount} riwayat\n\nPulihkan data toko sekarang? Data aktif saat ini akan diperbarui.`,
             confirmText: 'Pulihkan Sekarang',
             cancelText: 'Batal',
             isDanger: true,
             icon: '⚠️'
           });
           if (ok) {
-            Store.products = data.products;
-            Store.transactions = data.transactions;
+            if (Array.isArray(data.products)) Store.products = data.products;
+            if (Array.isArray(data.transactions)) Store.transactions = data.transactions;
             if (data.outlet) Store.outlet = { ...CONFIG.DEFAULT_OUTLET, ...data.outlet };
             Store.saveProducts();
             Store.saveTransactions();
@@ -1767,15 +2145,15 @@ const App = {
           }
         } else {
           AppDialog.alert({
-            title: 'Format Berkas Salah',
-            message: 'Format berkas cadangan tidak dikenali. Pastikan memilih berkas .json yang valid.',
+            title: 'Format Berkas Tidak Sesuai',
+            message: 'Berkas JSON yang dipilih bukan cadangan resmi BukuKasir UMKM. Pastikan berkas memiliki data produk atau transaksi.',
             icon: '❌'
           });
         }
       } catch (err) {
         AppDialog.alert({
-          title: 'Gagal Membaca Berkas',
-          message: 'Berkas cadangan tidak dapat diproses: ' + err.message,
+          title: 'Berkas Rusak / Tidak Valid',
+          message: 'Gagal memproses berkas cadangan: ' + err.message + '\nPastikan format JSON tidak rusak.',
           icon: '❌'
         });
       }
@@ -1955,8 +2333,11 @@ const App = {
             canvas.width = w;
             canvas.height = h;
             const ctx = canvas.getContext('2d');
+            // Isi latar belakang dengan warna putih bersih agar gambar PNG transparan tidak menjadi hitam pekat
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
             ctx.drawImage(img, 0, 0, w, h);
-            this.tempLogo = canvas.toDataURL('image/jpeg', 0.85);
+            this.tempLogo = canvas.toDataURL('image/png');
 
             const preview = document.getElementById('setting-logo-preview');
             if (preview) {
@@ -1976,6 +2357,25 @@ const App = {
         const preview = document.getElementById('setting-logo-preview');
         if (preview) preview.textContent = '🏪';
         if (logoInput) logoInput.value = '';
+      });
+    }
+
+    const btnTestPrint = document.getElementById('btn-test-print');
+    if (btnTestPrint) {
+      btnTestPrint.addEventListener('click', async () => {
+        const sampleTrx = {
+          id: 'TEST-' + Math.floor(1000 + Math.random() * 9000),
+          timestamp: new Date().toISOString(),
+          customerName: 'Uji Coba Printer',
+          items: [
+            { name: 'Indomie Goreng + Telur', qty: 2, price: 12000, subtotal: 24000 },
+            { name: 'Es Teh Manis', qty: 1, price: 5000, subtotal: 5000 }
+          ],
+          total: 29000,
+          cash: 50000,
+          change: 21000
+        };
+        await App.executePrintReceipt(sampleTrx);
       });
     }
 
@@ -2017,13 +2417,49 @@ const App = {
     if (btnScannerCancel) {
       btnScannerCancel.addEventListener('click', () => CameraScanner.close());
     }
+    const modalScanner = document.getElementById('camera-scanner-modal');
+    if (modalScanner) {
+      modalScanner.addEventListener('click', (e) => {
+        if (e.target === modalScanner) CameraScanner.close();
+      });
+    }
 
-    document.getElementById('btn-export-csv').addEventListener('click', () => this.exportCSV());
-    document.getElementById('btn-export-data').addEventListener('click', () => this.exportJSON());
-    document.getElementById('input-import-data').addEventListener('change', (e) => {
-      this.importJSON(e.target.files[0]);
-      e.target.value = '';
-    });
+    if (UI.dom.productModal) {
+      UI.dom.productModal.addEventListener('click', (e) => {
+        if (e.target === UI.dom.productModal) this.closeProductModal();
+      });
+    }
+
+    if (UI.dom.settingsModal) {
+      UI.dom.settingsModal.addEventListener('click', (e) => {
+        if (e.target === UI.dom.settingsModal) this.closeSettings();
+      });
+    }
+
+    // Audio unlock listener for mobile WebViews
+    const unlockAudioOnce = () => SoundFeedback.unlockAudio();
+    window.addEventListener('click', unlockAudioOnce, { once: true });
+    window.addEventListener('touchstart', unlockAudioOnce, { once: true });
+
+    const btnExportCsv = document.getElementById('btn-export-csv');
+    if (btnExportCsv) {
+      btnExportCsv.addEventListener('click', () => this.exportCSV());
+    }
+
+    const btnExportData = document.getElementById('btn-export-data');
+    if (btnExportData) {
+      btnExportData.addEventListener('click', () => this.exportJSON());
+    }
+
+    const inputImportData = document.getElementById('input-import-data');
+    if (inputImportData) {
+      inputImportData.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          this.importJSON(e.target.files[0]);
+        }
+        e.target.value = '';
+      });
+    }
 
     const reportPeriodPills = document.getElementById('report-period-pills');
     if (reportPeriodPills) {

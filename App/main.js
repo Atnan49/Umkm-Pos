@@ -10,7 +10,7 @@ function createWindow() {
     minWidth: 980,
     minHeight: 650,
     title: 'BukuKasir UMKM - Desktop POS Kasir',
-    icon: path.join(__dirname, 'icon.svg'),
+    icon: path.join(__dirname, 'icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -49,10 +49,11 @@ ipcMain.handle('pos:get-printers', async () => {
 ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, silent = true, paperWidth = '58mm' }) => {
   return new Promise((resolve) => {
     const is80mm = paperWidth === '80mm';
+    const targetWidth = is80mm ? '74mm' : '56mm';
     const printWin = new BrowserWindow({
       show: false,
-      width: is80mm ? 400 : 300,
-      height: 600,
+      width: is80mm ? 420 : 350,
+      height: 650,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true
@@ -68,28 +69,52 @@ ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, sil
       <head>
         <meta charset="UTF-8">
         <style>
-          @page { size: auto; margin: 0mm; }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          @page {
+            size: auto;
+            margin: 0mm;
+          }
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: #fff;
+          }
           body {
             margin: 0;
-            padding: 4px;
+            padding: 6mm 4mm 6mm 8mm;
             font-family: 'Courier New', Courier, monospace;
             font-size: ${is80mm ? '13px' : '11px'};
             line-height: 1.25;
             color: #000;
-            width: ${is80mm ? '74mm' : '56mm'};
+            width: ${targetWidth};
+            max-width: 100%;
+            word-break: break-word;
           }
           .receipt-header { text-align: center; margin-bottom: 6px; border-bottom: 1px dashed #000; padding-bottom: 6px; }
+          .receipt-header img { max-height: 48px; max-width: 120px; object-fit: contain; background-color: #ffffff; }
           .receipt-title { font-size: ${is80mm ? '15px' : '13px'}; font-weight: bold; text-transform: uppercase; }
           .receipt-meta { font-size: ${is80mm ? '11px' : '10px'}; margin-top: 2px; }
           .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-          .receipt-table td { padding: 2px 0; }
+          .receipt-table td { padding: 2px 0; vertical-align: top; }
           .receipt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
-          .receipt-totals { width: 100%; margin-top: 4px; }
+          .receipt-totals { width: 100%; margin-top: 4px; border-collapse: collapse; }
           .receipt-totals td { padding: 2px 0; }
           .receipt-footer { text-align: center; margin-top: 8px; font-size: ${is80mm ? '11px' : '10px'}; border-top: 1px dashed #000; padding-top: 6px; }
           .receipt-tear-feed { height: 12mm; }
+          .nowrap { white-space: nowrap; }
 
           /* Shelf Label Styles for Thermal Stickers */
+          .print-shelf-container {
+            width: 100%;
+            max-width: ${targetWidth};
+            text-align: center;
+            padding: 2mm;
+            border: 1px dashed #000;
+          }
           .print-shelf-shop { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
           .print-shelf-name { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 3px; }
           .print-shelf-price { font-family: monospace; font-size: 16px; font-weight: 800; text-align: center; margin-bottom: 4px; }
@@ -111,7 +136,7 @@ ipcMain.handle('pos:print-receipt', async (event, { receiptHtml, deviceName, sil
       const options = {
         silent: silent,
         printBackground: true,
-        margins: { marginType: 'none' }
+        margins: { marginType: 'printableArea' }
       };
 
       if (deviceName) {

@@ -137,6 +137,14 @@ body {
   line-height: 1;
 }
 
+.brand-logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  display: block;
+}
+
 .brand-name {
   font-size: 1.125rem;
   font-weight: 800;
@@ -279,27 +287,6 @@ body {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  background-color: var(--color-brand-light);
-  border: 1px solid var(--color-brand-border);
-  border-radius: var(--radius-pill);
-  color: var(--color-brand);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--color-brand);
-}
-
 .hero-title {
   font-size: 2.5rem;
   font-weight: 800;
@@ -389,6 +376,35 @@ body {
 .perk-icon {
   font-size: 1.5rem;
   line-height: 1;
+}
+
+.perk-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  flex-shrink: 0;
+  border: 1px solid var(--color-brand-border);
+}
+
+.perk-icon-svg svg {
+  display: block;
+}
+
+/* Taste-Skill: Tactile Feedback on Active Press */
+.btn-primary-action:active,
+.btn-secondary-head:active,
+.btn-cta-primary:active,
+.btn-cta-secondary:active,
+.btn-download-primary:active,
+.btn-tier:active,
+.btn-sim-pay:active,
+.btn-pwa-open:active {
+  transform: translateY(1px) scale(0.985);
 }
 
 .perk-text strong {
@@ -677,6 +693,22 @@ section {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.sim-tip-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-brand);
+  background-color: var(--color-brand-light);
+  border: 1px solid var(--color-brand-border);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.35rem;
 }
 
 /* Nota Samping POS */
@@ -1359,9 +1391,16 @@ section {
 }
 
 .feature-icon {
-  font-size: 2rem;
-  margin-bottom: 0.875rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand-border);
+  margin-bottom: 1rem;
 }
 
 .feature-title {
@@ -1444,9 +1483,17 @@ section {
   border-radius: var(--radius-md);
 }
 
-.usecase-emoji {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+.usecase-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand-border);
+  margin-bottom: 1rem;
 }
 
 .usecase-card h3 {
@@ -1463,11 +1510,16 @@ section {
 }
 
 /* ==========================================================================
-   Pricing Section
+   Pricing Section (Single Package - Rp 90.000 Lifetime)
    ========================================================================== */
 .pricing-section {
   background-color: var(--bg-page);
   border-top: 1px solid var(--border-subtle);
+}
+
+.single-pricing-wrap {
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .pricing-cards-grid {
@@ -1492,6 +1544,15 @@ section {
   box-shadow: var(--shadow-md);
 }
 
+.single-plan-card {
+  padding: 2.75rem 2.25rem 2.25rem 2.25rem;
+  border: 2px solid var(--color-brand);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
 .featured-badge {
   position: absolute;
   top: -12px;
@@ -1513,40 +1574,41 @@ section {
 }
 
 .tier-name {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 0.35rem;
 }
 
 .tier-subtitle {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
   margin-bottom: 1.25rem;
-  min-height: 2.4rem;
+  line-height: 1.5;
 }
 
 .tier-price-box {
   display: flex;
   align-items: baseline;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.35rem;
 }
 
 .tier-currency {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
 .tier-number {
-  font-size: 2.25rem;
+  font-size: 2.75rem;
   font-weight: 800;
   color: var(--text-main);
   letter-spacing: -0.03em;
 }
 
 .tier-freq {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -1563,6 +1625,54 @@ section {
   line-height: 1.45;
 }
 
+.single-plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.75rem 0 2rem 0;
+  padding: 0;
+}
+
+.single-plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.check-icon-svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid #a7f3d0;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.check-icon-svg svg {
+  display: block;
+}
+
+.pricing-card-action {
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-guarantee {
+  display: block;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+}
+
 .tier-features-list strong {
   color: var(--text-main);
 }
@@ -1572,16 +1682,16 @@ section {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.25rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-sm);
   color: var(--text-main);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   text-decoration: none;
   cursor: pointer;
-  min-height: 44px;
+  min-height: 48px;
   transition: all 0.15s ease;
 }
 
@@ -1767,8 +1877,17 @@ section {
   gap: 0.75rem;
 }
 
-.support-icon {
-  font-size: 1.25rem;
+.support-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand-border);
+  flex-shrink: 0;
 }
 
 .support-item strong {
@@ -2385,6 +2504,38 @@ section {
   border-color: var(--color-primary);
 }
 
+.selected-plan-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background-color: var(--color-brand-light);
+  border: 1px solid var(--color-brand-border);
+  border-radius: var(--radius-sm);
+  margin-top: 0.25rem;
+}
+
+.plan-banner-text strong {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--color-brand-hover);
+}
+
+.plan-banner-text span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.plan-banner-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-brand);
+  white-space: nowrap;
+}
+
 .platform-choice-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2411,8 +2562,19 @@ section {
   margin-top: 0.2rem;
 }
 
-.platform-choice-card .choice-content strong {
-  display: block;
+.choice-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.choice-title-row svg {
+  flex-shrink: 0;
+  color: var(--color-brand);
+}
+
+.choice-title-row strong {
   font-size: 0.8125rem;
   color: var(--text-main);
   line-height: 1.2;
@@ -2806,4 +2968,17 @@ section {
     justify-content: center;
   }
 }
+
+/* Taste-Skill: Reduced Motion Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 

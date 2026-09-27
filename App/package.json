@@ -6,7 +6,9 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "prepare:android": "node prepare-www.js && npx cap sync android",
+    "build:apk": "node prepare-www.js && npx cap sync android && cd android && gradlew assembleDebug"
   },
   "keywords": [
     "pos",
@@ -25,15 +27,26 @@
     "copyright": "Copyright (c) 2026 Atnan49. All rights reserved.",
     "files": [
       "**/*",
-      "!node_modules/.cache/**"
+      "!android/**",
+      "!www/**",
+      "!dist-apk/**",
+      "!graphify-out/**",
+      "!node_modules/.cache/**",
+      "!generate-android-icons.js",
+      "!generate-icons.js",
+      "!prepare-www.js",
+      "!build-apk.bat",
+      "!capacitor.config.ts",
+      "!DESIGN.md",
+      "!MAINTENANCE.md",
+      "!*.bat"
     ],
     "win": {
       "target": [
         {
           "target": "nsis",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         }
       ],
@@ -70,6 +83,9 @@
     "sharp": "^0.35.4"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "html5-qrcode": "^2.3.8"
   }
 }

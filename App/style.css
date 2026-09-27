@@ -80,13 +80,14 @@ body {
 }
 
 .app-header {
-  height: 64px;
+  min-height: 64px;
+  height: calc(64px + env(safe-area-inset-top, 0px));
   background-color: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
+  padding: env(safe-area-inset-top, 0px) calc(1.25rem + env(safe-area-inset-right, 0px)) 0 calc(1.25rem + env(safe-area-inset-left, 0px));
   position: sticky;
   top: 0;
   z-index: 30;
@@ -1811,8 +1812,9 @@ input[type="number"] {
 @media (max-width: 640px) {
   /* Header scale */
   .app-header {
-    height: 58px;
-    padding: 0 0.875rem;
+    min-height: 58px;
+    height: calc(58px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) calc(0.875rem + env(safe-area-inset-right, 0px)) 0 calc(0.875rem + env(safe-area-inset-left, 0px));
   }
 
   .brand-icon {
@@ -2116,8 +2118,9 @@ input[type="number"] {
 }
 
 /* Printing: Standard Thermal 58mm / 80mm */
-.print-receipt-container {
-  display: none;
+.print-receipt-container,
+.print-shelf-container {
+  display: none !important;
 }
 
 @page {
@@ -2140,16 +2143,17 @@ input[type="number"] {
     left: 0;
     top: 0;
     width: 56mm;
+    box-sizing: border-box;
     font-family: 'Courier New', Courier, monospace;
     font-size: 11px;
     line-height: 1.25;
     color: #000;
-    padding: 2px;
+    padding: 6mm 4mm 6mm 8mm;
     margin: 0;
   }
 
   .print-receipt-container.paper-80mm {
-    width: 76mm;
+    width: 74mm;
     font-size: 13px;
   }
 
@@ -2167,6 +2171,13 @@ input[type="number"] {
     margin-bottom: 6px;
     border-bottom: 1px dashed #000;
     padding-bottom: 6px;
+  }
+
+  .receipt-header img {
+    max-height: 48px;
+    max-width: 120px;
+    object-fit: contain;
+    background-color: #ffffff;
   }
 
   .receipt-title {

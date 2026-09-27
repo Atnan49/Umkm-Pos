@@ -234,7 +234,7 @@ function initPosSimulator() {
         return;
       }
 
-      alert(`✓ Transaksi Berhasil Disimpan!\nTotal: ${FORMAT.currency(total)}\nUang Tunai: ${FORMAT.currency(SimState.cashReceived)}\nKembalian: ${FORMAT.currency(SimState.cashReceived - total)}\n\nStruk otomatis tercetak ke printer thermal kasir.`);
+      alert(`Transaksi Berhasil Disimpan!\nTotal: ${FORMAT.currency(total)}\nUang Tunai: ${FORMAT.currency(SimState.cashReceived)}\nKembalian: ${FORMAT.currency(SimState.cashReceived - total)}\n\nStruk otomatis tercetak ke printer thermal kasir.`);
       SimState.cart = [];
       SimState.cashReceived = 0;
       if (cashInput) cashInput.value = 0;
@@ -465,13 +465,10 @@ function initCheckoutPortal() {
     if (countdownInterval) clearInterval(countdownInterval);
   }
 
-  function openModal(planKey = 'siap_pakai') {
+  function openModal(planKey = 'resmi') {
     modal.hidden = false;
     setStep(1);
-    if (planSelect) {
-      planSelect.value = planKey;
-      updatePrice();
-    }
+    updatePrice();
   }
 
   function setStep(stepNum) {
@@ -489,23 +486,16 @@ function initCheckoutPortal() {
   }
 
   function updatePrice() {
-    if (!planSelect) return;
-    const selectedOption = planSelect.options[planSelect.selectedIndex];
-    const price = parseInt(selectedOption.dataset.price || '499000', 10);
+    const price = 90000;
     const formatted = FORMAT.currency(price);
     if (totalDisplay) totalDisplay.textContent = formatted;
     if (qrisAmount) qrisAmount.textContent = formatted;
   }
 
-  if (planSelect) {
-    planSelect.addEventListener('change', updatePrice);
-  }
-
   triggers.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const plan = btn.dataset.plan || 'siap_pakai';
-      openModal(plan);
+      openModal('resmi');
     });
   });
 
@@ -623,8 +613,7 @@ function initCheckoutPortal() {
       const storeName = document.getElementById('order-store-name').value || 'Toko Berkah Bersama';
       const ownerName = document.getElementById('order-owner-name').value || 'Pelanggan UMKM';
       const waNumber = document.getElementById('order-whatsapp').value || '-';
-      const selectedOption = planSelect.options[planSelect.selectedIndex];
-      const planName = selectedOption.text;
+      const planName = 'Lisensi Resmi BukuKasir UMKM (Rp 90.000)';
 
       // Generate unique serial license key
       const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -643,11 +632,11 @@ function initCheckoutPortal() {
       if (waLink) {
         const msg = encodeURIComponent(
           `Halo Admin BukuKasir UMKM, saya telah menyelesaikan pembayaran lisensi:\n\n` +
-          `• Nama Pemilik: ${ownerName}\n` +
-          `• Nama Toko: ${storeName}\n` +
-          `• WhatsApp: ${waNumber}\n` +
-          `• Paket: ${planName}\n` +
-          `• Lisensi Terbit: ${serialKey}\n\n` +
+          `- Nama Pemilik: ${ownerName}\n` +
+          `- Nama Toko: ${storeName}\n` +
+          `- WhatsApp: ${waNumber}\n` +
+          `- Paket: ${planName}\n` +
+          `- Lisensi Terbit: ${serialKey}\n\n` +
           `Mohon dicatat pada database pusat dan kirimkan tautan pendampingan instalasi. Terima kasih!`
         );
         waLink.href = `https://wa.me/6281234567890?text=${msg}`;
