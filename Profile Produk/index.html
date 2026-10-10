@@ -3,52 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BukuKasir UMKM — Software Kasir POS Sekali Bayar Seumur Hidup</title>
+  <title>BukuKasir — Software Kasir POS Sekali Bayar Seumur Hidup</title>
   <meta name="description" content="Software kasir toko POS mandiri sekali bayar seumur hidup. 100% offline, bebas biaya langganan bulanan. Kompatibel barcode scanner dan printer thermal 58/80mm.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@500;600;700;800;850;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3.0.0">
+  <link rel="stylesheet" href="style.css?v=4.0.0">
 </head>
 <body>
 
   <!-- ============================================================
-       TOP PROMO TICKER STRIP
-       ============================================================ -->
-  <aside class="promo-strip-banner">
-    <span>⚡ PROMO SPESIAL HARI INI: Gunakan voucher</span>
-    <span class="voucher-chip" data-voucher-fill="HEMAT15">HEMAT15</span>
-    <span>untuk klaim lisensi seumur hidup hanya <strong>Rp 85.000</strong> (Normal Rp 100.000)!</span>
-    <a href="#harga" data-voucher-fill="HEMAT15">Klaim Sekarang &rarr;</a>
-  </aside>
-
-  <!-- ============================================================
-       GLASSMORPHIC TOPBAR
+       TOPBAR NAVIGATION (AXION STYLE: /BUKUKASIR + PILL BUTTONS)
        ============================================================ -->
   <header class="site-header">
     <div class="container nav-container">
-      <a href="#hero" class="brand-link" aria-label="Beranda BukuKasir UMKM">
-        <div class="brand-symbol" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        <div class="brand-text-block">
-          <span class="brand-title">BukuKasir</span>
-          <span class="brand-badge-pro">PRO v1.1</span>
-        </div>
+      <a href="#hero" class="brand-link" aria-label="Beranda BukuKasir">
+        <span class="brand-slash">/</span>
+        <span>BUKUKASIR</span>
       </a>
 
       <ul class="nav-links">
-        <li><a href="#demo">Coba Demo POS</a></li>
-        <li><a href="#perbandingan">Hemat Biaya</a></li>
+        <li><a href="#solusi">Solusi Kasir</a></li>
         <li><a href="#modul">Modul Usaha</a></li>
+        <li><a href="#keunggulan">Teknologi</a></li>
         <li><a href="#harga">Harga Promo</a></li>
-        <li><a href="#unduh">Unduh .EXE</a></li>
+        <li><a href="#unduh">Unduh</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
 
-      <div>
-        <a href="#harga" class="nav-cta-btn" data-buy-pkg="single">
+      <div class="nav-actions">
+        <a href="#harga" class="btn-pill-dark" data-buy-pkg="single">
           <span>Beli Lisensi (Rp 85.000)</span>
+        </a>
+        <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-pill-outline">
+          <span>Unduh .EXE</span>
         </a>
       </div>
     </div>
@@ -56,151 +44,393 @@
 
   <main id="hero">
     <!-- ============================================================
-         HERO SECTION: CINEMATIC DISPLAY
+         SCREEN 1: HERO SECTION (ASYMMETRIC EDITORIAL)
          ============================================================ -->
     <section class="hero-section">
-      <div class="hero-radial-bg" aria-hidden="true"></div>
-
       <div class="container">
-        <div class="hero-content">
-          <div class="hero-badge-pill">
-            <span class="live-indicator-dot"></span>
-            <span>100% OFFLINE-FIRST POS &bull; BEBAS BIAYA LANGGANAN BULANAN</span>
-          </div>
-          
+        <div class="hero-editorial-top">
           <h1 class="hero-h1">
-            Software Kasir Toko Modern.<br>
-            <span class="emerald-highlight">Sekali Beli, Milik Selamanya.</span>
+            Kelola Kasir Toko<br>
+            Lebih Cepat &amp; Mandiri
           </h1>
 
-          <p class="hero-desc">
-            Hentikan pemborosan sewa kasir cloud ratusan ribu tiap bulan. BukuKasir UMKM bekerja kilat di komputer Windows dan HP Android Anda tanpa internet. Data aman di toko sendiri, bebas risiko akun terkunci.
-          </p>
+          <div class="hero-right-side">
+            <p class="hero-desc-para">
+              Hentikan pemborosan sewa software bulanan ratusan ribu. BukuKasir adalah sistem POS 100% offline untuk komputer Windows dan HP Android Anda. Cukup satu kali bayar seumur hidup, data aman di toko sendiri.
+            </p>
 
-          <div class="hero-cta-group">
-            <a href="#harga" class="btn-primary-emerald" data-buy-pkg="single">
-              <span>Dapatkan Lisensi Toko</span>
-              <span class="price-badge-pill">Rp 85.000</span>
-            </a>
-            <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-ghost-glass">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span>Unduh Installer Windows (.exe)</span>
-            </a>
-          </div>
-
-          <div class="hero-features-strip">
-            <div class="feature-item">
-              <span class="check-icon">&check;</span>
-              <span>100% Offline Tanpa Kuota</span>
-            </div>
-            <div class="feature-item">
-              <span class="check-icon">&check;</span>
-              <span>Printer Thermal 58/80mm</span>
-            </div>
-            <div class="feature-item">
-              <span class="check-icon">&check;</span>
-              <span>Scanner Barcode Laser Kilat</span>
-            </div>
-            <div class="feature-item">
-              <span class="check-icon">&check;</span>
-              <span>Lisensi Permanen Seumur Hidup</span>
+            <div class="hero-action-line">
+              <a href="#harga" class="btn-pill-dark" data-buy-pkg="single">
+                <span>Klaim Lisensi Rp 85.000</span>
+              </a>
+              <button type="button" class="voucher-pill-tag btn-callout-clickable" data-buy-pkg="single" data-voucher-fill="HEMAT15" title="Klik untuk klaim lisensi dengan voucher HEMAT15">
+                <span>Voucher <strong>HEMAT15</strong> Aktif &bull; Klaim Rp 85.000 &rarr;</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- ============================================================
-             INTERACTIVE LIVE POS CONSOLE (THE CENTERPIECE)
-             ============================================================ -->
-        <div class="pos-console-wrapper" id="demo">
-          <div class="console-titlebar">
-            <div class="console-dots" aria-hidden="true">
-              <span class="console-dot" style="background:#ef4444;"></span>
-              <span class="console-dot" style="background:#f59e0b;"></span>
-              <span class="console-dot" style="background:#10b981;"></span>
-            </div>
-            <span class="console-title-text" id="pos-window-mode-title">BukuKasir UMKM Desktop v1.1.0 &bull; Mode Toko Retail</span>
-            <span class="console-status-live">&bull; STANDBY OFFLINE (SQLITE LOKAL)</span>
+        <!-- Big Visual POS Terminal Showcase (Matching Axion Hero Asset) -->
+        <div class="hero-visual-card">
+          <div class="visual-top-strip">
+            <span>BUKUKASIR TERMINAL DESKTOP v1.1.0</span>
+            <span class="tag-offline">&bull; 100% OFFLINE (DATABASE SQLITE LOKAL)</span>
           </div>
 
-          <div class="console-body-grid">
+          <div class="pos-interactive-terminal">
             <!-- Left: Interactive Catalog -->
-            <div class="console-catalog-side">
-              <div class="catalog-header-flex">
-                <span class="catalog-title">Klik Item untuk Menambahkan:</span>
-                <div class="console-mode-switch">
-                  <button type="button" class="mode-btn active" data-mode="retail">Retail</button>
-                  <button type="button" class="mode-btn" data-mode="cafe">Kafe</button>
-                  <button type="button" class="mode-btn" data-mode="service">Jasa/DP</button>
+            <div class="pos-catalog-wrap">
+              <div class="pos-catalog-head">
+                <span class="catalog-title">Klik Item untuk Menambah Transaksi:</span>
+                <div class="mode-pill-selector">
+                  <button type="button" class="mode-pill-btn active" data-mode="retail">Retail</button>
+                  <button type="button" class="mode-pill-btn" data-mode="cafe">Kafe</button>
+                  <button type="button" class="mode-pill-btn" data-mode="service">Jasa/DP</button>
                 </div>
               </div>
 
               <div class="catalog-tiles-grid">
                 <div class="catalog-item-card" data-name="Beras Ramos Super 5kg" data-price="74000">
-                  <strong>Beras Ramos Super 5kg</strong>
-                  <span class="sku-tag">SKU: 8999901 &bull; Sembako</span>
-                  <span class="price-tag">+ Rp 74.000</span>
+                  <strong>Beras Ramos 5kg</strong>
+                  <span class="sku">SKU: 8999901 &bull; Sembako</span>
+                  <span class="price">+ Rp 74.000</span>
                 </div>
                 <div class="catalog-item-card" data-name="Minyak Goreng Sawit 2L" data-price="34000">
-                  <strong>Minyak Goreng Sawit 2L</strong>
-                  <span class="sku-tag">SKU: 8999902 &bull; Kebutuhan Pokok</span>
-                  <span class="price-tag">+ Rp 34.000</span>
+                  <strong>Minyak Goreng 2L</strong>
+                  <span class="sku">SKU: 8999902 &bull; Kebutuhan Pokok</span>
+                  <span class="price">+ Rp 34.000</span>
                 </div>
                 <div class="catalog-item-card" data-name="Telur Ayam Negeri 1kg" data-price="28000">
-                  <strong>Telur Ayam Negeri 1kg</strong>
-                  <span class="sku-tag">SKU: 8999903 &bull; Sembako</span>
-                  <span class="price-tag">+ Rp 28.000</span>
+                  <strong>Telur Ayam 1kg</strong>
+                  <span class="sku">SKU: 8999903 &bull; Sembako</span>
+                  <span class="price">+ Rp 28.000</span>
                 </div>
                 <div class="catalog-item-card" data-name="Kopi Susu Gula Aren" data-price="18000">
-                  <strong>Kopi Susu Gula Aren</strong>
-                  <span class="sku-tag">SKU: 8999904 &bull; F&amp;B Minuman</span>
-                  <span class="price-tag">+ Rp 18.000</span>
+                  <strong>Kopi Susu Aren</strong>
+                  <span class="sku">SKU: 8999904 &bull; F&amp;B Minuman</span>
+                  <span class="price">+ Rp 18.000</span>
                 </div>
               </div>
 
-              <div class="catalog-footer-actions">
-                <span>Scanner USB/Wireless Terhubung Otomatis</span>
-                <button type="button" id="btn-simulate-scan" class="btn-scan-trigger">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="5" x2="3" y2="19"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="11" y1="5" x2="11" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/><line x1="19" y1="5" x2="19" y2="19"/><line x1="21" y1="5" x2="21" y2="19"/></svg>
+              <div class="catalog-actions-bar">
+                <span>Scanner USB / Wireless terdeteksi otomatis</span>
+                <button type="button" id="btn-simulate-scan" class="btn-scan-action">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="5" x2="3" y2="19"/><line x1="7" y1="5" x2="7" y2="19"/><line x1="11" y1="5" x2="11" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
                   <span>Simulasi Scan Barcode</span>
                 </button>
               </div>
             </div>
 
-            <!-- Right: Live Thermal Receipt Tape -->
-            <div class="console-receipt-side">
-              <div class="receipt-store-head">
-                <div class="receipt-store-name">TOKO BERKAH MANDIRI</div>
-                <div class="receipt-meta">STRUK TRANSAKSI THERMAL ESC/POS</div>
+            <!-- Right: Thermal Receipt Tape -->
+            <div class="pos-ticket-wrap">
+              <div class="ticket-header-top">
+                <div class="ticket-store-name" id="ticket-store-name">TOKO BERKAH MANDIRI</div>
+                <div class="ticket-meta-tag" id="ticket-meta-mode">STRUK TRANSAKSI THERMAL ESC/POS</div>
+                <div class="ticket-toolbar-actions">
+                  <button type="button" id="btn-clear-pos-sim" class="btn-ticket-action-pill" title="Bersihkan item dari keranjang">
+                    <span>Reset Keranjang</span>
+                  </button>
+                </div>
               </div>
 
               <div class="ticket-cart-rows" id="ticket-cart-rows">
                 <div class="ticket-row-item">
                   <span class="item-title">1x Beras Ramos Super 5kg</span>
                   <span class="item-val">Rp 74.000</span>
+                  <button type="button" class="btn-remove-cart-item" data-item-name="Beras Ramos Super 5kg" title="Hapus item">&times;</button>
                 </div>
                 <div class="ticket-row-item">
                   <span class="item-title">1x Minyak Goreng Sawit 2L</span>
                   <span class="item-val">Rp 34.000</span>
+                  <button type="button" class="btn-remove-cart-item" data-item-name="Minyak Goreng Sawit 2L" title="Hapus item">&times;</button>
                 </div>
               </div>
 
-              <div class="receipt-totals-panel">
+              <div class="ticket-totals-area">
                 <div class="calc-row">
-                  <span>Subtotal Belanja:</span>
+                  <span>Subtotal Item:</span>
                   <strong id="demo-subtotal-val">Rp 108.000</strong>
                 </div>
                 <div class="calc-row">
-                  <span>Metode Pembayaran:</span>
-                  <span>TUNAI / QRIS INSTAN</span>
+                  <span>Metode Bayar:</span>
+                  <span>TUNAI / QRIS</span>
                 </div>
-                <div class="calc-row final-sum">
+                <div class="calc-row total-bold">
                   <span>TOTAL AKHIR:</span>
-                  <span class="val-highlight" id="demo-total-val">Rp 108.000</span>
+                  <span class="val" id="demo-total-val">Rp 108.000</span>
                 </div>
               </div>
 
-              <button type="button" id="btn-print-pos-sim" class="btn-print-thermal">
-                Cetak Struk Transaksi
+              <div class="ticket-actions-dual">
+                <button type="button" id="btn-print-pos-sim" class="btn-print-pos-sim">
+                  Cetak Struk Thermal
+                </button>
+                <button type="button" class="btn-checkout-ticket-link" data-buy-pkg="single">
+                  Beli Lisensi (Rp 85.000)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2: BENTO GRID SOLUTIONS (MATCHING AXION SCREEN 2)
+         ============================================================ -->
+    <section class="section-solutions" id="solusi">
+      <div class="container">
+        <div class="section-header-row">
+          <h2 class="section-h2">Solusi Lengkap Kasir</h2>
+          <div class="header-right-action">
+            <span class="header-sub-note">Memenuhi beragam kebutuhan toko Anda.</span>
+            <a href="#harga" class="btn-pill-dark" data-buy-pkg="single">Lihat Penawaran (Rp 85.000)</a>
+          </div>
+        </div>
+
+        <div class="bento-axion-grid">
+          <!-- Card 1: Wide Top Left -->
+          <div class="bento-card-top-left">
+            <div>
+              <h3 class="bento-card-title">Transaksi Kasir Kilat (&lt; 0.05 Detik)</h3>
+              <p class="bento-card-desc">
+                Input barcode scanner otomatis dengan auto-detect keyboard wedge tanpa jeda loading. Dirancang untuk antrean panjang di jam sibuk toko Anda.
+              </p>
+            </div>
+            <div class="bento-card-footer">
+              <span class="bento-card-tag">RESPONS KILAT &bull; 1D / 2D SCANNER</span>
+              <button type="button" class="btn-bento-action" id="btn-test-scan-bento">Tes Barcode &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Card 2: Top Right Dark Card (Matching Axion Active Dark Card) -->
+          <div class="bento-card-top-right">
+            <div>
+              <h3 class="bento-card-title">Cetak Struk Thermal Otomatis</h3>
+              <p class="bento-card-desc">
+                Kompatibel penuh dengan semua printer kasir 58mm dan 80mm standar ESC/POS via USB, Bluetooth, maupun LAN tanpa driver tambahan.
+              </p>
+            </div>
+            <div class="bento-card-footer">
+              <span class="bento-card-tag" style="color: #86efac;">AUTO CUT &bull; CASH DRAWER RJ11</span>
+              <button type="button" class="btn-bento-action light" id="btn-test-print-bento">Tes Cetak Struk &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Card 3: Small Bottom Left -->
+          <div class="bento-card-small">
+            <div>
+              <h3 class="bento-card-title">100% Offline Lokal</h3>
+              <p class="bento-card-desc">
+                Database SQLite mandiri tersimpan di komputer kasir Anda. Transaksi tetap lancar saat mati lampu atau internet padam.
+              </p>
+            </div>
+            <div class="bento-card-footer">
+              <span class="bento-card-tag">PRIVAT &bull; TANPA KUOTA</span>
+              <button type="button" class="btn-bento-action" id="btn-test-offline-bento">Cek Database &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Card 4: Small Bottom Center -->
+          <div class="bento-card-small">
+            <div>
+              <h3 class="bento-card-title">Manajemen Stok Barang</h3>
+              <p class="bento-card-desc">
+                Peringatan otomatis saat stok barang mendekati batas minimum, rekap mutasi barang masuk, dan histori harga modal.
+              </p>
+            </div>
+            <div class="bento-card-footer">
+              <span class="bento-card-tag">MUTASI REAL-TIME</span>
+              <button type="button" class="btn-bento-action" id="btn-test-stock-bento">Cek Alert Stok &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Card 5: Small Bottom Right -->
+          <div class="bento-card-small">
+            <div>
+              <h3 class="bento-card-title">Laporan Laba &amp; Rugi</h3>
+              <p class="bento-card-desc">
+                Rekap omzet harian, laba kotor per produk, rekap shift kasir, dan ekspor laporan keuangan lengkap ke format Excel.
+              </p>
+            </div>
+            <div class="bento-card-footer">
+              <span class="bento-card-tag">EKSPOR EXCEL &bull; AUDIT SHIFT</span>
+              <button type="button" class="btn-bento-action" id="btn-download-sample-excel">Unduh Contoh Excel &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3: INDUSTRIES WE SERVE (MATCHING AXION SCREEN 3)
+         ============================================================ -->
+    <section class="section-industries" id="modul">
+      <div class="container">
+        <span class="kicker-slash">/MODUL SPESIFIK INDUSTRI</span>
+
+        <div class="industries-top-flex">
+          <h2 class="section-h2">
+            Disesuaikan untuk Setiap<br>Bidang Usaha Anda
+          </h2>
+          <div class="industries-right-col">
+            <p class="hero-desc-para">
+              Satu aplikasi kasir dengan modul antarmuka khusus yang dapat disesuaikan langsung dengan dinamika alur transaksi usaha Anda.
+            </p>
+            <div class="carousel-nav-control">
+              <button type="button" class="carousel-arrow-btn" id="btn-prev-industry" aria-label="Sebelumnya">&larr;</button>
+              <div class="carousel-track-bar">
+                <div class="carousel-track-thumb" id="carousel-track-thumb"></div>
+              </div>
+              <button type="button" class="carousel-arrow-btn" id="btn-next-industry" aria-label="Selanjutnya">&rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-carousel-row">
+          <!-- Card 1: Retail -->
+          <div class="industry-card" data-industry-mode="retail" data-industry-index="0" style="cursor: pointer;">
+            <div class="industry-badge-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            </div>
+            <h3 class="industry-title">Retail &amp; Minimarket</h3>
+            <p class="industry-desc">
+              Pencarian barang kilat via barcode scanner, kontrol stok rak toko, dan cetak struk belanja thermal dengan rincian kembalian uang.
+            </p>
+            <button type="button" class="btn-industry-select" data-industry-mode="retail">
+              <span>Coba Demo Retail</span>
+              <span class="circle-mini-arrow">&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Card 2: Kafe (Active Dark Card Matching Axion) -->
+          <div class="industry-card active-dark" data-industry-mode="cafe" data-industry-index="1" style="cursor: pointer;">
+            <div class="industry-badge-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg>
+            </div>
+            <h3 class="industry-title">Kafe &amp; Restoran (F&amp;B)</h3>
+            <p class="industry-desc">
+              Manajemen nomor meja (Meja 01&ndash;30), pemisahan status Makan di Tempat vs Bungkus, dan cetak tiket pesanan dapur (KOT) otomatis.
+            </p>
+            <button type="button" class="btn-industry-select" data-industry-mode="cafe">
+              <span>Coba Demo Kafe</span>
+              <span class="circle-mini-arrow">&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Card 3: Percetakan -->
+          <div class="industry-card" data-industry-mode="service" data-industry-index="2" style="cursor: pointer;">
+            <div class="industry-badge-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </div>
+            <h3 class="industry-title">Percetakan &amp; Servis</h3>
+            <p class="industry-desc">
+              Kalkulator harga per meter atau lembar, pencatatan Uang Muka (DP), dan pelacakan status kerja pesanan hingga barang siap diambil.
+            </p>
+            <button type="button" class="btn-industry-select" data-industry-mode="service">
+              <span>Coba Demo Servis/DP</span>
+              <span class="circle-mini-arrow">&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Card 4: Apotek & Fashion -->
+          <div class="industry-card" data-industry-mode="retail" data-industry-index="3" style="cursor: pointer;">
+            <div class="industry-badge-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+            <h3 class="industry-title">Apotek &amp; Fashion</h3>
+            <p class="industry-desc">
+              Pengelompokan varian ukuran/warna, tanggal kedaluwarsa produk, dan rekap modal laba bersih secara terperinci.
+            </p>
+            <button type="button" class="btn-industry-select" data-industry-mode="retail">
+              <span>Coba Demo Apotek</span>
+              <span class="circle-mini-arrow">&rarr;</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4: TECHNOLOGY / FEATURES (MATCHING AXION SCREEN 4)
+         ============================================================ -->
+    <section class="section-technology" id="keunggulan">
+      <div class="container">
+        <span class="kicker-slash">/KEUNGGULAN SISTEM</span>
+
+        <div class="industries-top-flex" style="margin-bottom: 40px;">
+          <h2 class="section-h2">
+            Inovasi yang Mengamankan<br>Keuntungan Toko Anda
+          </h2>
+          <p class="hero-desc-para">
+            Bebaskan bisnis Anda dari ketergantungan sewa platform cloud. Kuasai kepemilikan data kasir secara utuh di perangkat Anda sendiri.
+          </p>
+        </div>
+
+        <div class="tech-split-layout">
+          <!-- Left: Dark Poster Card -->
+          <div class="tech-visual-poster">
+            <div>
+              <h3 class="poster-title">BukuKasir Offline Architecture</h3>
+              <p class="poster-sub">
+                Sistem database lokal SQLite mandiri tanpa ketergantungan API eksternal yang lambat. Berkas installer resmi terverifikasi aman untuk Windows 7/8/10/11 &amp; Android.
+              </p>
+            </div>
+
+            <div class="poster-cert-box">
+              <div style="font-size: 11px; text-transform: uppercase; color: #a0a6b0; margin-bottom: 4px;">Kunci Lisensi Resmi Toko:</div>
+              <div class="poster-cert-key" id="sample-demo-key-display">BKPOS-XXXX-XXXX-XXXX-XXXX</div>
+              <div style="font-size: 11px; color: #a0a6b0; margin-top: 4px;">Aktif Permanen Seumur Hidup &bull; Sekali Beli</div>
+            </div>
+
+            <button type="button" class="btn-poster-action" data-buy-pkg="single">
+              <span>Beli Kunci Lisensi Toko (Rp 85.000) &rarr;</span>
+            </button>
+          </div>
+
+          <!-- Right: 4 Divider Cells with Circle Arrow Buttons -->
+          <div class="features-divider-grid">
+            <div class="feature-divider-cell">
+              <div>
+                <h4 class="cell-title">Sekali Bayar Seumur Hidup</h4>
+                <p class="cell-desc">Cukup bayar Rp 85.000 dengan voucher diskon. Nol iuran bulanan selamanya.</p>
+              </div>
+              <button type="button" class="cell-link-arrow" data-buy-pkg="single">
+                <span>Pilih Lisensi (Rp 85.000)</span>
+                <span class="circle-arrow-btn">&rarr;</span>
+              </button>
+            </div>
+
+            <div class="feature-divider-cell">
+              <div>
+                <h4 class="cell-title">100% Offline &amp; Privat</h4>
+                <p class="cell-desc">Data transaksi tersimpan di laptop toko Anda. Bebas risiko akun ditutup sepihak.</p>
+              </div>
+              <button type="button" class="cell-link-arrow" id="btn-feature-test-offline">
+                <span>Pelajari Detail Offline</span>
+                <span class="circle-arrow-btn">&rarr;</span>
+              </button>
+            </div>
+
+            <div class="feature-divider-cell">
+              <div>
+                <h4 class="cell-title">Kompatibel Semua Hardware</h4>
+                <p class="cell-desc">Mendukung semua printer thermal 58/80mm, scanner barcode USB/wireless, dan laci uang RJ11.</p>
+              </div>
+              <button type="button" class="cell-link-arrow" id="btn-feature-test-printer">
+                <span>Tes Dukungan Hardware</span>
+                <span class="circle-arrow-btn">&rarr;</span>
+              </button>
+            </div>
+
+            <div class="feature-divider-cell">
+              <div>
+                <h4 class="cell-title">Aktivasi Instan Otomatis</h4>
+                <p class="cell-desc">Serial key resmi langsung diterbitkan di layar seketika setelah pembayaran QRIS selesai.</p>
+              </div>
+              <button type="button" class="cell-link-arrow" data-buy-pkg="single">
+                <span>Klaim Serial Key Toko</span>
+                <span class="circle-arrow-btn">&rarr;</span>
               </button>
             </div>
           </div>
@@ -209,199 +439,76 @@
     </section>
 
     <!-- ============================================================
-         SECTION: PERBANDINGAN BIAYA RIIL (THE NUMBERS)
-         ============================================================ -->
-    <section class="section-compare" id="perbandingan">
-      <div class="container">
-        <div class="section-head-center">
-          <span class="section-kicker-tag">ANALISIS INVESTASI TOKO</span>
-          <h2 class="section-title-lg">Perbandingan Nyata: Sewa Cloud vs Beli Sekali</h2>
-          <p class="section-desc-text">
-            Bandingkan pengeluaran nyata toko Anda dalam 1 sampai 3 tahun ke depan.
-          </p>
-        </div>
-
-        <div class="compare-cards-pair">
-          <!-- Card Cloud Sewa -->
-          <div class="compare-card-cloud">
-            <h4>Aplikasi Kasir Sewa Bulanan (Cloud)</h4>
-            <ul class="compare-rows-list">
-              <li>&times; <strong>Biaya Tahun Pertama:</strong> Rp 2.400.000 &ndash; Rp 3.600.000 / tahun</li>
-              <li>&times; <strong>Biaya Tahun Ke-3:</strong> Rp 7.200.000 &ndash; Rp 10.800.000 (Rugi terus bertambah)</li>
-              <li>&times; <strong>Koneksi Internet:</strong> Wajib online; sinyal gangguan = kasir toko macet</li>
-              <li>&times; <strong>Kepemilikan Data:</strong> Tersimpan di server luar; rentan dikunci jika telat bayar</li>
-              <li>&times; <strong>Jika Berhenti Bayar:</strong> Akun diblokir, riwayat penjualan toko hilang</li>
-            </ul>
-          </div>
-
-          <!-- Card BukuKasir UMKM -->
-          <div class="compare-card-pos">
-            <h4>BukuKasir UMKM (Lisensi Permanen)</h4>
-            <ul class="compare-rows-list">
-              <li>&check; <strong>Biaya Tahun Pertama:</strong> Cukup Rp 85.000 (Dengan voucher HEMAT15)</li>
-              <li>&check; <strong>Biaya Tahun Ke-3:</strong> Rp 0 (Tetap aktif selamanya tanpa iuran)</li>
-              <li>&check; <strong>Koneksi Internet:</strong> 100% Offline; transaksi selalu cepat tanpa kuota</li>
-              <li>&check; <strong>Kepemilikan Data:</strong> 100% di komputer toko sendiri; privat &amp; aman</li>
-              <li>&check; <strong>Jika Berhenti Bayar:</strong> Aplikasi tetap milik Anda seumur hidup</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="banner-savings-highlight">
-          <div>
-            <strong>Estimasi Penghematan Toko Anda: Lebih dari Rp 2.915.000 Setiap Tahun</strong>
-            <span>Gunakan modal usaha untuk menambah stok barang dagangan, bukan untuk sewa aplikasi.</span>
-          </div>
-          <a href="#harga" class="btn-primary-emerald" data-buy-pkg="single" style="padding: 10px 20px; font-size: 13px;">
-            <span>Klaim Lisensi Rp 85.000</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION: TIGA MODUL BISNIS
-         ============================================================ -->
-    <section class="section-modules" id="modul">
-      <div class="container">
-        <div class="section-head-center">
-          <span class="section-kicker-tag">SPESIALISASI BISNIS</span>
-          <h2 class="section-title-lg">Satu Software, Tiga Modul Bidang Usaha</h2>
-          <p class="section-desc-text">
-            Disesuaikan dengan alur transaksi nyata di toko retail, kafe, atau jasa percetakan.
-          </p>
-        </div>
-
-        <div class="modules-grid-3">
-          <!-- Modul Retail -->
-          <div class="module-card-box">
-            <div class="module-card-icon">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-            </div>
-            <h3>Retail &amp; Minimarket</h3>
-            <p>
-              Untuk toko kelontong, sembako, dan toko pakaian yang membutuhkan kecepatan kasir tinggi.
-            </p>
-            <ul class="module-checklist">
-              <li><span class="bullet">&check;</span> Input barcode scanner kilat (&lt; 0.1 detik)</li>
-              <li><span class="bullet">&check;</span> Peringatan otomatis stok minimum barang</li>
-              <li><span class="bullet">&check;</span> Rekap mutasi barang masuk &amp; keluar</li>
-              <li><span class="bullet">&check;</span> Cetak struk belanja thermal dengan kembalian</li>
-            </ul>
-          </div>
-
-          <!-- Modul Kafe -->
-          <div class="module-card-box">
-            <div class="module-card-icon">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-            </div>
-            <h3>Kafe &amp; Restoran (F&amp;B)</h3>
-            <p>
-              Mengelola alur pesanan meja, menu makanan/minuman, dan pembagian tiket dapur.
-            </p>
-            <ul class="module-checklist">
-              <li><span class="bullet">&check;</span> Manajemen nomor meja (Meja 01 s/d 30)</li>
-              <li><span class="bullet">&check;</span> Pemisahan status Makan di Tempat vs Bungkus</li>
-              <li><span class="bullet">&check;</span> Cetak tiket pesanan dapur (KOT) otomatis</li>
-              <li><span class="bullet">&check;</span> Catatan khusus pelanggan per item menu</li>
-            </ul>
-          </div>
-
-          <!-- Modul Percetakan -->
-          <div class="module-card-box">
-            <div class="module-card-icon">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            </div>
-            <h3>Percetakan &amp; Jasa Servis</h3>
-            <p>
-              Untuk usaha digital printing, fotokopi, konveksi, dan bengkel servis dengan sistem DP.
-            </p>
-            <ul class="module-checklist">
-              <li><span class="bullet">&check;</span> Hitung harga per meter, lembar, atau jam kerja</li>
-              <li><span class="bullet">&check;</span> Pencatatan Uang Muka (DP) dan sisa pelunasan</li>
-              <li><span class="bullet">&check;</span> Status kerja: Antre &rarr; Proses &rarr; Selesai</li>
-              <li><span class="bullet">&check;</span> Cetak tanda terima rangkap pelanggan &amp; kasir</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================
-         SECTION: HARGA TRANSPARAN & VOUCHER DISKON
+         PRICING SECTION (CLEAN AXION STYLE CARDS)
          ============================================================ -->
     <section class="section-pricing" id="harga">
       <div class="container">
-        <div class="section-head-center">
-          <span class="section-kicker-tag">INVESTASI SEKALI BAYAR</span>
-          <h2 class="section-title-lg">Pilihan Paket Lisensi Resmi Seumur Hidup</h2>
-          <p class="section-desc-text">
-            Bayar satu kali saat pembelian, pakai selamanya tanpa biaya bulanan tersembunyi.
+        <span class="kicker-slash">/HARGA INVESTASI</span>
+
+        <div class="industries-top-flex" style="margin-bottom: 36px;">
+          <h2 class="section-h2">
+            Investasi Sekali Bayar,<br>Bebas Iuran Selamanya
+          </h2>
+          <p class="hero-desc-para">
+            Pilih paket yang sesuai dengan jumlah perangkat toko Anda. Tanpa biaya tersembunyi.
           </p>
         </div>
 
-        <div class="pricing-bento-grid">
-          <!-- Paket 1 Toko Tunggal -->
-          <div class="pricing-card-main">
-            <span class="card-top-flag">PROMO UTAMA HARI INI</span>
-            
-            <div class="plan-title-row">
-              <h3 class="plan-title-h3">Lisensi Toko Tunggal</h3>
-            </div>
-            <p class="plan-sub-info">Solusi lengkap untuk 1 laptop atau 1 komputer kasir utama toko Anda.</p>
+        <div class="pricing-cards-pair">
+          <!-- Card 1: Featured Dark Card -->
+          <div class="plan-card featured-dark">
+            <h3 class="plan-card-name">Lisensi Toko Tunggal</h3>
+            <p class="plan-card-sub">Solusi lengkap untuk 1 laptop atau 1 HP kasir utama toko Anda.</p>
 
-            <div class="price-box-deal">
-              <span class="price-main-display">Rp 100.000</span>
-              <span class="price-strike-val">Rp 250.000</span>
+            <div class="price-main-display">
+              <span class="price-val">Rp 100.000</span>
+              <span class="price-old-strike">Rp 250.000</span>
             </div>
 
-            <div class="voucher-discount-callout">
-              <span>Gunakan Voucher <code>HEMAT15</code>:</span>
-              <strong style="color:#ffffff; font-size:15px;">Harga Jadi Rp 85.000!</strong>
-            </div>
+            <button type="button" class="voucher-discount-callout btn-callout-clickable" data-buy-pkg="single" data-voucher-fill="HEMAT15" title="Klik untuk menerapkan voucher HEMAT15">
+              <span>Gunakan Voucher <strong>HEMAT15</strong>:</span>
+              <strong style="color: #86efac; font-size: 13px;">Harga Jadi Rp 85.000! &rarr;</strong>
+            </button>
 
-            <ul class="features-check-list">
-              <li><strong>1 Lisensi Permanen</strong> untuk 1 perangkat utama toko</li>
-              <li><strong>Semua Modul Terbuka:</strong> Retail, Kafe, dan Percetakan</li>
-              <li><strong>100% Offline:</strong> Berjalan lancar tanpa koneksi internet</li>
-              <li><strong>Hardware Support:</strong> Barcode scanner &amp; printer thermal</li>
-              <li><strong>Penyimpanan Database:</strong> 100% aman di laptop sendiri</li>
-              <li><strong>Pembaruan Gratis:</strong> Hak update sistem seumur hidup</li>
-              <li><strong>Bantuan Setup:</strong> Panduan instalasi via WhatsApp</li>
+            <ul class="plan-perks-list">
+              <li>&check; <strong>1 Lisensi Permanen</strong> untuk 1 perangkat toko</li>
+              <li>&check; <strong>Semua Modul Terbuka:</strong> Retail, Kafe, dan Percetakan</li>
+              <li>&check; <strong>100% Offline:</strong> Bekerja lancar tanpa koneksi internet</li>
+              <li>&check; <strong>Hardware Support:</strong> Barcode scanner &amp; printer thermal</li>
+              <li>&check; <strong>Penyimpanan Database:</strong> 100% di komputer sendiri</li>
+              <li>&check; <strong>Pembaruan Gratis:</strong> Hak update sistem seumur hidup</li>
             </ul>
 
-            <button type="button" class="btn-card-checkout-main" data-buy-pkg="single">
-              Beli Sekarang (Rp 85.000 dengan Voucher)
+            <button type="button" class="btn-pill-dark" style="background:#ffffff; color:#111315; width:100%; margin-top:auto;" data-buy-pkg="single">
+              Beli Sekarang (Rp 85.000)
             </button>
           </div>
 
-          <!-- Paket Multi Cabang -->
-          <div class="pricing-card-secondary">
-            <div class="plan-title-row">
-              <h3 class="plan-title-h3">Lisensi Multi Cabang (3 Device)</h3>
-            </div>
-            <p class="plan-sub-info">Untuk toko dengan beberapa meja kasir atau memiliki cabang tambahan.</p>
+          <!-- Card 2: Multi Cabang -->
+          <div class="plan-card">
+            <h3 class="plan-card-name">Lisensi Multi Cabang (3 Device)</h3>
+            <p class="plan-card-sub">Untuk toko dengan beberapa meja kasir atau memiliki cabang tambahan.</p>
 
-            <div class="price-box-deal">
-              <span class="price-main-display">Rp 175.000</span>
-              <span class="price-strike-val">Rp 350.000</span>
+            <div class="price-main-display">
+              <span class="price-val">Rp 175.000</span>
+              <span class="price-old-strike">Rp 350.000</span>
             </div>
 
-            <div class="voucher-discount-callout" style="border-color: rgba(255,255,255,0.15);">
-              <span>Gunakan Voucher <code>HEMAT15</code>:</span>
-              <strong style="color:#ffffff; font-size:15px;">Harga Jadi Rp 160.000!</strong>
-            </div>
+            <button type="button" class="voucher-discount-callout btn-callout-clickable" data-buy-pkg="multi" data-voucher-fill="HEMAT15" title="Klik untuk menerapkan voucher HEMAT15">
+              <span>Gunakan Voucher <strong>HEMAT15</strong>:</span>
+              <strong style="color: var(--text-emerald); font-size: 13px;">Harga Jadi Rp 160.000! &rarr;</strong>
+            </button>
 
-            <ul class="features-check-list">
-              <li><strong>3 Lisensi Permanen</strong> untuk 3 perangkat berbeda</li>
-              <li><strong>Semua Modul Terbuka:</strong> Retail, Kafe, dan Percetakan</li>
-              <li><strong>Fitur Ekspor Lengkap:</strong> Rekap penjualan ke format Excel</li>
-              <li><strong>Backup &amp; Restore:</strong> Pemulihan database mandiri</li>
-              <li><strong>Prioritas Setup:</strong> Dipandu tim teknis via AnyDesk / WA</li>
-              <li><strong>Bebas Update:</strong> Hak pembaruan seumur hidup</li>
+            <ul class="plan-perks-list">
+              <li>&check; <strong>3 Lisensi Permanen</strong> untuk 3 perangkat berbeda</li>
+              <li>&check; <strong>Semua Modul Terbuka:</strong> Retail, Kafe, dan Percetakan</li>
+              <li>&check; <strong>Fitur Ekspor Lengkap:</strong> Rekap penjualan ke format Excel</li>
+              <li>&check; <strong>Backup &amp; Restore:</strong> Pemulihan database mandiri</li>
+              <li>&check; <strong>Prioritas Panduan:</strong> Dipandu setup via AnyDesk / WhatsApp</li>
+              <li>&check; <strong>Bebas Update:</strong> Hak pembaruan seumur hidup</li>
             </ul>
 
-            <button type="button" class="btn-card-secondary" data-buy-pkg="multi">
+            <button type="button" class="btn-pill-dark" style="width:100%; margin-top:auto;" data-buy-pkg="multi">
               Beli Paket 3 Lisensi
             </button>
           </div>
@@ -410,35 +517,36 @@
     </section>
 
     <!-- ============================================================
-         SECTION: UNDUH INSTALLER RESMI
+         UNDUH INSTALLER GITHUB RELEASES
          ============================================================ -->
     <section class="section-downloads" id="unduh">
       <div class="container">
-        <div class="section-head-center">
-          <span class="section-kicker-tag">BERKAS RESMI GITHUB RELEASES</span>
-          <h2 class="section-title-lg">Unduh Berkas Installer BukuKasir UMKM</h2>
-          <p class="section-desc-text">
-            Instal langsung pada komputer atau smartphone kasir toko Anda. Versi resmi v1.1.0 bebas virus.
+        <span class="kicker-slash">/BERKAS RESMI</span>
+
+        <div class="industries-top-flex" style="margin-bottom: 30px;">
+          <h2 class="section-h2">Unduh Berkas Installer Resmi</h2>
+          <p class="hero-desc-para">
+            Unduh langsung berkas instalasi BukuKasir UMKM versi stabil v1.1.0 bebas virus.
           </p>
         </div>
 
-        <div class="downloads-dual-cards">
-          <div class="dl-card-item">
+        <div class="download-dual-tiles">
+          <div class="dl-tile">
             <div>
               <h4>Installer Windows (.exe)</h4>
               <p>Ukuran: ~88 MB &bull; Windows 7, 8, 10, 11 (64/32-bit)</p>
             </div>
-            <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-download-file">
+            <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-pill-dark">
               Unduh .EXE
             </a>
           </div>
 
-          <div class="dl-card-item">
+          <div class="dl-tile">
             <div>
               <h4>Paket Android (.apk)</h4>
               <p>Ukuran: ~4.5 MB &bull; Android 5.0 (Lollipop) ke atas</p>
             </div>
-            <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-v1.1.0.apk" class="btn-download-file">
+            <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-v1.1.0.apk" class="btn-pill-outline">
               Unduh .APK
             </a>
           </div>
@@ -447,16 +555,17 @@
     </section>
 
     <!-- ============================================================
-         SECTION: FAQ
+         FAQ ACCORDION
          ============================================================ -->
     <section class="section-faq" id="faq">
       <div class="container">
-        <div class="section-head-center">
-          <span class="section-kicker-tag">TANYA JAWAB</span>
-          <h2 class="section-title-lg">Pertanyaan yang Sering Diajukan</h2>
+        <span class="kicker-slash">/TANYA JAWAB</span>
+
+        <div class="industries-top-flex" style="margin-bottom: 30px;">
+          <h2 class="section-h2">Pertanyaan yang Sering Diajukan</h2>
         </div>
 
-        <div class="faq-stack">
+        <div class="faq-list">
           <div class="faq-block-item active">
             <button type="button" class="faq-header-trigger">
               <span>Apakah benar-benar tidak ada biaya langganan bulanan lagi?</span>
@@ -502,32 +611,32 @@
   </main>
 
   <!-- ============================================================
-       FOOTER
+       FOOTER (AXION MINIMALIST BOTTOM)
        ============================================================ -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-columns-grid">
         <div>
-          <div class="footer-company-name">BukuKasir UMKM</div>
-          <p class="footer-company-desc">
-            Software kasir mandiri terpercaya untuk toko kelontong, minimarket, kafe, dan usaha jasa di Indonesia. Solusi operasional bebas biaya sewa dengan kontrol penuh data di tangan pemilik usaha.
+          <div class="footer-brand-title">/BUKUKASIR</div>
+          <p class="footer-brand-p">
+            Software kasir toko mandiri terpercaya untuk toko kelontong, minimarket, kafe, dan usaha jasa di Indonesia. Solusi operasional bebas biaya sewa dengan kontrol penuh data di tangan pemilik usaha.
           </p>
         </div>
 
-        <div>
-          <div class="footer-col-header">Menu Cepat</div>
-          <ul class="footer-links-list">
-            <li><a href="#demo">Coba Demo POS</a></li>
-            <li><a href="#perbandingan">Perbandingan Biaya</a></li>
-            <li><a href="#modul">Modul Bisnis</a></li>
+        <div class="footer-nav-col">
+          <h5>Menu Cepat</h5>
+          <ul>
+            <li><a href="#solusi">Solusi Kasir</a></li>
+            <li><a href="#modul">Modul Usaha</a></li>
+            <li><a href="#keunggulan">Teknologi</a></li>
             <li><a href="#harga">Harga Promo</a></li>
             <li><a href="#unduh">Unduh Installer</a></li>
           </ul>
         </div>
 
-        <div>
-          <div class="footer-col-header">Bantuan &amp; Kontak</div>
-          <ul class="footer-links-list">
+        <div class="footer-nav-col">
+          <h5>Bantuan &amp; Kontak</h5>
+          <ul>
             <li><a href="https://wa.me/6281234567890" target="_blank" rel="noopener">WhatsApp Resmi</a></li>
             <li><a href="https://github.com/Atnan49/Umkm-Pos" target="_blank" rel="noopener">Repositori GitHub</a></li>
             <li><a href="https://github.com/Atnan49/Umkm-Pos/releases" target="_blank" rel="noopener">Rilis Resmi v1.1.0</a></li>
@@ -535,20 +644,20 @@
         </div>
       </div>
 
-      <div class="footer-legal-bar">
-        <div>&copy; 2026 BukuKasir UMKM &bull; Hak Cipta Dilindungi Undang-Undang.</div>
-        <div>100% Offline-First POS &bull; Dark Obsidian &amp; Luminous Emerald Edition.</div>
+      <div class="footer-bottom-bar">
+        <div>&copy; 2026 BukuKasir &bull; Hak Cipta Dilindungi Undang-Undang.</div>
+        <div>100% Offline-First POS &bull; Axion Editorial Reference Edition.</div>
       </div>
     </div>
   </footer>
 
   <!-- ============================================================
-       MODAL CHECKOUT DENGAN VOUCHER (DARK GLASS)
+       MODAL CHECKOUT DENGAN VOUCHER (CLEAN PILL AESTHETIC)
        ============================================================ -->
   <div class="modal-overlay" id="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
     <div class="checkout-box">
       <div class="modal-head">
-        <h3 id="modal-title-text">Pemesanan Lisensi BukuKasir UMKM</h3>
+        <h3 id="modal-title-text">Pemesanan Lisensi BukuKasir</h3>
         <button type="button" class="modal-close-x" id="btn-close-checkout" aria-label="Tutup modal">&times;</button>
       </div>
 
@@ -557,16 +666,16 @@
         <div id="checkout-step-form">
           <div class="checkout-order-summary">
             <div class="summary-row">
-              <span id="checkout-pkg-name" style="font-weight: 700; color: #ffffff;">Lisensi Toko Tunggal</span>
-              <strong id="checkout-pkg-price" style="color: #94a3b8;">Rp 100.000</strong>
+              <span id="checkout-pkg-name" style="font-weight: 700; color: var(--text-main);">Lisensi Toko Tunggal</span>
+              <strong id="checkout-pkg-price" style="color: var(--text-muted);">Rp 100.000</strong>
             </div>
             <div class="summary-row voucher-discount-row" id="checkout-discount-row">
               <span>Diskon Voucher (HEMAT15):</span>
               <strong id="checkout-discount-val">- Rp 15.000</strong>
             </div>
-            <div class="summary-row" id="checkout-final-row" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; margin-top: 8px; font-weight: 850;">
-              <span style="color:#ffffff;">Total Pembayaran:</span>
-              <strong id="checkout-final-val" style="color: var(--emerald-primary); font-size: 18px;">Rp 85.000</strong>
+            <div class="summary-row" id="checkout-final-row" style="border-top: 1px solid var(--border-light); padding-top: 8px; margin-top: 8px; font-weight: 850;">
+              <span>Total Tagihan:</span>
+              <strong id="checkout-final-val" style="color: var(--text-emerald); font-size: 17px;">Rp 85.000</strong>
             </div>
             <div style="font-size: 11px; color: var(--text-subtle); margin-top: 4px;" id="checkout-pkg-desc">
               Lisensi seumur hidup modul kasir toko mandiri bebas biaya bulanan.
@@ -598,7 +707,7 @@
             <div class="form-group">
               <label class="form-label" for="input-customer-wa">Nomor WhatsApp Aktif *</label>
               <input type="tel" id="input-customer-wa" class="form-control" placeholder="Contoh: 081234567890" required>
-              <div class="form-hint">Salinan kunci lisensi resmi akan dikirimkan otomatis ke nomor ini.</div>
+              <div class="form-hint">Salinan serial key lisensi akan dikirimkan otomatis ke nomor ini.</div>
             </div>
 
             <button type="submit" class="btn-modal-submit">Lanjut ke Pembayaran QRIS &rarr;</button>
@@ -618,17 +727,17 @@
             </div>
             <div class="summary-row">
               <span>Kode Tagihan:</span>
-              <span id="pay-invoice-code" style="font-family: var(--font-mono); font-weight: 700; color: #ffffff;">INV-000000</span>
+              <span id="pay-invoice-code" style="font-family: var(--font-mono); font-weight: 700;">INV-000000</span>
             </div>
-            <div class="summary-row" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px; margin-top: 6px;">
-              <span>Total Pembayaran (Diskon Voucher):</span>
-              <strong id="pay-total-amount" style="font-size: 20px; color: var(--emerald-primary);">Rp 85.000</strong>
+            <div class="summary-row" style="border-top: 1px solid var(--border-light); padding-top: 6px; margin-top: 6px;">
+              <span>Total Pembayaran:</span>
+              <strong id="pay-total-amount" style="font-size: 18px; color: var(--text-emerald);">Rp 85.000</strong>
             </div>
           </div>
 
           <div class="payment-selector">
             <div class="payment-method-card active" data-method="qris">
-              <span>QRIS Instan (Semua Bank &amp; E-Wallet)</span>
+              <span>QRIS Instan (Semua E-Wallet &amp; Bank)</span>
             </div>
             <div class="payment-method-card" data-method="transfer">
               <span>Transfer Bank Manual</span>
@@ -645,9 +754,9 @@
             </div>
           </div>
 
-          <div id="transfer-container" style="display: none; background: #0c121e; border: 1px solid var(--border-subtle); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 18px;">
-            <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Rekening Bank Resmi:</div>
-            <div style="font-size: 15px; font-family: var(--font-mono); color: var(--emerald-light); font-weight: 700;">BCA: 8830-1928-33</div>
+          <div id="transfer-container" style="display: none; background: #ffffff; border: 1px solid var(--border-light); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 18px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Rekening Bank Resmi:</div>
+            <div style="font-size: 15px; font-family: var(--font-mono); color: var(--text-emerald); font-weight: 700;">BCA: 8830-1928-33</div>
             <div style="font-size: 12px; color: var(--text-muted);">a.n. PT BukuKasir Teknologi Mandiri</div>
           </div>
 
@@ -659,43 +768,43 @@
         <!-- Step 3: Serial Key Lisensi Resmi -->
         <div id="checkout-step-success" style="display: none;">
           <div style="text-align: center; margin-bottom: 16px;">
-            <div style="width: 48px; height: 48px; background-color: var(--emerald-subtle); color: var(--emerald-primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; margin-bottom: 8px;">
+            <div style="width: 44px; height: 44px; background-color: var(--accent-green-light); color: var(--text-emerald); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; margin-bottom: 8px;">
               &check;
             </div>
-            <h4 style="font-size: 18px; font-weight: 850; color: #ffffff;">Pembayaran Berhasil Dikonfirmasi</h4>
+            <h4 style="font-size: 18px; font-weight: 850; color: var(--text-main);">Pembayaran Berhasil Dikonfirmasi</h4>
             <p style="font-size: 13px; color: var(--text-muted);">Sertifikat lisensi resmi Anda telah diterbitkan.</p>
           </div>
 
           <div class="license-box-display">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Serial Key Resmi BukuKasir:</div>
             <div class="license-key-text" id="success-license-key">BKPOS-XXXX-XXXX-XXXX-XXXX</div>
-            <div style="font-size: 12px; color: #cbd5e1; margin-top: 4px;">
-              Terdaftar untuk: <strong id="success-store-name" style="color: #ffffff;">Toko Anda</strong>
+            <div style="font-size: 12px; color: var(--text-main); margin-top: 4px;">
+              Terdaftar untuk: <strong id="success-store-name">Toko Anda</strong>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
-            <button type="button" id="btn-copy-license" class="btn-ghost-glass" style="padding: 10px; font-size: 13px; justify-content: center;">
+            <button type="button" id="btn-copy-license" class="btn-pill-outline" style="padding: 9px; font-size: 12px;">
               Salin Serial Key
             </button>
-            <button type="button" id="btn-print-certificate" class="btn-ghost-glass" style="padding: 10px; font-size: 13px; justify-content: center;">
+            <button type="button" id="btn-print-certificate" class="btn-pill-outline" style="padding: 9px; font-size: 12px;">
               Cetak Sertifikat
             </button>
           </div>
 
-          <div style="background-color: #0c121e; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
-            <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #ffffff;">Unduh Berkas Aplikasi Kasir:</div>
+          <div style="background-color: var(--bg-page); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">Unduh Berkas Aplikasi Kasir:</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-              <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-download-file" style="text-align: center; font-size: 12px; padding: 9px;">
+              <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-Setup-1.1.0.exe" class="btn-pill-dark" style="text-align: center; font-size: 12px; padding: 9px;">
                 Installer Windows
               </a>
-              <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-v1.1.0.apk" class="btn-download-file" style="text-align: center; font-size: 12px; padding: 9px; background-color: #1e293b; color: #ffffff;">
+              <a href="https://github.com/Atnan49/Umkm-Pos/releases/download/v1.1.0/BukuKasir-UMKM-v1.1.0.apk" class="btn-pill-outline" style="text-align: center; font-size: 12px; padding: 9px;">
                 APK Android
               </a>
             </div>
           </div>
 
-          <a href="#" id="btn-wa-confirm-order" target="_blank" rel="noopener" class="btn-primary-emerald" style="display: block; text-align: center; text-decoration: none;">
+          <a href="#" id="btn-wa-confirm-order" target="_blank" rel="noopener" class="btn-modal-submit" style="display: block; text-align: center; text-decoration: none;">
             Hubungi Admin WhatsApp
           </a>
         </div>
@@ -703,6 +812,31 @@
     </div>
   </div>
 
-  <script src="app.js?v=3.0.0"></script>
+  <!-- ============================================================
+       MODAL SIMULASI CETAK STRUK THERMAL RESMI
+       ============================================================ -->
+  <div class="modal-overlay" id="receipt-modal" role="dialog" aria-modal="true" aria-labelledby="receipt-modal-title">
+    <div class="checkout-box" style="max-width: 440px;">
+      <div class="modal-head">
+        <h3 id="receipt-modal-title">Pratinjau Struk Thermal POS (ESC/POS)</h3>
+        <button type="button" class="modal-close-x" id="btn-close-receipt-modal" aria-label="Tutup pratinjau">&times;</button>
+      </div>
+      <div class="modal-body-pad">
+        <div id="receipt-paper-content" class="receipt-paper-view">
+          <!-- Rendered by JS -->
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px;">
+          <button type="button" class="btn-pill-dark" id="btn-print-actual-receipt" style="width: 100%;">
+            Print Struk
+          </button>
+          <button type="button" class="btn-pill-outline" id="btn-close-receipt-bottom" style="width: 100%;">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=4.0.0"></script>
 </body>
 </html>

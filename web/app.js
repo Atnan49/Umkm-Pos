@@ -68,19 +68,60 @@ const WebStore = {
     { name: 'Minyak Goreng Sawit 2L', price: 34000, qty: 1 }
   ],
 
+  demoCatalogs: {
+    retail: [
+      { name: 'Beras Ramos Super 5kg', sku: 'SKU: 8999901 &bull; Sembako', price: 74000 },
+      { name: 'Minyak Goreng Sawit 2L', sku: 'SKU: 8999902 &bull; Kebutuhan Pokok', price: 34000 },
+      { name: 'Telur Ayam Negeri 1kg', sku: 'SKU: 8999903 &bull; Sembako', price: 28000 },
+      { name: 'Gula Pasir Kristal 1kg', sku: 'SKU: 8999904 &bull; Sembako', price: 17500 }
+    ],
+    cafe: [
+      { name: 'Kopi Susu Gula Aren', sku: 'SKU: 8999904 &bull; F&B Minuman', price: 18000 },
+      { name: 'Croissant Butter Paris', sku: 'SKU: 8999905 &bull; Bakery & Pastry', price: 25000 },
+      { name: 'Matcha Oat Latte Ice', sku: 'SKU: 8999906 &bull; Minuman Artisan', price: 24000 },
+      { name: 'Roti Bakar Cokelat Keju', sku: 'SKU: 8999907 &bull; Makanan Ringan', price: 22000 }
+    ],
+    service: [
+      { name: 'Banner Flexi 3x1 Meter (DP)', sku: 'SKU: 8999908 &bull; Digital Printing', price: 45000 },
+      { name: 'Jilid Hardcover Skripsi', sku: 'SKU: 8999909 &bull; Jilid Dokumen', price: 35000 },
+      { name: 'Stempel Otomatis Flash', sku: 'SKU: 8999910 &bull; Aksesoris Toko', price: 50000 },
+      { name: 'Cetak Brosur A5 1 Rim', sku: 'SKU: 8999911 &bull; Percetakan', price: 85000 }
+    ]
+  },
+
+  currentIndustryIndex: 1,
+
   init() {
     this.bindInteractiveDemo();
+    this.bindIndustryCarousel();
+    this.bindBentoActions();
+    this.bindReceiptModal();
     this.bindFAQ();
     this.bindCheckoutModal();
     this.bindPaymentSelector();
     this.bindVoucherInputs();
+    this.bindSmoothScroll();
+    this.bindDownloadToasts();
     this.updatePricingDisplays();
+  },
+
+  bindDownloadToasts() {
+    document.querySelectorAll('a[href$=".exe"]').forEach(a => {
+      a.addEventListener('click', () => {
+        this.showToast('🚀 Mengunduh BukuKasir UMKM Installer Windows (.exe)...');
+      });
+    });
+    document.querySelectorAll('a[href$=".apk"]').forEach(a => {
+      a.addEventListener('click', () => {
+        this.showToast('📱 Mengunduh BukuKasir UMKM Paket Android (.apk)...');
+      });
+    });
   },
 
   // 1. Interactive Live POS Window in Hero
   bindInteractiveDemo() {
     // Mode switcher buttons
-    const modeBtns = document.querySelectorAll('.mode-btn');
+    const modeBtns = document.querySelectorAll('.mode-btn, .mode-pill-btn');
     modeBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         modeBtns.forEach(b => b.classList.remove('active'));
@@ -91,14 +132,7 @@ const WebStore = {
     });
 
     // Item quick-add buttons
-    const itemCards = document.querySelectorAll('.catalog-item-card');
-    itemCards.forEach(card => {
-      card.addEventListener('click', () => {
-        const name = card.dataset.name;
-        const price = parseInt(card.dataset.price, 10);
-        this.addDemoItem(name, price);
-      });
-    });
+    this.bindItemCardClicks();
 
     // Barcode simulate button
     const btnScan = document.getElementById('btn-simulate-scan');
@@ -115,37 +149,297 @@ const WebStore = {
       });
     }
 
+    // Reset keranjang demo button
+    const btnClear = document.getElementById('btn-clear-pos-sim');
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        this.demoCart = [];
+        this.renderDemoCart();
+        this.showToast('Keranjang kasir telah dikosongkan.');
+      });
+    }
+
     // Print receipt simulator
     const btnPrintSim = document.getElementById('btn-print-pos-sim');
     if (btnPrintSim) {
       btnPrintSim.addEventListener('click', () => {
-        this.showToast('Struk thermal dicetak! Laci kasir RJ11 terbuka otomatis.');
+        this.openReceiptModal();
       });
     }
   },
 
+  bindItemCardClicks() {
+    const itemCards = document.querySelectorAll('.catalog-item-card');
+    itemCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const name = card.dataset.name;
+        const price = parseInt(card.dataset.price, 10);
+        this.addDemoItem(name, price);
+      });
+    });
+  },
+
   switchDemoMode(mode) {
-    const titleEl = document.getElementById('pos-window-mode-title');
+    const catalogContainer = document.querySelector('.catalog-tiles-grid');
+    const items = this.demoCatalogs[mode] || this.demoCatalogs.retail;
+    if (catalogContainer && items) {
+      catalogContainer.innerHTML = items.map(it => `
+        <div class="catalog-item-card" data-name="${it.name}" data-price="${it.price}">
+          <strong>${it.name}</strong>
+          <span class="sku">${it.sku}</span>
+          <span class="price">+ ${formatRupiah(it.price)}</span>
+        </div>
+      `).join('');
+      this.bindItemCardClicks();
+    }
+
+    const titleEl = document.getElementById('ticket-store-name');
+    const metaEl = document.getElementById('ticket-meta-mode');
+
     if (mode === 'retail') {
-      if (titleEl) titleEl.textContent = 'Mode Retail & Minimarket (Barcode Scanner Aktif)';
+      if (titleEl) titleEl.textContent = 'TOKO BERKAH MANDIRI';
+      if (metaEl) metaEl.textContent = 'STRUK TRANSAKSI THERMAL ESC/POS';
       this.demoCart = [
         { name: 'Beras Ramos Super 5kg', price: 74000, qty: 1 },
         { name: 'Minyak Goreng Sawit 2L', price: 34000, qty: 1 }
       ];
     } else if (mode === 'cafe') {
-      if (titleEl) titleEl.textContent = 'Mode Kafe & F&B (Meja 04 • Tiket Dapur Aktif)';
+      if (titleEl) titleEl.textContent = 'KAFE SENJA COFFEE & EATERY';
+      if (metaEl) metaEl.textContent = 'TIKET PESANAN DAPUR (KOT) & MEJA 04';
       this.demoCart = [
         { name: 'Kopi Susu Gula Aren', price: 18000, qty: 2 },
         { name: 'Roti Bakar Cokelat Keju', price: 22000, qty: 1 }
       ];
     } else if (mode === 'service') {
-      if (titleEl) titleEl.textContent = 'Mode Percetakan & Jasa (Sistem DP & Estimasi Selesai)';
+      if (titleEl) titleEl.textContent = 'JAYA DIGITAL PRINT & OFFSET';
+      if (metaEl) metaEl.textContent = 'SURAT PERINTAH KERJA & NOTA DP';
       this.demoCart = [
-        { name: 'Banner Flexi 3x1 Meter (DP 50%)', price: 45000, qty: 1 },
+        { name: 'Banner Flexi 3x1 Meter (DP)', price: 45000, qty: 1 },
         { name: 'Cetak Brosur A5 1 Rim', price: 85000, qty: 1 }
       ];
     }
     this.renderDemoCart();
+  },
+
+  bindIndustryCarousel() {
+    const btnPrev = document.getElementById('btn-prev-industry');
+    const btnNext = document.getElementById('btn-next-industry');
+    const cards = document.querySelectorAll('.cards-carousel-row .industry-card');
+    const thumb = document.getElementById('carousel-track-thumb');
+
+    if (!cards.length) return;
+
+    const updateIndustryCard = (idx, scrollHero = false) => {
+      this.currentIndustryIndex = (idx + cards.length) % cards.length;
+      cards.forEach((c, i) => {
+        if (i === this.currentIndustryIndex) {
+          c.classList.add('active-dark');
+        } else {
+          c.classList.remove('active-dark');
+        }
+      });
+      if (thumb) {
+        const offset = (this.currentIndustryIndex / (cards.length - 1)) * 45;
+        thumb.style.transform = `translateX(${offset}px)`;
+      }
+
+      const activeCard = cards[this.currentIndustryIndex];
+      const mode = activeCard.dataset.industryMode || 'retail';
+      this.switchDemoMode(mode);
+
+      document.querySelectorAll('.mode-pill-btn').forEach(b => {
+        if (b.dataset.mode === mode) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+
+      const title = activeCard.querySelector('.industry-title')?.textContent || 'Modul Usaha';
+      this.showToast(`Modul Usaha: ${title} diaktifkan!`);
+
+      if (scrollHero) {
+        const heroTerm = document.querySelector('.hero-visual-card');
+        if (heroTerm) heroTerm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        updateIndustryCard(this.currentIndustryIndex - 1);
+      });
+    }
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        updateIndustryCard(this.currentIndustryIndex + 1);
+      });
+    }
+
+    cards.forEach((card, idx) => {
+      card.addEventListener('click', () => {
+        updateIndustryCard(idx, true);
+      });
+    });
+  },
+
+  bindBentoActions() {
+    // 1. Scan test
+    const btnScan = document.getElementById('btn-test-scan-bento');
+    if (btnScan) {
+      btnScan.addEventListener('click', () => {
+        const simBtn = document.getElementById('btn-simulate-scan');
+        if (simBtn) simBtn.click();
+        const term = document.querySelector('.hero-visual-card');
+        if (term) term.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
+    // 2. Print test
+    const btnPrint = document.getElementById('btn-test-print-bento');
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        this.openReceiptModal();
+      });
+    }
+
+    // 3. Offline test
+    const btnOffline = document.getElementById('btn-test-offline-bento');
+    if (btnOffline) {
+      btnOffline.addEventListener('click', () => {
+        this.showToast('✓ Status SQLite: Mode Offline 100% Aktif, Database Lokal Siap.');
+      });
+    }
+
+    // 4. Stock alert test
+    const btnStock = document.getElementById('btn-test-stock-bento');
+    if (btnStock) {
+      btnStock.addEventListener('click', () => {
+        this.showToast('⚠️ Peringatan Stok: Minyak Goreng Sawit 2L tersisa 2 pcs! Segera pesan.');
+      });
+    }
+
+    // 5. Download Sample Excel
+    const btnExcel = document.getElementById('btn-download-sample-excel');
+    if (btnExcel) {
+      btnExcel.addEventListener('click', () => {
+        const csvData = 
+          "No,Tanggal,Waktu,No Faktur,Nama Produk,Kategori,Qty,Harga Beli,Harga Jual,Subtotal,Laba Bersih,Metode\n" +
+          "1,2026-10-10,08:15:20,INV-100291,Beras Ramos Super 5kg,Sembako,1,62000,74000,74000,12000,TUNAI\n" +
+          "2,2026-10-10,09:42:11,INV-100292,Minyak Goreng Sawit 2L,Kebutuhan Pokok,2,25000,34000,68000,18000,QRIS\n" +
+          "3,2026-10-10,11:05:44,INV-100293,Kopi Susu Gula Aren,F&B Minuman,3,11000,18000,54000,21000,QRIS\n" +
+          "4,2026-10-10,14:22:05,INV-100294,Telur Ayam Negeri 1kg,Sembako,2,24000,28000,56000,8000,TUNAI\n";
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Laporan_Keuangan_BukuKasir_UMKM.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast('✓ Berkas contoh rekap laba rugi Excel (.csv) berhasil diunduh!');
+      });
+    }
+
+    // Tech feature buttons
+    const btnFeatOffline = document.getElementById('btn-feature-test-offline');
+    if (btnFeatOffline) {
+      btnFeatOffline.addEventListener('click', () => {
+        const card = document.querySelector('.bento-card-small');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        this.showToast('BukuKasir 100% Offline: Data tersimpan aman di SQLite komputer toko.');
+      });
+    }
+
+    const btnFeatPrinter = document.getElementById('btn-feature-test-printer');
+    if (btnFeatPrinter) {
+      btnFeatPrinter.addEventListener('click', () => {
+        this.openReceiptModal();
+      });
+    }
+  },
+
+  bindReceiptModal() {
+    const modal = document.getElementById('receipt-modal');
+    const closeTop = document.getElementById('btn-close-receipt-modal');
+    const closeBottom = document.getElementById('btn-close-receipt-bottom');
+    const btnPrint = document.getElementById('btn-print-actual-receipt');
+
+    [closeTop, closeBottom].forEach(b => {
+      if (b) b.addEventListener('click', () => {
+        if (modal) modal.classList.remove('active');
+      });
+    });
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+  },
+
+  openReceiptModal() {
+    const modal = document.getElementById('receipt-modal');
+    const content = document.getElementById('receipt-paper-content');
+    if (!modal || !content) return;
+
+    const dateStr = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    let subtotal = 0;
+    let itemsList = '';
+
+    if (this.demoCart.length === 0) {
+      itemsList = '  (Keranjang transaksi kosong)\n';
+    } else {
+      this.demoCart.forEach(item => {
+        const t = item.price * item.qty;
+        subtotal += t;
+        itemsList += `  ${item.qty}x ${item.name.padEnd(24, ' ')} ${formatRupiah(t)}\n`;
+      });
+    }
+
+    const storeTitle = document.getElementById('ticket-store-name')?.textContent || 'TOKO BERKAH MANDIRI';
+
+    content.textContent = 
+`========================================
+           ${storeTitle}
+       Jl. Ahmad Yani No. 49, Jakarta
+             Telp: 0812-3456-7890
+========================================
+Waktu  : ${dateStr}
+Kasir  : Administrator (Kasir 01)
+No. Trx: TRK-${Math.floor(100000 + Math.random() * 900000)}
+Metode : TUNAI / QRIS
+----------------------------------------
+ITEM TRANSAKSI:
+${itemsList}----------------------------------------
+TOTAL ITEM : ${this.demoCart.reduce((acc, c) => acc + c.qty, 0)} Pcs
+SUBTOTAL   : ${formatRupiah(subtotal)}
+DISKON     : Rp 0
+TOTAL BAYAR: ${formatRupiah(subtotal)}
+========================================
+    Terima Kasih Atas Kunjungan Anda
+    Simpan Struk Sebagai Bukti Belanja
+  Software Kasir: BukuKasir UMKM v1.1.0
+========================================`;
+
+    modal.classList.add('active');
+  },
+
+  bindSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const targetId = anchor.getAttribute('href');
+        if (!targetId || targetId === '#' || anchor.hasAttribute('data-buy-pkg')) return;
+        const targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          targetEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
   },
 
   addDemoItem(name, price) {
@@ -158,6 +452,19 @@ const WebStore = {
     this.renderDemoCart();
   },
 
+  removeDemoItem(name) {
+    const idx = this.demoCart.findIndex(i => i.name === name);
+    if (idx !== -1) {
+      if (this.demoCart[idx].qty > 1) {
+        this.demoCart[idx].qty--;
+      } else {
+        this.demoCart.splice(idx, 1);
+      }
+      this.renderDemoCart();
+      this.showToast(`Item ${name} dikurangi.`);
+    }
+  },
+
   renderDemoCart() {
     const container = document.getElementById('ticket-cart-rows');
     if (!container) return;
@@ -165,18 +472,31 @@ const WebStore = {
     container.innerHTML = '';
     let subtotal = 0;
 
-    this.demoCart.forEach(item => {
-      const lineTotal = item.price * item.qty;
-      subtotal += lineTotal;
+    if (this.demoCart.length === 0) {
+      container.innerHTML = '<div style="font-size:12px; color:var(--text-subtle); text-align:center; padding:18px 0;">Keranjang kosong. Klik item atau scan barcode di samping.</div>';
+    } else {
+      this.demoCart.forEach(item => {
+        const lineTotal = item.price * item.qty;
+        subtotal += lineTotal;
 
-      const row = document.createElement('div');
-      row.className = 'ticket-row-item';
-      row.innerHTML = `
-        <span class="item-title">${item.qty}x ${item.name}</span>
-        <span class="item-val">${formatRupiah(lineTotal)}</span>
-      `;
-      container.appendChild(row);
-    });
+        const row = document.createElement('div');
+        row.className = 'ticket-row-item';
+        row.innerHTML = `
+          <span class="item-title">${item.qty}x ${item.name}</span>
+          <span class="item-val">${formatRupiah(lineTotal)}</span>
+          <button type="button" class="btn-remove-cart-item" data-item-name="${item.name}" title="Hapus item">&times;</button>
+        `;
+        container.appendChild(row);
+      });
+
+      container.querySelectorAll('.btn-remove-cart-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const name = btn.dataset.itemName;
+          this.removeDemoItem(name);
+        });
+      });
+    }
 
     const subtotalEl = document.getElementById('demo-subtotal-val');
     const totalEl = document.getElementById('demo-total-val');
@@ -204,12 +524,14 @@ const WebStore = {
 
     // Clickable voucher badge in promo strip
     document.querySelectorAll('[data-voucher-fill]').forEach(el => {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
         const vCode = el.dataset.voucherFill || 'HEMAT15';
+        const pkgKey = el.dataset.buyPkg || 'single';
         this.currentVoucherCode = vCode;
         if (inputVoucher) inputVoucher.value = vCode;
         this.applyVoucher(vCode);
-        this.openCheckout('single');
+        this.openCheckout(pkgKey);
       });
     });
   },
