@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "web/app.js": {
-    "mtime": 1791624888.5128164,
-    "seen": 1791624998.6296275,
-    "ast_hash": "b5bda2ae02ff1f6ab1304387683517fc",
+    "mtime": 1791626268.2367198,
+    "seen": 1791626488.9419012,
+    "ast_hash": "74c067015756bcef0ef6c7ccb71192a2",
     "semantic_hash": ""
   },
   "App/paket-penjualan/LISTING_MARKETPLACE.md": {
@@ -377,16 +377,10 @@
     "ast_hash": "0b4136d16b1c40bbda9073b0d07795dd",
     "semantic_hash": ""
   },
-  "App/paket-penjualan/arsip-lisensi/Sertifikat_Lisensi_Kopi_Kenangan_Senja.html": {
-    "mtime": 1791624601.5746844,
-    "seen": 1791624998.629644,
-    "ast_hash": "8b716087fb74308e87ec5b3905cf16e9",
-    "semantic_hash": ""
-  },
   "web/index.html": {
-    "mtime": 1791624956.6951795,
-    "seen": 1791624998.6296482,
-    "ast_hash": "fff0bd8579425654bdb1d58ba19d5908",
+    "mtime": 1791626366.7385664,
+    "seen": 1791626488.9419286,
+    "ast_hash": "1b12724eb2f29faa77406d0850c31170",
     "semantic_hash": ""
   }
 }
