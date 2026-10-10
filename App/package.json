@@ -7,8 +7,11 @@
     "start": "electron .",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "prepare:android": "node prepare-www.js && npx cap sync android",
-    "build:apk": "node prepare-www.js && npx cap sync android && cd android && gradlew assembleDebug"
+    "prepare:android": "node scripts/prepare-www.js && npx cap sync android",
+    "build:apk": "node scripts/prepare-www.js && npx cap sync android && cd android && gradlew assembleDebug",
+    "generate:icons": "node scripts/generate-icons.js",
+    "generate:android-icons": "node scripts/generate-android-icons.js",
+    "license:generate": "node scripts/generate-license.js"
   },
   "keywords": [
     "pos",
@@ -31,14 +34,10 @@
       "!www/**",
       "!dist-apk/**",
       "!graphify-out/**",
+      "!scripts/**",
+      "!docs/**",
       "!node_modules/.cache/**",
-      "!generate-android-icons.js",
-      "!generate-icons.js",
-      "!prepare-www.js",
-      "!build-apk.bat",
       "!capacitor.config.ts",
-      "!DESIGN.md",
-      "!MAINTENANCE.md",
       "!*.bat"
     ],
     "win": {

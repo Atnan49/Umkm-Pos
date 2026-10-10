@@ -2291,3 +2291,374 @@ input[type="number"] {
     margin-top: 2px;
   }
 }
+
+/* ========================================================
+   HARD LOCK SCREEN - LISENSI RESMI BUKUKASIR UMKM
+   ======================================================== */
+.license-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.license-lock-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  max-width: 480px;
+  width: 100%;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  position: relative;
+  animation: lockCardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lockCardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.license-lock-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+
+.license-lock-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+}
+
+.license-lock-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.license-lock-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.license-lock-form {
+  text-align: left;
+}
+
+.license-lock-alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-danger);
+}
+
+.license-lock-actions {
+  margin-top: 1.25rem;
+}
+
+.license-lock-footer {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--border-medium);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.license-lock-footer p {
+  margin-bottom: 0.5rem;
+}
+
+.btn-license-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.btn-license-help:hover {
+  background-color: var(--color-primary-light);
+  text-decoration: underline;
+}
+
+/* License Status Box in Settings */
+.license-status-box {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.license-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.license-active-tag {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-success);
+}
+
+.license-type-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #166534;
+  background-color: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.license-detail-text {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.license-key-display {
+  margin-top: 0.25rem;
+}
+
+.license-key-display code {
+  color: #0f172a;
+  background-color: #e2e8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   MODUL KHUSUS INDUSTRI: KAFE & RUMAH MAKAN (F&B) + PERCETAKAN
+   ============================================================ */
+
+/* Tombol Jasa / Custom Service di Toolbar POS */
+.btn-custom-service {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+}
+
+.btn-custom-service:hover {
+  background-color: #dcfce7 !important;
+  border-color: #86efac !important;
+}
+
+/* Panel Kafe & F&B di Keranjang */
+.cart-fnb-panel {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.order-type-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.order-type-btn {
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.order-type-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.order-type-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.3);
+}
+
+.table-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.table-icon {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.table-input-wrap input {
+  width: 100%;
+  padding: 0.45rem 0.75rem 0.45rem 2.25rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-main);
+}
+
+.table-input-wrap input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* Catatan Khusus Per Menu pada Keranjang */
+.cart-item-note-row {
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cart-item-note-text {
+  font-size: 0.75rem;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-style: italic;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-add-note {
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px dashed var(--color-primary);
+  border-radius: 4px;
+  padding: 1px 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-add-note:hover {
+  background: var(--color-primary-light);
+}
+
+/* Quick Note Pills di Modal */
+.quick-note-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.quick-note-pill {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+}
+
+.quick-note-pill:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Panel Uang Muka (DP) & Pelunasan Percetakan */
+.payment-dp-toggle-wrap {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.dp-switch-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dp-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.dp-remaining-box {
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.dp-highlight {
+  color: #c2410c;
+  font-weight: 700;
+}
+
+.dp-highlight .text-danger {
+  color: #dc2626;
+  font-size: 1rem;
+}
+
+

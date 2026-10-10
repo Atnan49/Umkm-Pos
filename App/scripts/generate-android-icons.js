@@ -2,11 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
+const rootDir = path.resolve(__dirname, '..');
+
 async function generateAndroidIcons() {
-  const svgPath = path.join(__dirname, 'icon.svg');
+  const svgPath = path.join(rootDir, 'icon.svg');
   const svgBuffer = fs.readFileSync(svgPath);
 
-  const resDir = path.join(__dirname, 'android', 'app', 'src', 'main', 'res');
+  const resDir = path.join(rootDir, 'android', 'app', 'src', 'main', 'res');
 
   const densities = [
     { dir: 'mipmap-mdpi', iconSize: 48, fgSize: 108 },

@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0\.."
 set "JAVA_HOME=C:\Users\Atnan\.jdks\jdk21.0.12_12"
 set "ANDROID_HOME=C:\Users\Atnan\AppData\Local\Android\Sdk"
 
@@ -10,7 +10,7 @@ echo ========================================================
 echo.
 
 echo [1/3] Menyiapkan aset web...
-node prepare-www.js
+node scripts\prepare-www.js
 if %errorlevel% neq 0 (
     echo Gagal menyiapkan aset web.
     pause

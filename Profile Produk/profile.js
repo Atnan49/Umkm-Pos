@@ -14,6 +14,40 @@ const FORMAT = {
   }
 };
 
+// ========================================================
+// KONFIGURASI PAYMENT GATEWAY PAKASIR & LISENSI RESMI
+// ========================================================
+const PAKASIR_CONFIG = {
+  // Ganti dengan slug proyek Anda dari dashboard https://app.pakasir.com
+  projectSlug: 'bukukasir-umkm',
+  price: 90000,
+  productName: 'Lisensi Resmi BukuKasir UMKM (Seumur Hidup)'
+};
+
+// Algoritma Pembuatan Lisensi Offline (Identik dengan App/app.js)
+const LICENSE_SECRET = 'BK_UMKM_SECURE_SALT_2026_ATNAN49';
+
+function generateLicenseKey(storeName) {
+  const cleanName = String(storeName || '').trim().toUpperCase();
+  if (!cleanName) return '';
+
+  let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
+  const combined = cleanName + LICENSE_SECRET;
+  for (let i = 0; i < combined.length; i++) {
+    const ch = combined.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+  const hex1 = (h1 >>> 0).toString(16).padStart(8, '0').toUpperCase();
+  const hex2 = (h2 >>> 0).toString(16).padStart(8, '0').toUpperCase();
+  const fullHex = hex1 + hex2;
+
+  return `BKPOS-${fullHex.substring(0, 4)}-${fullHex.substring(4, 8)}-${fullHex.substring(8, 12)}-${fullHex.substring(12, 16)}`;
+}
+
 // Data Contoh Produk untuk Simulator Kasir
 const DEMO_PRODUCTS = [
   { id: 'p1', name: 'Minyak Goreng Sawit 2L', category: 'sembako', price: 34000, stock: 18, barcode: '899100123451' },
@@ -508,6 +542,38 @@ function initCheckoutPortal() {
   if (formStep1) {
     formStep1.addEventListener('submit', (e) => {
       e.preventDefault();
+      const storeName = (document.getElementById('order-store-name').value || 'Toko Berkah Bersama').trim();
+      const ownerName = (document.getElementById('order-owner-name').value || 'Pelanggan UMKM').trim();
+      const waNumber = (document.getElementById('order-whatsapp').value || '-').trim();
+
+      // Generate order ID unik untuk Pakasir
+      const orderId = 'BK-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000);
+      const serialKey = generateLicenseKey(storeName);
+
+      // Simpan data order sementara ke localStorage
+      const orderData = {
+        orderId,
+        storeName,
+        ownerName,
+        waNumber,
+        serialKey,
+        amount: PAKASIR_CONFIG.price,
+        createdAt: new Date().toISOString()
+      };
+      localStorage.setItem('bukukasir_pending_order', JSON.stringify(orderData));
+
+      // Update tampilan order ID di Step 2
+      const orderIdEl = document.getElementById('pakasir-order-id-val');
+      if (orderIdEl) orderIdEl.textContent = orderId;
+
+      // Bentuk URL checkout resmi Pakasir
+      const redirectUrl = window.location.origin + window.location.pathname + '?payment=success&order_id=' + encodeURIComponent(orderId);
+      const pakasirPayUrl = `https://app.pakasir.com/pay/${PAKASIR_CONFIG.projectSlug}/${PAKASIR_CONFIG.price}?order_id=${encodeURIComponent(orderId)}&qris_only=1&redirect=${encodeURIComponent(redirectUrl)}`;
+      const btnPakasirPay = document.getElementById('btn-open-pakasir-pay');
+      if (btnPakasirPay) {
+        btnPakasirPay.href = pakasirPayUrl;
+      }
+
       setStep(2);
     });
   }
@@ -525,7 +591,7 @@ function initCheckoutPortal() {
       payTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       const method = tab.dataset.method;
-      ['qris', 'va', 'wa'].forEach(m => {
+      ['pakasir', 'va', 'wa'].forEach(m => {
         const block = document.getElementById(`pay-method-${m}`);
         if (block) block.hidden = (m !== method);
       });
@@ -567,8 +633,8 @@ function initCheckoutPortal() {
         <rect x="37" y="20" width="5" height="5" fill="#0f172a" />
         <rect x="47" y="25" width="5" height="5" fill="#0f172a" />
         <rect x="57" y="20" width="5" height="5" fill="#0f172a" />
-        <rect x="40" y="40" width="20" height="20" fill="#c90000" rx="3" />
-        <text x="50" y="54" font-family="sans-serif" font-weight="900" font-size="8" fill="#ffffff" text-anchor="middle">QRIS</text>
+        <rect x="40" y="40" width="20" height="20" fill="#0f766e" rx="3" />
+        <text x="50" y="53" font-family="sans-serif" font-weight="900" font-size="7" fill="#ffffff" text-anchor="middle">PAKASIR</text>
         <rect x="10" y="37" width="5" height="5" fill="#0f172a" />
         <rect x="20" y="37" width="5" height="5" fill="#0f172a" />
         <rect x="25" y="47" width="5" height="5" fill="#0f172a" />
@@ -610,14 +676,29 @@ function initCheckoutPortal() {
   const btnVerify = document.getElementById('btn-verify-payment');
   if (btnVerify) {
     btnVerify.addEventListener('click', () => {
-      const storeName = document.getElementById('order-store-name').value || 'Toko Berkah Bersama';
-      const ownerName = document.getElementById('order-owner-name').value || 'Pelanggan UMKM';
-      const waNumber = document.getElementById('order-whatsapp').value || '-';
-      const planName = 'Lisensi Resmi BukuKasir UMKM (Rp 90.000)';
+      let orderData = null;
+      try {
+        orderData = JSON.parse(localStorage.getItem('bukukasir_pending_order'));
+      } catch (e) {}
 
-      // Generate unique serial license key
-      const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-      const serialKey = `BKUMKM-2026-${randomPart}`;
+      const storeName = (orderData && orderData.storeName) || (document.getElementById('order-store-name').value || 'Toko Berkah Bersama').trim();
+      const ownerName = (orderData && orderData.ownerName) || (document.getElementById('order-owner-name').value || 'Pelanggan UMKM').trim();
+      const waNumber = (orderData && orderData.waNumber) || (document.getElementById('order-whatsapp').value || '-').trim();
+      const orderId = (orderData && orderData.orderId) || ('BK-' + Date.now().toString(36).toUpperCase());
+
+      // Generate kunci lisensi resmi yang valid seumur hidup untuk nama toko ini
+      const serialKey = generateLicenseKey(storeName);
+
+      // Simpan status lisensi aktif
+      const activeData = {
+        orderId,
+        storeName,
+        ownerName,
+        waNumber,
+        serialKey,
+        paidAt: new Date().toISOString()
+      };
+      localStorage.setItem('bukukasir_active_license', JSON.stringify(activeData));
 
       const serialEl = document.getElementById('issued-serial-code');
       const storeInfoEl = document.getElementById('issued-store-info');
@@ -631,13 +712,13 @@ function initCheckoutPortal() {
       const waLink = document.getElementById('btn-send-wa-summary');
       if (waLink) {
         const msg = encodeURIComponent(
-          `Halo Admin BukuKasir UMKM, saya telah menyelesaikan pembayaran lisensi:\n\n` +
-          `- Nama Pemilik: ${ownerName}\n` +
+          `Halo Admin BukuKasir UMKM, saya telah menyelesaikan pembayaran via Pakasir:\n\n` +
+          `- Order ID: ${orderId}\n` +
           `- Nama Toko: ${storeName}\n` +
+          `- Nama Pemilik: ${ownerName}\n` +
           `- WhatsApp: ${waNumber}\n` +
-          `- Paket: ${planName}\n` +
-          `- Lisensi Terbit: ${serialKey}\n\n` +
-          `Mohon dicatat pada database pusat dan kirimkan tautan pendampingan instalasi. Terima kasih!`
+          `- Kunci Lisensi: ${serialKey}\n\n` +
+          `Mohon dicatat pada database pusat aktivasi software. Terima kasih!`
         );
         waLink.href = `https://wa.me/6281234567890?text=${msg}`;
       }
@@ -658,5 +739,59 @@ function initCheckoutPortal() {
         setTimeout(() => btnCopySerial.textContent = orig, 1500);
       }
     });
+  }
+
+  // Tombol Buka Kembali Portal Lisensi untuk yang sudah pernah membeli
+  const btnReopen = document.getElementById('btn-reopen-license-portal');
+  if (btnReopen) {
+    btnReopen.addEventListener('click', () => {
+      let activeLic = null;
+      try {
+        activeLic = JSON.parse(localStorage.getItem('bukukasir_active_license')) || 
+                    JSON.parse(localStorage.getItem('bukukasir_pending_order'));
+      } catch (e) {}
+
+      if (activeLic && activeLic.storeName) {
+        const serialEl = document.getElementById('issued-serial-code');
+        const storeInfoEl = document.getElementById('issued-store-info');
+        const serialKey = activeLic.serialKey || generateLicenseKey(activeLic.storeName);
+
+        if (serialEl) serialEl.textContent = serialKey;
+        if (storeInfoEl) {
+          storeInfoEl.textContent = `Terdaftar untuk: ${activeLic.storeName} (${activeLic.ownerName || '-'}) - Lisensi Aktif Seumur Hidup`;
+        }
+
+        openModal('resmi');
+        setStep(3);
+      } else {
+        openModal('resmi');
+        setStep(1);
+      }
+    });
+  }
+
+  // Cek jika pembeli dialihkan kembali dari Pakasir (URL: ?payment=success)
+  if (typeof window !== 'undefined' && window.location.search) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success' || params.get('order_id')) {
+      let savedOrder = null;
+      try {
+        savedOrder = JSON.parse(localStorage.getItem('bukukasir_pending_order'));
+      } catch (e) {}
+
+      const storeName = (savedOrder && savedOrder.storeName) || 'Toko Berkah Bersama';
+      const ownerName = (savedOrder && savedOrder.ownerName) || 'Pelanggan UMKM';
+      const serialKey = generateLicenseKey(storeName);
+
+      const serialEl = document.getElementById('issued-serial-code');
+      const storeInfoEl = document.getElementById('issued-store-info');
+      if (serialEl) serialEl.textContent = serialKey;
+      if (storeInfoEl) {
+        storeInfoEl.textContent = `Terdaftar untuk: ${storeName} (${ownerName}) - Lisensi Aktif Seumur Hidup`;
+      }
+
+      openModal('resmi');
+      setStep(3);
+    }
   }
 }

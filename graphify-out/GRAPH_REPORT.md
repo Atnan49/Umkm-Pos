@@ -1,90 +1,108 @@
-# Graph Report - Aplikasi Umkm  (2026-09-27)
+# Graph Report - Aplikasi Umkm  (2026-10-10)
 
 ## Corpus Check
-- 26 files · ~57,785 words
+- 30 files · ~69,946 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 26 file(s) not represented in the graph (top: .xml 10, (none) 5, .bat 3)
+- Unclassified: 28 file(s) not represented in the graph (top: .xml 10, (none) 5, .bat 4)
 
 ## Summary
-- 1402 nodes · 3492 edges · 79 communities (25 shown, 54 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.89)
+- 1468 nodes · 3556 edges · 101 communities (23 shown, 78 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `62bcbfb8`
+- Built from commit: `7e632c5c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - .getX
-- ee
+- rt
 - c
 - f
-- .append
+- ht
 - at
 - ke
+- be
 - .toString
-- .decode
-- .get
+- te
+- N
 - fr
 - gr
-- ht
-- j
+- .append
+- ne
 - profile.js
 - w
-- .decodeRow
+- x
 - sr
 - ye
-- pr
-- we
+- .get
+- Arahan Desain: BukuKasir UMKM
 - me
-- et
+- j
 - y
 - je
 - m
 - T
-- .getCount
+- pe
 - .getSize
 - p
-- d
-- x
-- ze
+- e
+- ee
+- .getValue
 - .decode
-- build
+- nsis
+- .encode
 - _
-- app.js
+- App/app.js
 - ie
 - b
 - package.json
-- .encode
+- cr
+- I
 - oe
 - manifest.json
-- nsis
+- et
 - ae
+- lt
 - Nr
-- .charAt
+- ct
 - BukuKasir Cashier POS UI
+- bt
 - O
 - main.js
-- prepare-www.js
+- generate-android-icons.js
 - .substring
-- Qe
-- l
+- fe
+- r
 - devDependencies
 - scripts
-- Graphify Knowledge Graph Rules
+- we
 - sw.js
+- ot
 - ce
-- ar
-- nt
-- ge
-- r
-- .setHints
-- generate-android-icons.js
-- or
+- ExampleInstrumentedTest.java
+- .decodeRow
+- le
+- rr
+- xt
+- jt
+- buat-lisensi.js
+- it
+- .decode
 - dependencies
-- gradlew
-- MainActivity.java
+- .charAt
+- s
+- Strategi Penjualan Produk Modular: BukuKasir UMKM
+- .encode
+- AndroidBridge
+- .onCreate
+- Materi Listing Marketplace (Shopee & Tokopedia)
+- generate-icons.js
+- prepare-www.js
+- .decode
+- web/app.js
+- generate-license.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `_` - 128 edges
@@ -101,12 +119,6 @@
 ## Surprising Connections (you probably didn't know these)
 - `BukuKasir App Branding Assets` --references--> `BukuKasir Cashier POS UI`  [EXTRACTED]
   App/icon.svg → App/index.html
-- `BukuKasir Cashier POS UI` --conceptually_related_to--> `POS Maintenance & Architecture Guide`  [INFERRED]
-  App/index.html → App/MAINTENANCE.md
-- `BukuKasir Cashier POS UI` --implements--> `POS Design System & Tokens`  [EXTRACTED]
-  App/index.html → App/DESIGN.md
-- `Graphify Workflow Command` --references--> `Graphify Knowledge Graph Rules`  [EXTRACTED]
-  .agents/workflows/graphify.md → .agents/rules/graphify.md
 
 ## Import Cycles
 - None detected.
@@ -114,127 +126,119 @@
 ## Hyperedges (group relationships)
 - **BukuKasir POS Core Subsystem** — app_index_pos_cashier_ui, app_index_shelf_barcode_module, app_index_financial_reports_view [INFERRED 0.95]
 
-## Communities (79 total, 54 thin omitted)
-
-### Community 0 - ".getX"
-Cohesion: 0.05
-Nodes (7): be, de, dt, fe, ft, it, re
-
-### Community 1 - "ee"
-Cohesion: 0.06
-Nodes (5): bt, ee, ne, rt, wt
+## Communities (101 total, 78 thin omitted)
 
 ### Community 2 - "c"
-Cohesion: 0.07
-Nodes (7): c, dr, K, Q, tt, xe, Z
+Cohesion: 0.08
+Nodes (7): c, he, K, Q, tt, xe, Z
 
-### Community 3 - "f"
+### Community 4 - "ht"
+Cohesion: 0.15
+Nodes (3): ht, kt, vt
+
+### Community 6 - "ke"
 Cohesion: 0.06
-Nodes (5): a, decodeBitmap(), e(), f, s
+Nodes (3): ke, or, Qe
 
 ### Community 12 - "gr"
 Cohesion: 0.15
 Nodes (3): br(), gr, Vr
 
-### Community 13 - "ht"
-Cohesion: 0.05
-Nodes (9): ht, jt, kt, lt, Qt, vt, xt, yt (+1 more)
-
 ### Community 15 - "profile.js"
-Cohesion: 0.13
-Nodes (17): calculateGrandTotal(), CODE128_PATTERNS, DEMO_PRODUCTS, FORMAT, generateCode128Svg(), initBarcodeModule(), initCheckoutPortal(), openModal() (+9 more)
+Cohesion: 0.12
+Nodes (19): calculateGrandTotal(), CODE128_PATTERNS, DEMO_PRODUCTS, FORMAT, generateCode128Svg(), generateLicenseKey(), initBarcodeModule(), initCheckoutPortal() (+11 more)
 
-### Community 17 - ".decodeRow"
-Cohesion: 0.14
-Nodes (3): ct, h, mt
+### Community 21 - "Arahan Desain: BukuKasir UMKM"
+Cohesion: 0.10
+Nodes (18): 1. Dials (Tingkat Energi, Ritme, & Gerak), 2. Palet Warna & Kontras (WCAG AA Teruji), 3. Tipografi, 4. Aksesibilitas & Responsivitas Manusia, Arahan Desain: BukuKasir UMKM, 1. Menjalankan Aplikasi, 2. Struktur Berkas Desktop & Hardware, 3. Cara Kerja Integrasi Perangkat Keras (+10 more)
 
-### Community 35 - "build"
-Cohesion: 0.13
-Nodes (15): build, appId, copyright, files, linux, mac, productName, win (+7 more)
+### Community 35 - "nsis"
+Cohesion: 0.08
+Nodes (25): build, appId, copyright, files, linux, mac, nsis, productName (+17 more)
 
-### Community 37 - "_"
-Cohesion: 0.05
-Nodes (8): _, g, I, le, ot, rr(), st, tr
-
-### Community 38 - "app.js"
-Cohesion: 0.17
-Nodes (10): App, AppDialog, CameraScanner, CODE128_PATTERNS, CONFIG, FORMAT, SoundFeedback, Store (+2 more)
+### Community 38 - "App/app.js"
+Cohesion: 0.15
+Nodes (11): App, AppDialog, CameraScanner, CODE128_PATTERNS, CONFIG, FORMAT, LicenseManager, SoundFeedback (+3 more)
 
 ### Community 42 - "package.json"
 Cohesion: 0.13
 Nodes (13): config, author, description, keywords, license, main, name, version (+5 more)
 
-### Community 43 - ".encode"
-Cohesion: 0.09
-Nodes (3): cr, mr, wr
-
 ### Community 46 - "manifest.json"
 Cohesion: 0.20
 Nodes (9): background_color, description, display, icons, name, orientation, short_name, start_url (+1 more)
 
-### Community 47 - "nsis"
-Cohesion: 0.20
-Nodes (10): nsis, allowToChangeInstallationDirectory, createDesktopShortcut, createStartMenuShortcut, installerHeaderIcon, installerIcon, oneClick, perMachine (+2 more)
-
 ### Community 52 - "BukuKasir Cashier POS UI"
-Cohesion: 0.33
-Nodes (6): BukuKasir App Branding Assets, POS Design System & Tokens, Financial Reports View & Period Filter, BukuKasir Cashier POS UI, Code 128 Shelf Barcode Module, POS Maintenance & Architecture Guide
+Cohesion: 0.50
+Nodes (4): BukuKasir App Branding Assets, Financial Reports View & Period Filter, BukuKasir Cashier POS UI, Code 128 Shelf Barcode Module
 
 ### Community 55 - "main.js"
 Cohesion: 0.25
-Nodes (5): { app, BrowserWindow, ipcMain }, path, { contextBridge, ipcRenderer }, electron, ref_path
+Nodes (4): { app, BrowserWindow, ipcMain }, path, { contextBridge, ipcRenderer }, electron
 
-### Community 56 - "prepare-www.js"
-Cohesion: 0.20
-Nodes (9): buildIco(), { createCanvas }, fs, main(), filesToCopy, fs, path, wwwDir (+1 more)
+### Community 56 - "generate-android-icons.js"
+Cohesion: 0.33
+Nodes (6): fs, generateAndroidIcons(), path, rootDir, sharp, sharp
 
 ### Community 60 - "devDependencies"
 Cohesion: 0.50
 Nodes (4): devDependencies, electron, electron-builder, sharp
 
 ### Community 61 - "scripts"
-Cohesion: 0.33
-Nodes (6): scripts, build:apk, dist, pack, prepare:android, start
+Cohesion: 0.22
+Nodes (9): scripts, build:apk, dist, generate:android-icons, generate:icons, license:generate, pack, prepare:android (+1 more)
 
-### Community 71 - ".setHints"
+### Community 72 - "buat-lisensi.js"
+Cohesion: 0.17
+Nodes (10): args, certificateFilePath, currentDate, EDITIONS, fs, licenseKey, outputDir, path (+2 more)
+
+### Community 74 - ".decode"
 Cohesion: 0.31
 Nodes (3): constructor(), gt, lr
-
-### Community 72 - "generate-android-icons.js"
-Cohesion: 0.40
-Nodes (5): fs, generateAndroidIcons(), path, sharp, sharp
 
 ### Community 75 - "dependencies"
 Cohesion: 0.40
 Nodes (5): dependencies, @capacitor/android, @capacitor/cli, @capacitor/core, html5-qrcode
 
-### Community 77 - "gradlew"
-Cohesion: 0.83
-Nodes (3): gradlew script, die(), warn()
+### Community 78 - "s"
+Cohesion: 0.15
+Nodes (3): ar, d, s
 
-### Community 79 - "MainActivity.java"
-Cohesion: 0.05
-Nodes (39): android.os.Bundle, android.webkit.JavascriptInterface, androidx.test.ext.junit.runners.AndroidJUnit4, ExampleInstrumentedTest, AndroidBridge, MainActivity, ExampleUnitTest, assert (+31 more)
+### Community 86 - "Strategi Penjualan Produk Modular: BukuKasir UMKM"
+Cohesion: 0.20
+Nodes (9): 1. Latar Belakang & Nilai Tambah, 2. Rincian Fitur Per Modul, 3. Strategi Harga & Paket Penjualan, 4. Struktur Data Teknis (Implementation Spec), A. Modul 1: Kafe & Rumah Makan (F&B / Resto Edition), B. Modul 2: Percetakan, Fotokopi & Jasa (Printing & Services Edition), C. Modul 3: Toko Retail & Sembako (Retail Edition - Standar), Edisi Khusus Industri: Kafe/Resto, Percetakan/Fotokopi, dan Retail (+1 more)
+
+### Community 92 - "Materi Listing Marketplace (Shopee & Tokopedia)"
+Cohesion: 0.29
+Nodes (6): 1. Pilihan Judul Produk (SEO-Friendly), 2. Pilihan Varian Produk & Rekomendasi Harga, 3. Deskripsi Produk (Tinggal Salin & Tempel), 4. Pertanyaan yang Sering Diajukan (FAQ untuk Balas Chat Cepat), Aplikasi BukuKasir UMKM - Multi Platform (Windows & Android), Materi Listing Marketplace (Shopee & Tokopedia)
+
+### Community 93 - "generate-icons.js"
+Cohesion: 0.33
+Nodes (6): buildIco(), { createCanvas }, fs, main(), path, rootDir
+
+### Community 94 - "prepare-www.js"
+Cohesion: 0.29
+Nodes (5): filesToCopy, fs, path, rootDir, wwwDir
 
 ## Knowledge Gaps
-- **86 isolated node(s):** `CONFIG`, `FORMAT`, `UTILS`, `CODE128_PATTERNS`, `SoundFeedback` (+81 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 380 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 isolated node(s):** `electron-builder`, `@capacitor/android`, `@capacitor/core`, `html5-qrcode`, `Financial Reports View & Period Filter` (+2 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 420 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **78 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_` connect `_` to `.getX`, `ee`, `c`, `f`, `.append`, `at`, `ke`, `.toString`, `.decode`, `.get`, `fr`, `gr`, `ht`, `j`, `w`, `.decodeRow`, `sr`, `ye`, `pr`, `we`, `me`, `et`, `y`, `je`, `m`, `T`, `.getCount`, `.getSize`, `p`, `d`, `x`, `ze`, `.decode`, `ie`, `b`, `.encode`, `oe`, `ae`, `Nr`, `.charAt`, `O`, `.substring`, `Qe`, `l`, `ce`, `ar`, `nt`, `ge`, `r`, `.setHints`, `or`, `.createDecoderResult`?**
-  _High betweenness centrality (0.535) - this node is a cross-community bridge._
-- **Why does `f` connect `f` to `.toString`, `_`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
-- **Why does `N` connect `.get` to `ce`, `_`, `.getHeight`, `ie`, `.decode`, `ht`, `.substring`, `m`, `.getCount`, `.getSize`, `p`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **What connects `CONFIG`, `FORMAT`, `UTILS` to the rest of the system?**
-  _86 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `.getX` be split into smaller, more focused modules?**
-  _Cohesion score 0.054491899852724596 - nodes in this community are weakly interconnected._
-- **Should `ee` be split into smaller, more focused modules?**
-  _Cohesion score 0.05945945945945946 - nodes in this community are weakly interconnected._
+- **Why does `_` connect `_` to `.getX`, `rt`, `c`, `f`, `ht`, `at`, `ke`, `be`, `.toString`, `te`, `N`, `fr`, `gr`, `.append`, `ne`, `w`, `x`, `sr`, `ye`, `.get`, `me`, `j`, `y`, `je`, `m`, `T`, `pe`, `.getSize`, `p`, `e`, `ee`, `.getValue`, `.decode`, `.encode`, `ie`, `b`, `cr`, `I`, `oe`, `et`, `ae`, `lt`, `Nr`, `ct`, `bt`, `O`, `.substring`, `fe`, `r`, `we`, `ot`, `ce`, `.decodeRow`, `le`, `rr`, `xt`, `jt`, `it`, `.decode`, `.charAt`, `s`, `.encode`, `.decode`, `.reset`?**
+  _High betweenness centrality (0.479) - this node is a cross-community bridge._
+- **What connects `electron-builder`, `@capacitor/android`, `@capacitor/core` to the rest of the system?**
+  _7 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `c` be split into smaller, more focused modules?**
-  _Cohesion score 0.07327001356852103 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07596153846153846 - nodes in this community are weakly interconnected._
+- **Why does `f` connect `f` to `_`, `.toString`, `s`, `w`, `e`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Should `f` be split into smaller, more focused modules?**
+  _Cohesion score 0.07759562841530054 - nodes in this community are weakly interconnected._
+- **Why does `ce` connect `ce` to `.encode`, `_`, `.getHeight`, `me`, `pe`, `.decode`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Should `ke` be split into smaller, more focused modules?**
+  _Cohesion score 0.061979648473635525 - nodes in this community are weakly interconnected._

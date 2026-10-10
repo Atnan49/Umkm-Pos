@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+const rootDir = path.resolve(__dirname, '..');
 const { createCanvas } = (() => {
   try { return require('canvas'); } catch { return { createCanvas: null }; }
 })();
@@ -11,10 +13,10 @@ async function main() {
   // Try using sharp first (most reliable)
   try {
     const sharp = require('sharp');
-    const svgBuffer = fs.readFileSync('./icon.svg');
+    const svgBuffer = fs.readFileSync(path.join(rootDir, 'icon.svg'));
     
     // 512x512 PNG
-    await sharp(svgBuffer).resize(512, 512).png().toFile('./icon.png');
+    await sharp(svgBuffer).resize(512, 512).png().toFile(path.join(rootDir, 'icon.png'));
     console.log('icon.png (512x512) created');
     
     // 256x256 for ICO (Windows uses 256x256 max in ICO)
@@ -26,7 +28,7 @@ async function main() {
     // Build a minimal ICO file
     const images = [ico16, ico32, ico48, ico256];
     const icoBuffer = buildIco(images, [16, 32, 48, 256]);
-    fs.writeFileSync('./icon.ico', icoBuffer);
+    fs.writeFileSync(path.join(rootDir, 'icon.ico'), icoBuffer);
     console.log('icon.ico created');
     return;
   } catch (e) {

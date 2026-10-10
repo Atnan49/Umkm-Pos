@@ -80,6 +80,10 @@
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   <span>Scan Kamera</span>
                 </button>
+                <button type="button" class="btn-scan-camera btn-custom-service" id="btn-open-custom-service" title="Input Cepat Jasa Custom / Cetak Tanpa Input Master Produk">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span>+ Jasa / Custom</span>
+                </button>
               </div>
               <div class="category-filters" id="category-pills" role="toolbar" aria-label="Filter Kategori Barang">
                 <!-- Tombol filter kategori dirender oleh JavaScript -->
@@ -110,6 +114,22 @@
             </div>
 
             <div class="cart-summary">
+              <!-- Panel Khusus Kafe / Rumah Makan (Nomor Meja & Tipe Pesanan) -->
+              <div class="cart-fnb-panel" id="cart-fnb-panel">
+                <div class="order-type-tabs" role="radiogroup" aria-label="Tipe Pesanan Makan">
+                  <button type="button" class="order-type-btn active" data-type="dine_in" id="btn-type-dine-in">
+                    🍽️ Makan di Tempat
+                  </button>
+                  <button type="button" class="order-type-btn" data-type="take_away" id="btn-type-take-away">
+                    🥡 Bungkus
+                  </button>
+                </div>
+                <div class="table-input-wrap">
+                  <span class="table-icon" aria-hidden="true">🪑</span>
+                  <input type="text" id="cart-table-input" placeholder="No. Meja (cth: Meja 05)..." maxlength="20" autocomplete="off" aria-label="Nomor Meja Pelanggan">
+                </div>
+              </div>
+
               <!-- Input Nama Pelanggan untuk Struk -->
               <div class="cart-customer-row">
                 <label for="customer-name-input" class="label-sm">Nama Pelanggan / Catatan Struk:</label>
@@ -142,10 +162,31 @@
                 <div class="quick-cash-chips" id="quick-cash-chips" aria-label="Pilihan Cepat Nominal Uang">
                   <!-- Pilihan pecahan uang dirender oleh JavaScript -->
                 </div>
-                <div class="summary-row change-row">
+                <div class="summary-row change-row" id="row-cash-change">
                   <span id="label-change">Kembalian</span>
                   <span id="cart-change" class="font-mono font-bold" aria-labelledby="label-change">Rp 0</span>
                 </div>
+
+                <!-- Panel Khusus Percetakan / Jasa: Pilihan Uang Muka (DP) & Pelunasan -->
+                <div class="payment-dp-toggle-wrap" id="payment-dp-toggle-wrap">
+                  <div class="dp-switch-row">
+                    <label class="dp-radio-label">
+                      <input type="radio" name="payment-method-type" value="lunas" id="radio-pay-lunas" checked>
+                      <span>✓ Bayar Lunas</span>
+                    </label>
+                    <label class="dp-radio-label">
+                      <input type="radio" name="payment-method-type" value="dp" id="radio-pay-dp">
+                      <span>⏳ Uang Muka (DP)</span>
+                    </label>
+                  </div>
+                  <div class="dp-remaining-box" id="dp-remaining-box" style="display: none;">
+                    <div class="summary-row dp-highlight">
+                      <span>Sisa Pelunasan Nanti:</span>
+                      <span id="cart-remaining-bill" class="font-mono font-bold text-danger">Rp 0</span>
+                    </div>
+                  </div>
+                </div>
+
                 <div id="cash-error-alert" class="cash-error-alert" style="display:none;" role="alert"></div>
               </div>
 
@@ -445,6 +486,17 @@
           <input type="text" id="setting-outlet-footer" placeholder="Contoh: Terima kasih atas kunjungan Anda!">
         </div>
         
+        <div class="form-group">
+          <label for="setting-business-mode">Spesialisasi Edisi / Modul Usaha</label>
+          <select id="setting-business-mode" aria-label="Pilih Mode Modul Usaha">
+            <option value="all">⭐ Multi-Usaha / Semua Modul Aktif (Ultimate Edition)</option>
+            <option value="retail">🛒 Retail &amp; Sembako (Fokus Barcode Laser &amp; Stok Rak)</option>
+            <option value="cafe">☕ Kafe &amp; Rumah Makan (Nomor Meja, Catatan Menu &amp; Struk Dapur)</option>
+            <option value="printing">🖨️ Percetakan, Fotokopi &amp; Jasa (Jasa Kilat &amp; Sistem DP)</option>
+          </select>
+          <small class="field-hint" id="setting-mode-hint">Menyesuaikan fitur kasir otomatis sesuai jenis usaha pelanggan.</small>
+        </div>
+        
         <div class="settings-divider">Integrasi Perangkat Keras</div>
 
         <div class="form-group">
@@ -474,6 +526,18 @@
           <button type="button" class="btn btn-secondary btn-sm" id="btn-test-print" style="width: 100%; justify-content: center; gap: 6px; padding: 9px; font-weight: 600;">
             🖨️ Uji Coba Cetak Struk (Test Print)
           </button>
+        </div>
+
+        <div class="settings-divider">Status Lisensi Software</div>
+        <div class="license-status-box" id="settings-license-info">
+          <div class="license-status-row">
+            <span class="license-active-tag">✓ Lisensi Resmi Aktif</span>
+            <small class="license-type-tag">Milik Seumur Hidup</small>
+          </div>
+          <div class="license-detail-text">
+            <div>Terdaftar untuk: <strong id="setting-licensed-store">Toko Berkah Bersama</strong></div>
+            <div class="license-key-display">Kunci Serial: <code class="font-mono" id="setting-licensed-key">BKPOS-XXXX-XXXX-XXXX</code></div>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -519,6 +583,74 @@
     </div>
   </div>
 
+  <!-- Modal Input Cepat Jasa / Cetak Custom (Modul Percetakan & Jasa) -->
+  <div class="modal-overlay" id="modal-custom-service" role="dialog" aria-modal="true" aria-labelledby="modal-custom-service-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-custom-service-title">Input Jasa / Pesanan Cetak Kustom</h3>
+        <button type="button" class="modal-close" id="modal-custom-service-close" aria-label="Tutup modal custom service">&times;</button>
+      </div>
+      <form id="form-custom-service" class="modal-body">
+        <div class="form-group">
+          <label for="custom-service-name">Nama Jasa / Pesanan Cetak *</label>
+          <input type="text" id="custom-service-name" required placeholder="Contoh: Cetak Spanduk 3x1m / Jilid Skripsi / Fotokopi 100 lbr">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="custom-service-price">Harga Total / Satuan (Rp) *</label>
+            <input type="text" id="custom-service-price" required placeholder="0" class="font-mono input-currency">
+          </div>
+          <div class="form-group">
+            <label for="custom-service-qty">Jumlah (Qty / Lembar / Meter) *</label>
+            <input type="number" id="custom-service-qty" required min="1" value="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="custom-service-cost">Estimasi Biaya Bahan / Modal (HPP Opsional)</label>
+          <input type="text" id="custom-service-cost" placeholder="0" class="font-mono input-currency">
+        </div>
+        <div class="form-group">
+          <label for="custom-service-note">Keterangan Teknis / Spesifikasi Bahan</label>
+          <input type="text" id="custom-service-note" placeholder="Contoh: Bahan Flexi 280gr, mata ayam 4 pojok / Finishing jilid mika">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modal-custom-service-cancel">Batal</button>
+          <button type="submit" class="btn-primary">+ Masukkan ke Nota Pesanan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Edit Catatan Khusus Menu (Modul Kafe & Rumah Makan) -->
+  <div class="modal-overlay" id="modal-item-note" role="dialog" aria-modal="true" aria-labelledby="modal-item-note-title">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="modal-item-note-title">Catatan Menu Pesanan</h3>
+        <button type="button" class="modal-close" id="modal-item-note-close" aria-label="Tutup modal catatan">&times;</button>
+      </div>
+      <form id="form-item-note" class="modal-body">
+        <input type="hidden" id="item-note-index">
+        <p id="item-note-product-name" style="font-weight: 700; margin-bottom: 12px; color: var(--color-primary);"></p>
+        <div class="form-group">
+          <label for="input-item-note">Keterangan Khusus / Instruksi Dapur:</label>
+          <input type="text" id="input-item-note" placeholder="Contoh: Es sedikit, pedas sedang, kuah dipisah, tanpa seledri" maxlength="60" autocomplete="off">
+          <small class="field-hint">Catatan ini akan dicetak di struk pelanggan dan tiket dapur/bar.</small>
+        </div>
+        <div class="quick-note-pills" id="quick-note-pills">
+          <button type="button" class="quick-note-pill" data-note="Es sedikit">🧊 Es sedikit</button>
+          <button type="button" class="quick-note-pill" data-note="Gula pisah">🍬 Gula pisah</button>
+          <button type="button" class="quick-note-pill" data-note="Pedas sedang">🌶️ Pedas sedang</button>
+          <button type="button" class="quick-note-pill" data-note="Ekstra pedas">🔥 Ekstra pedas</button>
+          <button type="button" class="quick-note-pill" data-note="Bungkus pisah">🥡 Bungkus pisah</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modal-item-note-cancel">Batal</button>
+          <button type="submit" class="btn-primary">Simpan Catatan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notifikasi Scanner Laser -->
   <div id="scanner-toast" class="scanner-toast" aria-live="assertive"></div>
 
@@ -527,6 +659,53 @@
 
   <!-- Templat Cetak Label Rak Thermal / Stiker (Aktif saat cetak label barcode) -->
   <div id="print-shelf-label" class="print-shelf-container" aria-hidden="true" style="display: none !important;"></div>
+
+  <!-- Layar Penguncian Lisensi Resmi (Hard Lock Screen) -->
+  <div class="license-lock-overlay" id="license-lock-overlay" role="dialog" aria-modal="true" aria-labelledby="license-lock-title" style="display: none;">
+    <div class="license-lock-card">
+      <div class="license-lock-header">
+        <div class="license-lock-icon" aria-hidden="true">🔐</div>
+        <div class="license-lock-badge">Aktivasi Lisensi Software</div>
+        <h2 id="license-lock-title" class="license-lock-title">BukuKasir UMKM Terkunci</h2>
+        <p class="license-lock-desc">
+          Aplikasi ini berlisensi resmi. Silakan masukkan <strong>Nama Toko</strong> dan <strong>Kunci Lisensi</strong> resmi yang Anda dapatkan saat pembelian untuk mengaktifkan akses seumur hidup.
+        </p>
+      </div>
+
+      <form id="form-license-activation" class="license-lock-form">
+        <div id="license-lock-alert" class="license-lock-alert" style="display: none;" role="alert"></div>
+
+        <div class="form-group">
+          <label for="input-license-store" class="form-label">
+            Nama Toko Terdaftar <span style="color:var(--color-danger);">*</span>
+          </label>
+          <input type="text" id="input-license-store" class="form-control" placeholder="Contoh: Toko Berkah Bersama" autocomplete="off" required>
+          <small class="field-hint">Harus sama persis dengan nama toko yang didaftarkan saat membeli lisensi.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="input-license-key" class="form-label">
+            Kunci Lisensi Resmi (Serial Key) <span style="color:var(--color-danger);">*</span>
+          </label>
+          <input type="text" id="input-license-key" class="form-control font-mono" placeholder="BKPOS-XXXX-XXXX-XXXX-XXXX" autocomplete="off" required style="letter-spacing: 0.05em; font-weight: 700; text-transform: uppercase;">
+          <small class="field-hint">Kode serial 16 karakter lisensi resmi yang diawali BKPOS-</small>
+        </div>
+
+        <div class="license-lock-actions">
+          <button type="submit" class="btn-primary w-full" id="btn-submit-license" style="width: 100%; justify-content: center; padding: 0.875rem 1.25rem; font-size: 1rem; font-weight: 700;">
+            <span>Aktivasi Sekarang &amp; Buka Kasir</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="license-lock-footer">
+        <p>Belum memiliki kunci lisensi resmi?</p>
+        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20BukuKasir%20UMKM%2C%20saya%20ingin%20membeli%20kunci%20lisensi%20resmi%20software." target="_blank" rel="noopener" class="btn-license-help">
+          💬 Beli Lisensi Resmi via WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

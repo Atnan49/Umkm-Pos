@@ -1,15 +1,9 @@
 {
   "App/app.js": {
-    "mtime": 1790469602.8078344,
-    "seen": 1790472503.4719913,
-    "ast_hash": "73775c686e1f8dd6d026e32f39477eed",
+    "mtime": 1791624512.83944,
+    "seen": 1791624998.6295896,
+    "ast_hash": "0faaed74e8f0df2f0d63ebcd714241b7",
     "semantic_hash": ""
-  },
-  "App/generate-icons.js": {
-    "mtime": 1790428566.7060816,
-    "seen": 1790435954.025709,
-    "ast_hash": "06ef3b43a9abdf65b26c6a6fe1d8b3f3",
-    "semantic_hash": "06ef3b43a9abdf65b26c6a6fe1d8b3f3"
   },
   "App/html5-qrcode.min.js": {
     "mtime": 1790406287.8927088,
@@ -30,9 +24,9 @@
     "semantic_hash": "5eb03f58fef5b5f3e7f9f2e51e128df0"
   },
   "App/package.json": {
-    "mtime": 1790463670.810929,
-    "seen": 1790472503.4720182,
-    "ast_hash": "ef33e1cd2eb57c78d3bcc36d62b918b8",
+    "mtime": 1790669165.069672,
+    "seen": 1791624998.6296034,
+    "ast_hash": "461c14ec0cbea73322ed204f6f7595c9",
     "semantic_hash": ""
   },
   "App/preload.js": {
@@ -47,34 +41,10 @@
     "ast_hash": "dbd844e506a678988f4a961c5de1c8c8",
     "semantic_hash": ""
   },
-  ".agents/rules/graphify.md": {
-    "mtime": 1790435231.6700163,
-    "seen": 1790435954.0257232,
-    "ast_hash": "a0e4d192b9e2e17256124dbfc8e24e6a",
-    "semantic_hash": "a0e4d192b9e2e17256124dbfc8e24e6a"
-  },
-  ".agents/workflows/graphify.md": {
-    "mtime": 1790435231.6730392,
-    "seen": 1790435954.025725,
-    "ast_hash": "a831cf3669f1e6ab85d8a80ebe655f99",
-    "semantic_hash": "a831cf3669f1e6ab85d8a80ebe655f99"
-  },
-  "App/DESIGN.md": {
-    "mtime": 1790404416.2386024,
-    "seen": 1790435954.025727,
-    "ast_hash": "1561466bc0cf0a2a5a9c2da6a1502d92",
-    "semantic_hash": "1561466bc0cf0a2a5a9c2da6a1502d92"
-  },
-  "App/MAINTENANCE.md": {
-    "mtime": 1790405466.5690057,
-    "seen": 1790435954.0257285,
-    "ast_hash": "b9b7904b108dbc98de04119e60ccd158",
-    "semantic_hash": "b9b7904b108dbc98de04119e60ccd158"
-  },
   "App/index.html": {
-    "mtime": 1790469591.9829068,
-    "seen": 1790472503.472051,
-    "ast_hash": "cc27249444c3905b90b1cac65d6ed342",
+    "mtime": 1791624238.9064856,
+    "seen": 1791624998.6296368,
+    "ast_hash": "6e441178bcd0e0b52091246cb1b73759",
     "semantic_hash": ""
   },
   "App/icon.svg": {
@@ -153,12 +123,6 @@
     "mtime": 1790438365.6789103,
     "seen": 1790440597.235946,
     "ast_hash": "255208949881bcb84a3ad668f5df7c86",
-    "semantic_hash": ""
-  },
-  "App/prepare-www.js": {
-    "mtime": 1790438384.280565,
-    "seen": 1790440597.235966,
-    "ast_hash": "2bae5a961caa4ce3f78226b5554313b9",
     "semantic_hash": ""
   },
   "App/android/app/src/main/res/drawable-land-hdpi/splash.png": {
@@ -317,22 +281,16 @@
     "ast_hash": "fe20157a77fbb596388b92eba2c31507",
     "semantic_hash": ""
   },
-  "App/generate-android-icons.js": {
-    "mtime": 1790441047.6942997,
-    "seen": 1790441443.8272803,
-    "ast_hash": "ec886bb765440ed4c2d6e5d1a077c576",
-    "semantic_hash": ""
-  },
   "Profile Produk/profile.js": {
-    "mtime": 1790472992.3644538,
-    "seen": 1790473734.84025,
-    "ast_hash": "f5bb82b08bc4dd4750a62047b6b136d4",
+    "mtime": 1790671383.6007044,
+    "seen": 1791624998.6296253,
+    "ast_hash": "e869c384fb79ae1a8ec606a14b5e97d1",
     "semantic_hash": ""
   },
   "Profile Produk/index.html": {
-    "mtime": 1790473693.5048265,
-    "seen": 1790473734.840272,
-    "ast_hash": "b64db7a7484815e34517bc1c59fa2bbe",
+    "mtime": 1790671070.7757008,
+    "seen": 1791624998.6296465,
+    "ast_hash": "8176c277f365443d62bda834a2ba6c7e",
     "semantic_hash": ""
   },
   "Profile Produk/icon.png": {
@@ -345,6 +303,90 @@
     "mtime": 1790404434.574516,
     "seen": 1790472503.472165,
     "ast_hash": "60df90c643f62cf1f063fa2a5871d358",
+    "semantic_hash": ""
+  },
+  "App/scripts/generate-android-icons.js": {
+    "mtime": 1790668642.7126698,
+    "seen": 1790668777.055125,
+    "ast_hash": "67527e67fce9152afc0a19752f3144fd",
+    "semantic_hash": ""
+  },
+  "App/scripts/generate-icons.js": {
+    "mtime": 1790668619.0314457,
+    "seen": 1790668777.0551279,
+    "ast_hash": "8a4741ee3f5a7fc499e0eb1d1bd1b0e5",
+    "semantic_hash": ""
+  },
+  "App/scripts/prepare-www.js": {
+    "mtime": 1790668587.5850174,
+    "seen": 1790668777.0551295,
+    "ast_hash": "a391246e54f49202f6f1fdef36ce3dd4",
+    "semantic_hash": ""
+  },
+  "App/README.md": {
+    "mtime": 1790668726.9569378,
+    "seen": 1790668777.0551417,
+    "ast_hash": "57eba19fe1e35ff75b3e4796ce64d59f",
+    "semantic_hash": ""
+  },
+  "App/docs/DESIGN.md": {
+    "mtime": 1790404416.2386024,
+    "seen": 1790668777.0551436,
+    "ast_hash": "1561466bc0cf0a2a5a9c2da6a1502d92",
+    "semantic_hash": ""
+  },
+  "App/docs/MAINTENANCE.md": {
+    "mtime": 1790405466.5690057,
+    "seen": 1790668777.0551453,
+    "ast_hash": "b9b7904b108dbc98de04119e60ccd158",
+    "semantic_hash": ""
+  },
+  "App/scripts/buat-lisensi.js": {
+    "mtime": 1791624569.097906,
+    "seen": 1791624998.6296084,
+    "ast_hash": "4ebfffb4049908e1c05fbc4e5c7eab09",
+    "semantic_hash": ""
+  },
+  "App/scripts/generate-license.js": {
+    "mtime": 1791621814.2141316,
+    "seen": 1791624998.6296175,
+    "ast_hash": "e1030a1a7310405604826cebeb726a4e",
+    "semantic_hash": ""
+  },
+  "web/app.js": {
+    "mtime": 1791624888.5128164,
+    "seen": 1791624998.6296275,
+    "ast_hash": "b5bda2ae02ff1f6ab1304387683517fc",
+    "semantic_hash": ""
+  },
+  "App/paket-penjualan/LISTING_MARKETPLACE.md": {
+    "mtime": 1791624645.490141,
+    "seen": 1791624998.6296384,
+    "ast_hash": "2809de05b3b248c0658129da19c1160b",
+    "semantic_hash": ""
+  },
+  "App/paket-penjualan/PANDUAN_PENGGUNAAN_RESMI.html": {
+    "mtime": 1791624624.093383,
+    "seen": 1791624998.6296403,
+    "ast_hash": "a9390760cab49ffa6123c7f2766882a1",
+    "semantic_hash": ""
+  },
+  "App/paket-penjualan/STRATEGI_MODUL_KHUSUS.md": {
+    "mtime": 1791624149.4208908,
+    "seen": 1791624998.629642,
+    "ast_hash": "0b4136d16b1c40bbda9073b0d07795dd",
+    "semantic_hash": ""
+  },
+  "App/paket-penjualan/arsip-lisensi/Sertifikat_Lisensi_Kopi_Kenangan_Senja.html": {
+    "mtime": 1791624601.5746844,
+    "seen": 1791624998.629644,
+    "ast_hash": "8b716087fb74308e87ec5b3905cf16e9",
+    "semantic_hash": ""
+  },
+  "web/index.html": {
+    "mtime": 1791624956.6951795,
+    "seen": 1791624998.6296482,
+    "ast_hash": "fff0bd8579425654bdb1d58ba19d5908",
     "semantic_hash": ""
   }
 }

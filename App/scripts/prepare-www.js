@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const wwwDir = path.join(__dirname, 'www');
+const rootDir = path.resolve(__dirname, '..');
+const wwwDir = path.join(rootDir, 'www');
 if (!fs.existsSync(wwwDir)) {
   fs.mkdirSync(wwwDir, { recursive: true });
 }
@@ -18,7 +19,7 @@ const filesToCopy = [
 ];
 
 filesToCopy.forEach(file => {
-  const src = path.join(__dirname, file);
+  const src = path.join(rootDir, file);
   const dest = path.join(wwwDir, file);
   if (fs.existsSync(src)) {
     fs.copyFileSync(src, dest);
