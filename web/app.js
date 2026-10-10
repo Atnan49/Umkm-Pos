@@ -75,14 +75,14 @@ const WebStore = {
 
   // 1. Tab Edisi Industri
   bindEditionTabs() {
-    const tabBtns = document.querySelectorAll('.edition-tab-btn');
+    const tabBtns = document.querySelectorAll('.edition-btn-tab, .edition-tab-btn');
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         const target = btn.dataset.edition;
-        document.querySelectorAll('.edition-card-panel').forEach(panel => {
+        document.querySelectorAll('.edition-panel-display, .edition-card-panel').forEach(panel => {
           panel.classList.toggle('active', panel.id === `edition-panel-${target}`);
         });
       });
@@ -91,9 +91,9 @@ const WebStore = {
 
   // 2. FAQ Accordion
   bindFAQ() {
-    document.querySelectorAll('.faq-question').forEach(q => {
+    document.querySelectorAll('.faq-trigger-btn, .faq-question').forEach(q => {
       q.addEventListener('click', () => {
-        const item = q.closest('.faq-item');
+        const item = q.closest('.faq-card-item, .faq-item');
         if (item) item.classList.toggle('active');
       });
     });
@@ -327,31 +327,31 @@ const WebStore = {
         <title>Sertifikat_Lisensi_${storeName}</title>
         <style>
           @page { size: A4 portrait; margin: 15mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; padding: 24px; text-align: center; }
-          .cert { border: 2px solid #0f766e; border-radius: 12px; padding: 36px; max-width: 640px; margin: 0 auto; }
-          .logo { font-size: 36px; margin-bottom: 6px; }
-          .title { font-size: 22px; font-weight: 800; color: #0f766e; }
-          .sub { font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 24px; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1c1518; padding: 24px; text-align: center; }
+          .cert { border: 2px solid #6e1127; border-radius: 12px; padding: 36px; max-width: 640px; margin: 0 auto; background: #fff; }
+          .logo { font-size: 20px; font-weight: 800; color: #6e1127; margin-bottom: 6px; }
+          .title { font-size: 24px; font-weight: 850; color: #540c1d; }
+          .sub { font-size: 12px; color: #574b50; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.05em; }
           .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left; font-size: 14px; }
-          .info-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
-          .serial-box { background: #042f2e; color: #fff; padding: 16px; border-radius: 8px; font-size: 22px; font-weight: 800; letter-spacing: 0.1em; font-family: monospace; margin: 20px 0; }
+          .info-table td { padding: 9px; border-bottom: 1px solid #e8e1d7; }
+          .serial-box { background: #3b0814; color: #6ee7b7; padding: 16px; border-radius: 8px; font-size: 22px; font-weight: 800; letter-spacing: 0.1em; font-family: monospace; margin: 24px 0; }
         </style>
       </head>
       <body>
         <div class="cert">
-          <div class="logo">🏪</div>
-          <div class="title">BUKUKASIR UMKM</div>
-          <div class="sub">Sertifikat Lisensi Penggunaan Resmi Seumur Hidup</div>
+          <div class="logo">BUKUKASIR UMKM</div>
+          <div class="title">SERTIFIKAT LISENSI RESMI</div>
+          <div class="sub">Hak Penggunaan Software Kasir Permanen Seumur Hidup</div>
           <table class="info-table">
             <tr><td><strong>Nama Toko</strong></td><td>: ${storeName}</td></tr>
             <tr><td><strong>Nama Pemilik</strong></td><td>: ${customerName}</td></tr>
             <tr><td><strong>Paket Edisi</strong></td><td>: ${pkg.name}</td></tr>
             <tr><td><strong>Nomor Invoice</strong></td><td>: ${inv}</td></tr>
             <tr><td><strong>Tanggal Aktivasi</strong></td><td>: ${dateStr}</td></tr>
-            <tr><td><strong>Masa Berlaku</strong></td><td>: SEUMUR HIDUP (Tanpa Biaya Bulanan)</td></tr>
+            <tr><td><strong>Masa Berlaku</strong></td><td>: SEUMUR HIDUP (Bebas Biaya Bulanan)</td></tr>
           </table>
           <div class="serial-box">${key}</div>
-          <p style="font-size:12px; color:#64748b;">Terverifikasi resmi oleh sistem BukuKasir UMKM Digital Solutions.</p>
+          <p style="font-size:12px; color:#85767c;">Terverifikasi resmi oleh sistem BukuKasir UMKM Digital Solutions.</p>
         </div>
         <script>window.onload = function() { window.print(); };</script>
       </body>
