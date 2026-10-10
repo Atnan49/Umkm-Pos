@@ -3373,7 +3373,7 @@
       "file_type": "code",
       "norm_label": "formatrupiah()",
       "source_file": "app.js",
-      "source_location": "L69"
+      "source_location": "L54"
     },
     {
       "id": "app_generatelicensekey",
@@ -3385,7 +3385,7 @@
       "file_type": "code",
       "norm_label": "generatelicensekey()",
       "source_file": "app.js",
-      "source_location": "L48"
+      "source_location": "L33"
     },
     {
       "id": "profile_produk_profile_formatrupiah",
@@ -5725,7 +5725,7 @@
       "file_type": "code",
       "norm_label": "formatrupiah()",
       "source_file": "Profile Produk/app.js",
-      "source_location": "L69"
+      "source_location": "L54"
     },
     {
       "id": "profile_produk_app_generatelicensekey",
@@ -5737,7 +5737,7 @@
       "file_type": "code",
       "norm_label": "generatelicensekey()",
       "source_file": "Profile Produk/app.js",
-      "source_location": "L48"
+      "source_location": "L33"
     },
     {
       "id": "app_html5_qrcode_min_je_adjustindicatorcolumnrownumbers",
@@ -14933,7 +14933,7 @@
       "file_type": "code",
       "norm_label": "formatrupiah()",
       "source_file": "web/app.js",
-      "source_location": "L69"
+      "source_location": "L54"
     },
     {
       "id": "web_app_generatelicensekey",
@@ -14945,7 +14945,7 @@
       "file_type": "code",
       "norm_label": "generatelicensekey()",
       "source_file": "web/app.js",
-      "source_location": "L48"
+      "source_location": "L33"
     },
     {
       "id": "app_html5_qrcode_min_be_samplegrid",
@@ -15180,7 +15180,7 @@
       "file_type": "code",
       "norm_label": "webstore",
       "source_file": "app.js",
-      "source_location": "L73"
+      "source_location": "L58"
     },
     {
       "id": "profile_produk_profile",
@@ -15498,7 +15498,7 @@
       "file_type": "code",
       "norm_label": "webstore",
       "source_file": "Profile Produk/app.js",
-      "source_location": "L73"
+      "source_location": "L58"
     },
     {
       "id": "vercel",
@@ -17280,7 +17280,7 @@
       "file_type": "code",
       "norm_label": "webstore",
       "source_file": "web/app.js",
-      "source_location": "L73"
+      "source_location": "L58"
     },
     {
       "id": "app_index_financial_reports_view",
@@ -43759,7 +43759,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app.js",
-      "source_location": "L48",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "app",
+      "target": "app_formatrupiah",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app.js",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "app",
+      "target": "app_webstore",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app.js",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -43771,28 +43793,6 @@
       "confidence_score": 1.0,
       "source_file": "app.js",
       "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "app",
-      "target": "app_formatrupiah",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app.js",
-      "source_location": "L69",
-      "weight": 1.0
-    },
-    {
-      "source": "app",
-      "target": "app_webstore",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "app.js",
-      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -46190,7 +46190,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Profile Produk/app.js",
-      "source_location": "L48",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "profile_produk_app",
+      "target": "profile_produk_app_formatrupiah",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Profile Produk/app.js",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "profile_produk_app",
+      "target": "profile_produk_app_webstore",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Profile Produk/app.js",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -46202,28 +46224,6 @@
       "confidence_score": 1.0,
       "source_file": "Profile Produk/app.js",
       "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "profile_produk_app",
-      "target": "profile_produk_app_formatrupiah",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Profile Produk/app.js",
-      "source_location": "L69",
-      "weight": 1.0
-    },
-    {
-      "source": "profile_produk_app",
-      "target": "profile_produk_app_webstore",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Profile Produk/app.js",
-      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -46300,7 +46300,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "web/app.js",
-      "source_location": "L48",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "web_app",
+      "target": "web_app_formatrupiah",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/app.js",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "web_app",
+      "target": "web_app_webstore",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/app.js",
+      "source_location": "L58",
       "weight": 1.0
     },
     {
@@ -46312,28 +46334,6 @@
       "confidence_score": 1.0,
       "source_file": "web/app.js",
       "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "web_app",
-      "target": "web_app_formatrupiah",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "web/app.js",
-      "source_location": "L69",
-      "weight": 1.0
-    },
-    {
-      "source": "web_app",
-      "target": "web_app_webstore",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "web/app.js",
-      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -58740,5 +58740,5 @@
       "source_file": "App/index.html"
     }
   ],
-  "built_at_commit": "bfc3e2e25d9bccab3f3c58a81440805d936637a4"
+  "built_at_commit": "de6f066726da37f9017c7e75dd1807e789552bd1"
 }
