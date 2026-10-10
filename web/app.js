@@ -123,6 +123,13 @@ const WebStore = {
       });
     }
 
+    // Keyboard Accessibility: Close on Escape key (R-32)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+        this.closeCheckout();
+      }
+    });
+
     // Checkout Form Submit -> Go to Payment Step
     const checkoutForm = document.getElementById('form-checkout-customer');
     if (checkoutForm) {
@@ -139,6 +146,27 @@ const WebStore = {
         this.executeInstantFulfillment();
       });
     }
+  },
+
+  showToast(message, isError = false) {
+    let toast = document.getElementById('web-toast-notice');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'web-toast-notice';
+      toast.className = 'toast-notice';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    if (isError) {
+      toast.style.borderLeftColor = 'var(--color-danger)';
+    } else {
+      toast.style.borderLeftColor = 'var(--color-primary)';
+    }
+    toast.classList.add('show');
+    clearTimeout(this._toastTimeout);
+    this._toastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3200);
   },
 
   openCheckout(pkgKey = 'ultimate') {
@@ -196,7 +224,7 @@ const WebStore = {
     const waNumber = document.getElementById('input-customer-wa').value.trim();
 
     if (!storeName) {
-      alert('Nama Toko wajib diisi untuk penerbitan lisensi resmi!');
+      this.showToast('Nama Toko wajib diisi untuk penerbitan lisensi resmi!', true);
       document.getElementById('input-store-name').focus();
       return;
     }
@@ -275,10 +303,10 @@ const WebStore = {
     const keyText = document.getElementById('success-license-key').textContent;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(keyText).then(() => {
-        alert(`✓ Kunci Lisensi "${keyText}" berhasil disalin!`);
+        this.showToast(`Kunci lisensi "${keyText}" berhasil disalin.`);
       });
     } else {
-      alert(`Kunci Lisensi: ${keyText}`);
+      this.showToast(`Kunci lisensi: ${keyText}`);
     }
   },
 

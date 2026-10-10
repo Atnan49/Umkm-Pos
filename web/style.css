@@ -154,12 +154,19 @@ body {
   gap: 12px;
 }
 
+/* Accessibility Focus Rings (R-32 WCAG) */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 44px;
   padding: 10px 20px;
   border-radius: var(--radius-sm);
   font-size: 14px;
@@ -1005,4 +1012,32 @@ body {
   .download-buttons-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Toast Notification (R-27 Antislop Non-blocking UI) */
+.toast-notice {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 14px 22px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 4px solid var(--color-primary);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.toast-notice.show {
+  transform: translateY(0);
+  opacity: 1;
 }
