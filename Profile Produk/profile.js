@@ -1,38 +1,56 @@
 /**
- * BukuKasir UMKM - Modul Sales Showcase & Interaktivitas
- * Menampilkan simulator layar kasir, generator barcode rak Code 128,
- * preview struk thermal, dan pemesanan lisensi.
+ * BukuKasir UMKM - Web Store Engine
+ * Instant Checkout, Client-Side Auto-Fulfillment & License Delivery
  */
 
-// Format Rupiah & Angka
-const FORMAT = {
-  currency(amount) {
-    return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
+const CONFIG = {
+  LICENSE_SECRET: 'BK_UMKM_SECURE_SALT_2026_ATNAN49',
+  ADMIN_WA: '6281234567890', // Nomor WhatsApp admin resmi
+
+  // Konfigurasi Payment Gateway Pakasir v2
+  PAKASIR: {
+    ENABLED: false, // Ubah ke true setelah pengajuan KYC Pakasir disetujui
+    PROJECT_SLUG: 'kasir-umkm', // Masukkan slug proyek dari dashboard app.pakasir.com
+    API_KEY: '', // API Key v2 dari dashboard Pakasir
+    SANDBOX: false, // Set false untuk transaksi riil QRIS
+    PAYMENT_URL: 'https://app.pakasir.com/pay' // Portal bayar resmi Pakasir
   },
-  number(amount) {
-    return Number(amount || 0).toLocaleString('id-ID');
+
+  PACKAGES: {
+    retail: {
+      name: 'Edisi Retail & Sembako',
+      price: 149000,
+      oldPrice: 249000,
+      desc: 'Lisensi seumur hidup modul barcode laser scanner & stok rak toko.'
+    },
+    cafe: {
+      name: 'Edisi Kafe & Rumah Makan',
+      price: 229000,
+      oldPrice: 349000,
+      desc: 'Lisensi modul nomor meja, dine-in/takeaway, catatan menu & tiket dapur.'
+    },
+    printing: {
+      name: 'Edisi Percetakan & Jasa',
+      price: 229000,
+      oldPrice: 349000,
+      desc: 'Lisensi modul input jasa kilat, uang muka (DP) & sisa pelunasan.'
+    },
+    ultimate: {
+      name: 'Edisi Ultimate Multi-Usaha',
+      price: 299000,
+      oldPrice: 499000,
+      desc: 'Semua modul terbuka penuh (Retail + F&B + Percetakan) + bebas update.'
+    }
   }
 };
 
-// ========================================================
-// KONFIGURASI PAYMENT GATEWAY PAKASIR & LISENSI RESMI
-// ========================================================
-const PAKASIR_CONFIG = {
-  // Ganti dengan slug proyek Anda dari dashboard https://app.pakasir.com
-  projectSlug: 'bukukasir-umkm',
-  price: 90000,
-  productName: 'Lisensi Resmi BukuKasir UMKM (Seumur Hidup)'
-};
-
-// Algoritma Pembuatan Lisensi Offline (Identik dengan App/app.js)
-const LICENSE_SECRET = 'BK_UMKM_SECURE_SALT_2026_ATNAN49';
-
+// Algoritma Generator Lisensi Resmi BukuKasir UMKM (Client-Side Instant Engine)
 function generateLicenseKey(storeName) {
   const cleanName = String(storeName || '').trim().toUpperCase();
   if (!cleanName) return '';
 
   let h1 = 0xdeadbeef, h2 = 0x41c64e6d;
-  const combined = cleanName + LICENSE_SECRET;
+  const combined = cleanName + CONFIG.LICENSE_SECRET;
   for (let i = 0; i < combined.length; i++) {
     const ch = combined.charCodeAt(i);
     h1 = Math.imul(h1 ^ ch, 2654435761);
@@ -48,750 +66,312 @@ function generateLicenseKey(storeName) {
   return `BKPOS-${fullHex.substring(0, 4)}-${fullHex.substring(4, 8)}-${fullHex.substring(8, 12)}-${fullHex.substring(12, 16)}`;
 }
 
-// Data Contoh Produk untuk Simulator Kasir
-const DEMO_PRODUCTS = [
-  { id: 'p1', name: 'Minyak Goreng Sawit 2L', category: 'sembako', price: 34000, stock: 18, barcode: '899100123451' },
-  { id: 'p2', name: 'Beras Rojolele Super 5kg', category: 'sembako', price: 72000, stock: 12, barcode: '899100123452' },
-  { id: 'p3', name: 'Telur Ayam Ras (1 Kg)', category: 'sembako', price: 28000, stock: 2, barcode: '899100123453' },
-  { id: 'p4', name: 'Kopi Tubruk Robusta 100g', category: 'minuman', price: 12000, stock: 25, barcode: '899100123454' },
-  { id: 'p5', name: 'Teh Celup Melati (25 sachet)', category: 'minuman', price: 6500, stock: 40, barcode: '899100123455' },
-  { id: 'p6', name: 'Mie Instan Goreng Spesial', category: 'makanan', price: 3500, stock: 85, barcode: '899100123456' },
-  { id: 'p7', name: 'Gula Pasir Kristal Putih 1kg', category: 'sembako', price: 17500, stock: 30, barcode: '899100123457' },
-  { id: 'p8', name: 'Biskuit Gandum Cokelat Kaleng', category: 'makanan', price: 38000, stock: 14, barcode: '899100123458' }
-];
-
-// Tabel Pola Standar Code 128 (107 Pola Simbol)
-const CODE128_PATTERNS = [
-  '212222','222122','222221','121223','121322','131222','122213','122312','132212','221213',
-  '221312','231212','112232','122132','122231','113222','123122','123221','223211','221132',
-  '221231','213212','223112','312131','311222','321122','321221','312212','322112','322211',
-  '212123','212321','232121','111323','131123','131321','112313','132113','132311','211313',
-  '231113','231311','112133','112331','132131','113123','113321','133121','313121','211331',
-  '231131','213113','213311','213131','311123','311321','331121','312113','312311','332111',
-  '314111','221411','431111','111224','111422','121124','121421','141122','141221','112214',
-  '112412','122114','122411','142112','142211','241211','221114','413111','241112','134111',
-  '111242','121142','121241','114212','124112','124211','411212','421112','421211','212141',
-  '214121','412121','111143','111341','131141','114113','114311','411113','411311','113141',
-  '114131','311141','411131','211412','211214','211232','2331112'
-];
-
-function generateCode128Svg(inputText, height = 45, barScale = 2) {
-  const clean = String(inputText || '').trim();
-  if (!clean) return '<svg width="100" height="40"></svg>';
-
-  // Start Code B = 104
-  const indices = [104];
-  for (let i = 0; i < clean.length; i++) {
-    const code = clean.charCodeAt(i);
-    const charIndex = code >= 32 && code <= 126 ? code - 32 : 0;
-    indices.push(charIndex);
-  }
-
-  // Checksum Modulo 103
-  let checksum = indices[0];
-  for (let i = 1; i < indices.length; i++) {
-    checksum += indices[i] * i;
-  }
-  indices.push(checksum % 103);
-  indices.push(106); // Stop symbol
-
-  let modules = '';
-  for (const idx of indices) {
-    const pattern = CODE128_PATTERNS[idx] || '212222';
-    for (let p = 0; p < pattern.length; p++) {
-      const width = parseInt(pattern[p], 10);
-      const isBar = p % 2 === 0;
-      modules += (isBar ? '1' : '0').repeat(width);
-    }
-  }
-
-  // Quiet zones
-  const fullModules = '0000000000' + modules + '0000000000';
-  const svgWidth = fullModules.length * barScale;
-
-  let rects = '';
-  let inBar = false;
-  let startX = 0;
-
-  for (let i = 0; i < fullModules.length; i++) {
-    const bit = fullModules[i];
-    if (bit === '1' && !inBar) {
-      inBar = true;
-      startX = i;
-    } else if (bit === '0' && inBar) {
-      inBar = false;
-      rects += `<rect x="${startX * barScale}" y="0" width="${(i - startX) * barScale}" height="${height}" fill="#0f172a" />`;
-    }
-  }
-  if (inBar) {
-    rects += `<rect x="${startX * barScale}" y="0" width="${(fullModules.length - startX) * barScale}" height="${height}" fill="#0f172a" />`;
-  }
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${height}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Barcode ${clean}">${rects}</svg>`;
+function formatRupiah(amount) {
+  return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
 }
 
-// State Simulator Kasir
-const SimState = {
-  currentCategory: 'all',
-  searchQuery: '',
-  cart: [
-    { id: 'p1', name: 'Minyak Goreng Sawit 2L', price: 34000, qty: 1 },
-    { id: 'p2', name: 'Beras Rojolele Super 5kg', price: 72000, qty: 1 }
-  ],
-  cashReceived: 120000
-};
+const WebStore = {
+  currentPkgKey: 'ultimate',
+  activePaymentMethod: 'qris',
+  qrisInterval: null,
+  qrisSecondsLeft: 900, // 15 menit
 
-// Inisialisasi Aplikasi Saat DOM Siap
-document.addEventListener('DOMContentLoaded', () => {
-  initMobileNav();
-  initShowcaseTabs();
-  initPosSimulator();
-  initBarcodeModule();
-  initReceiptModule();
-  initDownloadSection();
-  initCheckoutPortal();
-});
+  init() {
+    this.bindEditionTabs();
+    this.bindFAQ();
+    this.bindCheckoutModal();
+    this.bindPaymentSelector();
+  },
 
-// 1. Navigasi Mobile Drawer
-function initMobileNav() {
-  const btn = document.getElementById('btn-mobile-nav');
-  const drawer = document.getElementById('mobile-nav-drawer');
-  if (!btn || !drawer) return;
+  // 1. Tab Edisi Industri
+  bindEditionTabs() {
+    const tabBtns = document.querySelectorAll('.edition-btn-tab, .edition-tab-btn');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-  btn.addEventListener('click', () => {
-    const isOpen = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!isOpen));
-    drawer.hidden = isOpen;
-  });
-
-  drawer.querySelectorAll('.mobile-nav-item').forEach(link => {
-    link.addEventListener('click', () => {
-      btn.setAttribute('aria-expanded', 'false');
-      drawer.hidden = true;
-    });
-  });
-}
-
-// 2. Showcase Tabs Controller
-function initShowcaseTabs() {
-  const tabs = document.querySelectorAll('.tab-pill[role="tab"]');
-  const panels = document.querySelectorAll('.mockup-content-panel[role="tabpanel"]');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
+        const target = btn.dataset.edition;
+        document.querySelectorAll('.edition-panel-display, .edition-card-panel').forEach(panel => {
+          panel.classList.toggle('active', panel.id === `edition-panel-${target}`);
+        });
       });
-      panels.forEach(p => {
-        p.classList.remove('active');
-        p.hidden = true;
+    });
+  },
+
+  // 2. FAQ Accordion
+  bindFAQ() {
+    document.querySelectorAll('.faq-toggle-button, .faq-trigger-btn, .faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.closest('.faq-row, .faq-card-item, .faq-item');
+        if (item) item.classList.toggle('active');
       });
+    });
+  },
 
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
+  // 3. Checkout Modal
+  bindCheckoutModal() {
+    const modal = document.getElementById('checkout-modal');
+    const closeBtn = document.getElementById('btn-close-checkout');
 
-      const targetId = tab.getAttribute('aria-controls');
-      const targetPanel = document.getElementById(targetId);
-      if (targetPanel) {
-        targetPanel.classList.add('active');
-        targetPanel.hidden = false;
+    // Trigger open from pricing cards or buttons
+    document.querySelectorAll('[data-buy-pkg]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pkgKey = btn.dataset.buyPkg || 'ultimate';
+        this.openCheckout(pkgKey);
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeCheckout());
+    }
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeCheckout();
+      });
+    }
+
+    // Keyboard Accessibility: Close on Escape key (R-32)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+        this.closeCheckout();
       }
     });
-  });
-}
 
-// 3. Modul 1: Simulator POS Interaktif
-function initPosSimulator() {
-  renderDemoProducts();
-  renderDemoCart();
+    // Checkout Form Submit -> Go to Payment Step
+    const checkoutForm = document.getElementById('form-checkout-customer');
+    if (checkoutForm) {
+      checkoutForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.processToPayment();
+      });
+    }
 
-  // Filter Kategori
-  const catPills = document.querySelectorAll('#demo-category-pills .cat-pill');
-  catPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      catPills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      SimState.currentCategory = pill.dataset.cat || 'all';
-      renderDemoProducts();
-    });
-  });
+    // Simulated / Instant Payment Verification Button
+    const btnConfirmPay = document.getElementById('btn-confirm-payment');
+    if (btnConfirmPay) {
+      btnConfirmPay.addEventListener('click', () => {
+        this.executeInstantFulfillment();
+      });
+    }
+  },
 
-  // Pencarian Produk
-  const searchInput = document.getElementById('demo-search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      SimState.searchQuery = e.target.value.toLowerCase().trim();
-      renderDemoProducts();
-    });
-  }
-
-  // Input Uang Diterima
-  const cashInput = document.getElementById('demo-cash-input');
-  if (cashInput) {
-    cashInput.value = SimState.cashReceived;
-    cashInput.addEventListener('input', (e) => {
-      SimState.cashReceived = Math.max(0, parseInt(e.target.value || '0', 10));
-      updateCartSummary();
-    });
-  }
-
-  // Quick Chips Nominal Uang
-  const chips = document.querySelectorAll('.quick-chips-row .chip-btn');
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const val = chip.dataset.val;
-      const total = calculateGrandTotal();
-      if (val === 'exact') {
-        SimState.cashReceived = total;
-      } else {
-        SimState.cashReceived = parseInt(val, 10);
-      }
-      if (cashInput) cashInput.value = SimState.cashReceived;
-      updateCartSummary();
-    });
-  });
-
-  // Tombol Bayar & Reset
-  const btnPay = document.getElementById('demo-btn-pay');
-  const btnReset = document.getElementById('demo-btn-reset');
-
-  if (btnPay) {
-    btnPay.addEventListener('click', () => {
-      const total = calculateGrandTotal();
-      if (total === 0) {
-        alert('Keranjang belanja masih kosong! Silakan klik produk terlebih dahulu.');
-        return;
-      }
-      if (SimState.cashReceived < total) {
-        alert(`Uang pembayaran kurang Rp ${FORMAT.number(total - SimState.cashReceived)}. Masukkan nominal yang cukup.`);
-        return;
-      }
-
-      alert(`Transaksi Berhasil Disimpan!\nTotal: ${FORMAT.currency(total)}\nUang Tunai: ${FORMAT.currency(SimState.cashReceived)}\nKembalian: ${FORMAT.currency(SimState.cashReceived - total)}\n\nStruk otomatis tercetak ke printer thermal kasir.`);
-      SimState.cart = [];
-      SimState.cashReceived = 0;
-      if (cashInput) cashInput.value = 0;
-      renderDemoCart();
-    });
-  }
-
-  if (btnReset) {
-    btnReset.addEventListener('click', () => {
-      SimState.cart = [];
-      SimState.cashReceived = 0;
-      if (cashInput) cashInput.value = 0;
-      renderDemoCart();
-    });
-  }
-}
-
-function calculateGrandTotal() {
-  return SimState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-}
-
-function renderDemoProducts() {
-  const container = document.getElementById('demo-products-grid');
-  if (!container) return;
-
-  const filtered = DEMO_PRODUCTS.filter(p => {
-    const matchCat = SimState.currentCategory === 'all' || p.category === SimState.currentCategory;
-    const matchQuery = !SimState.searchQuery || 
-                       p.name.toLowerCase().includes(SimState.searchQuery) || 
-                       p.barcode.includes(SimState.searchQuery);
-    return matchCat && matchQuery;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">Tidak ada produk yang cocok dengan pencarian.</div>';
-    return;
-  }
-
-  container.innerHTML = filtered.map(p => `
-    <button type="button" class="sim-prod-card" onclick="addToDemoCart('${p.id}')" aria-label="Tambah ${p.name} ke keranjang">
-      <span class="prod-name">${p.name}</span>
-      <div class="prod-meta">
-        <span>Stok: ${p.stock}</span>
-        <span class="prod-price font-mono">${FORMAT.currency(p.price)}</span>
-      </div>
-    </button>
-  `).join('');
-}
-
-window.addToDemoCart = function(productId) {
-  const prod = DEMO_PRODUCTS.find(p => p.id === productId);
-  if (!prod) return;
-
-  const existing = SimState.cart.find(item => item.id === productId);
-  if (existing) {
-    existing.qty += 1;
-  } else {
-    SimState.cart.push({
-      id: prod.id,
-      name: prod.name,
-      price: prod.price,
-      qty: 1
-    });
-  }
-
-  renderDemoCart();
-};
-
-function renderDemoCart() {
-  const listEl = document.getElementById('demo-cart-items');
-  if (!listEl) return;
-
-  if (SimState.cart.length === 0) {
-    listEl.innerHTML = '<div style="padding: 1.5rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.75rem;">Keranjang kosong. Klik produk di sebelah kiri untuk menambah.</div>';
-  } else {
-    listEl.innerHTML = SimState.cart.map(item => `
-      <div class="cart-item-row">
-        <div>
-          <strong>${item.name}</strong>
-          <div class="font-mono text-muted text-xs">${item.qty} x ${FORMAT.currency(item.price)}</div>
-        </div>
-        <div class="font-mono font-bold">${FORMAT.currency(item.qty * item.price)}</div>
-      </div>
-    `).join('');
-  }
-
-  updateCartSummary();
-}
-
-function updateCartSummary() {
-  const totalQty = SimState.cart.reduce((sum, item) => sum + item.qty, 0);
-  const grandTotal = calculateGrandTotal();
-  const change = Math.max(0, SimState.cashReceived - grandTotal);
-
-  const qtyEl = document.getElementById('demo-total-qty');
-  const totalEl = document.getElementById('demo-grand-total');
-  const changeEl = document.getElementById('demo-change-amount');
-
-  if (qtyEl) qtyEl.textContent = `${totalQty} barang`;
-  if (totalEl) totalEl.textContent = FORMAT.currency(grandTotal);
-  if (changeEl) {
-    changeEl.textContent = FORMAT.currency(change);
-    if (SimState.cashReceived < grandTotal && grandTotal > 0) {
-      changeEl.textContent = `Kurang Rp ${FORMAT.number(grandTotal - SimState.cashReceived)}`;
-      changeEl.style.color = 'var(--color-warn)';
+  showToast(message, isError = false) {
+    let toast = document.getElementById('web-toast-notice');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'web-toast-notice';
+      toast.className = 'toast-notice';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    if (isError) {
+      toast.style.borderLeftColor = 'var(--color-danger)';
     } else {
-      changeEl.style.color = 'var(--color-brand)';
+      toast.style.borderLeftColor = 'var(--color-primary)';
     }
-  }
-}
+    toast.classList.add('show');
+    clearTimeout(this._toastTimeout);
+    this._toastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3200);
+  },
 
-// 4. Modul 2: Barcode Code 128 Rak Toko
-function initBarcodeModule() {
-  const container = document.getElementById('shelf-barcode-container');
-  if (container) {
-    container.innerHTML = generateCode128Svg('899100123451');
-  }
+  openCheckout(pkgKey = 'ultimate') {
+    this.currentPkgKey = pkgKey;
+    const pkg = CONFIG.PACKAGES[pkgKey] || CONFIG.PACKAGES.ultimate;
 
-  const buttons = document.querySelectorAll('.btn-mini-barcode');
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const code = btn.dataset.code || '899100123451';
-      const name = btn.dataset.name || 'Produk';
-      const row = btn.closest('tr');
-      const priceText = row ? row.querySelectorAll('td')[3].textContent.trim() : 'Rp 0';
+    // Reset views
+    document.getElementById('checkout-step-form').style.display = 'block';
+    document.getElementById('checkout-step-payment').style.display = 'none';
+    document.getElementById('checkout-step-success').style.display = 'none';
 
-      const shelfName = document.getElementById('shelf-demo-name');
-      const shelfPrice = document.getElementById('shelf-demo-price');
-      const shelfDigits = document.getElementById('shelf-demo-digits');
-      const barcodeBox = document.getElementById('shelf-barcode-container');
+    // Populate order summary
+    document.getElementById('checkout-pkg-name').textContent = pkg.name;
+    document.getElementById('checkout-pkg-desc').textContent = pkg.desc;
+    document.getElementById('checkout-pkg-price').textContent = formatRupiah(pkg.price);
 
-      if (shelfName) shelfName.textContent = name;
-      if (shelfPrice) shelfPrice.textContent = priceText;
-      if (shelfDigits) shelfDigits.textContent = code;
-      if (barcodeBox) barcodeBox.innerHTML = generateCode128Svg(code);
-    });
-  });
-}
-
-// 5. Modul 4: Pengaturan Struk Kasir
-function initReceiptModule() {
-  const nameInput = document.getElementById('cfg-shop-name');
-  const addrInput = document.getElementById('cfg-shop-addr');
-  const footerInput = document.getElementById('cfg-footer-note');
-  const paperSelect = document.getElementById('cfg-paper-size');
-
-  const receiptName = document.getElementById('receipt-demo-store-name');
-  const receiptAddr = document.getElementById('receipt-demo-store-addr');
-  const receiptFooter = document.getElementById('receipt-demo-footer');
-  const receiptPaper = document.getElementById('thermal-receipt-sample');
-
-  if (nameInput && receiptName) {
-    nameInput.addEventListener('input', (e) => {
-      receiptName.textContent = e.target.value.toUpperCase() || 'NAMA TOKO';
-    });
-  }
-
-  if (addrInput && receiptAddr) {
-    addrInput.addEventListener('input', (e) => {
-      receiptAddr.textContent = e.target.value || '-';
-    });
-  }
-
-  if (footerInput && receiptFooter) {
-    footerInput.addEventListener('input', (e) => {
-      receiptFooter.textContent = e.target.value || '-';
-    });
-  }
-
-  if (paperSelect && receiptPaper) {
-    paperSelect.addEventListener('change', (e) => {
-      if (e.target.value === '80mm') {
-        receiptPaper.style.width = '360px';
-      } else {
-        receiptPaper.style.width = '280px';
-      }
-    });
-  }
-
-  const btnPrint = document.getElementById('btn-print-sample-receipt');
-  if (btnPrint) {
-    btnPrint.addEventListener('click', () => {
-      window.print();
-    });
-  }
-}
-
-// 6. Pusat Unduhan & Panduan Instalasi
-function initDownloadSection() {
-  const guideBtns = document.querySelectorAll('.btn-guide-toggle');
-  guideBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.dataset.target;
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) {
-        targetEl.hidden = !targetEl.hidden;
-      }
-    });
-  });
-}
-
-// 7. Portal Checkout & Payment Gateway Interaktif
-function initCheckoutPortal() {
-  const modal = document.getElementById('checkout-modal');
-  if (!modal) return;
-
-  const btnClose = document.getElementById('btn-close-checkout');
-  const btnCancel = document.getElementById('btn-cancel-checkout');
-  const btnFinish = document.getElementById('btn-finish-checkout');
-  const triggers = document.querySelectorAll('.open-checkout-trigger');
-
-  const planSelect = document.getElementById('order-plan-select');
-  const totalDisplay = document.getElementById('order-total-display');
-  const qrisAmount = document.getElementById('qris-amount-val');
-
-  const step1 = document.getElementById('step-panel-1');
-  const step2 = document.getElementById('step-panel-2');
-  const step3 = document.getElementById('step-panel-3');
-
-  const nav1 = document.getElementById('step-nav-1');
-  const nav2 = document.getElementById('step-nav-2');
-  const nav3 = document.getElementById('step-nav-3');
-
-  let countdownInterval = null;
-
-  function closeModal() {
-    modal.hidden = true;
-    if (countdownInterval) clearInterval(countdownInterval);
-  }
-
-  function openModal(planKey = 'resmi') {
-    modal.hidden = false;
-    setStep(1);
-    updatePrice();
-  }
-
-  function setStep(stepNum) {
-    [step1, step2, step3].forEach((panel, idx) => {
-      if (panel) panel.hidden = (idx + 1 !== stepNum);
-    });
-    [nav1, nav2, nav3].forEach((nav, idx) => {
-      if (nav) nav.classList.toggle('active', idx + 1 <= stepNum);
-    });
-
-    if (stepNum === 2) {
-      startQrisTimer();
-      renderQrisSvg();
+    const modal = document.getElementById('checkout-modal');
+    if (modal) {
+      modal.classList.add('active');
+      const inputStore = document.getElementById('input-store-name');
+      if (inputStore) setTimeout(() => inputStore.focus(), 150);
     }
-  }
+  },
 
-  function updatePrice() {
-    const price = 90000;
-    const formatted = FORMAT.currency(price);
-    if (totalDisplay) totalDisplay.textContent = formatted;
-    if (qrisAmount) qrisAmount.textContent = formatted;
-  }
+  closeCheckout() {
+    const modal = document.getElementById('checkout-modal');
+    if (modal) modal.classList.remove('active');
+    clearInterval(this.qrisInterval);
+  },
 
-  triggers.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal('resmi');
-    });
-  });
+  bindPaymentSelector() {
+    const paymentBtns = document.querySelectorAll('.payment-toggle-btn, .payment-method-card');
+    paymentBtns.forEach(card => {
+      card.addEventListener('click', () => {
+        paymentBtns.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        this.activePaymentMethod = card.dataset.method || 'qris';
 
-  if (btnClose) btnClose.addEventListener('click', closeModal);
-  if (btnCancel) btnCancel.addEventListener('click', closeModal);
-  if (btnFinish) btnFinish.addEventListener('click', closeModal);
+        const qrisBox = document.getElementById('qris-container');
+        const transferBox = document.getElementById('transfer-container');
 
-  // Form Step 1 Submit -> to Step 2
-  const formStep1 = document.getElementById('form-checkout-step1');
-  if (formStep1) {
-    formStep1.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const storeName = (document.getElementById('order-store-name').value || 'Toko Berkah Bersama').trim();
-      const ownerName = (document.getElementById('order-owner-name').value || 'Pelanggan UMKM').trim();
-      const waNumber = (document.getElementById('order-whatsapp').value || '-').trim();
-
-      // Generate order ID unik untuk Pakasir
-      const orderId = 'BK-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000);
-      const serialKey = generateLicenseKey(storeName);
-
-      // Simpan data order sementara ke localStorage
-      const orderData = {
-        orderId,
-        storeName,
-        ownerName,
-        waNumber,
-        serialKey,
-        amount: PAKASIR_CONFIG.price,
-        createdAt: new Date().toISOString()
-      };
-      localStorage.setItem('bukukasir_pending_order', JSON.stringify(orderData));
-
-      // Update tampilan order ID di Step 2
-      const orderIdEl = document.getElementById('pakasir-order-id-val');
-      if (orderIdEl) orderIdEl.textContent = orderId;
-
-      // Bentuk URL checkout resmi Pakasir
-      const redirectUrl = window.location.origin + window.location.pathname + '?payment=success&order_id=' + encodeURIComponent(orderId);
-      const pakasirPayUrl = `https://app.pakasir.com/pay/${PAKASIR_CONFIG.projectSlug}/${PAKASIR_CONFIG.price}?order_id=${encodeURIComponent(orderId)}&qris_only=1&redirect=${encodeURIComponent(redirectUrl)}`;
-      const btnPakasirPay = document.getElementById('btn-open-pakasir-pay');
-      if (btnPakasirPay) {
-        btnPakasirPay.href = pakasirPayUrl;
-      }
-
-      setStep(2);
-    });
-  }
-
-  // Back from Step 2 to Step 1
-  const btnBack = document.getElementById('btn-back-to-step1');
-  if (btnBack) {
-    btnBack.addEventListener('click', () => setStep(1));
-  }
-
-  // Payment Tabs Switcher
-  const payTabs = document.querySelectorAll('.pay-tab-btn');
-  payTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      payTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const method = tab.dataset.method;
-      ['pakasir', 'va', 'wa'].forEach(m => {
-        const block = document.getElementById(`pay-method-${m}`);
-        if (block) block.hidden = (m !== method);
+        if (this.activePaymentMethod === 'qris') {
+          if (qrisBox) qrisBox.style.display = 'block';
+          if (transferBox) transferBox.style.display = 'none';
+        } else {
+          if (qrisBox) qrisBox.style.display = 'none';
+          if (transferBox) transferBox.style.display = 'block';
+        }
       });
     });
-  });
+  },
 
-  // Copy number in VA
-  document.querySelectorAll('.btn-copy-num').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const text = btn.dataset.copy;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text);
-        const orig = btn.textContent;
-        btn.textContent = 'Tersalin!';
-        setTimeout(() => btn.textContent = orig, 1500);
-      }
-    });
-  });
+  processToPayment() {
+    const storeName = document.getElementById('input-store-name').value.trim();
+    const customerName = document.getElementById('input-customer-name').value.trim() || 'Pemilik Toko';
+    const waNumber = document.getElementById('input-customer-wa').value.trim();
 
-  // Render SVG QRIS Code
-  function renderQrisSvg() {
-    const container = document.getElementById('qris-qr-image');
-    if (!container) return;
-    container.innerHTML = `
-      <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100" height="100" fill="#ffffff" />
-        <rect x="5" y="5" width="28" height="28" fill="#0f172a" rx="4" />
-        <rect x="9" y="9" width="20" height="20" fill="#ffffff" rx="2" />
-        <rect x="13" y="13" width="12" height="12" fill="#0f172a" rx="2" />
-        <rect x="67" y="5" width="28" height="28" fill="#0f172a" rx="4" />
-        <rect x="71" y="9" width="20" height="20" fill="#ffffff" rx="2" />
-        <rect x="75" y="13" width="12" height="12" fill="#0f172a" rx="2" />
-        <rect x="5" y="67" width="28" height="28" fill="#0f172a" rx="4" />
-        <rect x="9" y="71" width="20" height="20" fill="#ffffff" rx="2" />
-        <rect x="13" y="75" width="12" height="12" fill="#0f172a" rx="2" />
-        <rect x="37" y="10" width="5" height="5" fill="#0f172a" />
-        <rect x="47" y="10" width="5" height="5" fill="#0f172a" />
-        <rect x="57" y="10" width="5" height="5" fill="#0f172a" />
-        <rect x="37" y="20" width="5" height="5" fill="#0f172a" />
-        <rect x="47" y="25" width="5" height="5" fill="#0f172a" />
-        <rect x="57" y="20" width="5" height="5" fill="#0f172a" />
-        <rect x="40" y="40" width="20" height="20" fill="#0f766e" rx="3" />
-        <text x="50" y="53" font-family="sans-serif" font-weight="900" font-size="7" fill="#ffffff" text-anchor="middle">PAKASIR</text>
-        <rect x="10" y="37" width="5" height="5" fill="#0f172a" />
-        <rect x="20" y="37" width="5" height="5" fill="#0f172a" />
-        <rect x="25" y="47" width="5" height="5" fill="#0f172a" />
-        <rect x="70" y="37" width="5" height="5" fill="#0f172a" />
-        <rect x="80" y="47" width="5" height="5" fill="#0f172a" />
-        <rect x="75" y="57" width="5" height="5" fill="#0f172a" />
-        <rect x="85" y="67" width="5" height="5" fill="#0f172a" />
-        <rect x="40" y="65" width="5" height="5" fill="#0f172a" />
-        <rect x="50" y="70" width="5" height="5" fill="#0f172a" />
-        <rect x="60" y="65" width="5" height="5" fill="#0f172a" />
-        <rect x="45" y="80" width="5" height="5" fill="#0f172a" />
-        <rect x="55" y="85" width="5" height="5" fill="#0f172a" />
-        <rect x="65" y="80" width="5" height="5" fill="#0f172a" />
-        <rect x="75" y="85" width="5" height="5" fill="#0f172a" />
-      </svg>
-    `;
-  }
-
-  function startQrisTimer() {
-    if (countdownInterval) clearInterval(countdownInterval);
-    let secondsLeft = 15 * 60;
-    const timerEl = document.getElementById('qris-countdown');
-    countdownInterval = setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft <= 0) {
-        clearInterval(countdownInterval);
-        if (timerEl) timerEl.textContent = 'Kadaluarsa - Segarkan';
-        return;
-      }
-      const mins = Math.floor(secondsLeft / 60);
-      const secs = secondsLeft % 60;
-      if (timerEl) {
-        timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-      }
-    }, 1000);
-  }
-
-  // Verify payment -> Step 3
-  const btnVerify = document.getElementById('btn-verify-payment');
-  if (btnVerify) {
-    btnVerify.addEventListener('click', () => {
-      let orderData = null;
-      try {
-        orderData = JSON.parse(localStorage.getItem('bukukasir_pending_order'));
-      } catch (e) {}
-
-      const storeName = (orderData && orderData.storeName) || (document.getElementById('order-store-name').value || 'Toko Berkah Bersama').trim();
-      const ownerName = (orderData && orderData.ownerName) || (document.getElementById('order-owner-name').value || 'Pelanggan UMKM').trim();
-      const waNumber = (orderData && orderData.waNumber) || (document.getElementById('order-whatsapp').value || '-').trim();
-      const orderId = (orderData && orderData.orderId) || ('BK-' + Date.now().toString(36).toUpperCase());
-
-      // Generate kunci lisensi resmi yang valid seumur hidup untuk nama toko ini
-      const serialKey = generateLicenseKey(storeName);
-
-      // Simpan status lisensi aktif
-      const activeData = {
-        orderId,
-        storeName,
-        ownerName,
-        waNumber,
-        serialKey,
-        paidAt: new Date().toISOString()
-      };
-      localStorage.setItem('bukukasir_active_license', JSON.stringify(activeData));
-
-      const serialEl = document.getElementById('issued-serial-code');
-      const storeInfoEl = document.getElementById('issued-store-info');
-
-      if (serialEl) serialEl.textContent = serialKey;
-      if (storeInfoEl) {
-        storeInfoEl.textContent = `Terdaftar untuk: ${storeName} (${ownerName}) - Lisensi Aktif Seumur Hidup`;
-      }
-
-      // WhatsApp summary link
-      const waLink = document.getElementById('btn-send-wa-summary');
-      if (waLink) {
-        const msg = encodeURIComponent(
-          `Halo Admin BukuKasir UMKM, saya telah menyelesaikan pembayaran via Pakasir:\n\n` +
-          `- Order ID: ${orderId}\n` +
-          `- Nama Toko: ${storeName}\n` +
-          `- Nama Pemilik: ${ownerName}\n` +
-          `- WhatsApp: ${waNumber}\n` +
-          `- Kunci Lisensi: ${serialKey}\n\n` +
-          `Mohon dicatat pada database pusat aktivasi software. Terima kasih!`
-        );
-        waLink.href = `https://wa.me/6281234567890?text=${msg}`;
-      }
-
-      setStep(3);
-    });
-  }
-
-  // Copy Serial License Button
-  const btnCopySerial = document.getElementById('btn-copy-serial');
-  if (btnCopySerial) {
-    btnCopySerial.addEventListener('click', () => {
-      const code = document.getElementById('issued-serial-code').textContent;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(code);
-        const orig = btnCopySerial.textContent;
-        btnCopySerial.textContent = 'Tersalin!';
-        setTimeout(() => btnCopySerial.textContent = orig, 1500);
-      }
-    });
-  }
-
-  // Tombol Buka Kembali Portal Lisensi untuk yang sudah pernah membeli
-  const btnReopen = document.getElementById('btn-reopen-license-portal');
-  if (btnReopen) {
-    btnReopen.addEventListener('click', () => {
-      let activeLic = null;
-      try {
-        activeLic = JSON.parse(localStorage.getItem('bukukasir_active_license')) || 
-                    JSON.parse(localStorage.getItem('bukukasir_pending_order'));
-      } catch (e) {}
-
-      if (activeLic && activeLic.storeName) {
-        const serialEl = document.getElementById('issued-serial-code');
-        const storeInfoEl = document.getElementById('issued-store-info');
-        const serialKey = activeLic.serialKey || generateLicenseKey(activeLic.storeName);
-
-        if (serialEl) serialEl.textContent = serialKey;
-        if (storeInfoEl) {
-          storeInfoEl.textContent = `Terdaftar untuk: ${activeLic.storeName} (${activeLic.ownerName || '-'}) - Lisensi Aktif Seumur Hidup`;
-        }
-
-        openModal('resmi');
-        setStep(3);
-      } else {
-        openModal('resmi');
-        setStep(1);
-      }
-    });
-  }
-
-  // Cek jika pembeli dialihkan kembali dari Pakasir (URL: ?payment=success)
-  if (typeof window !== 'undefined' && window.location.search) {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success' || params.get('order_id')) {
-      let savedOrder = null;
-      try {
-        savedOrder = JSON.parse(localStorage.getItem('bukukasir_pending_order'));
-      } catch (e) {}
-
-      const storeName = (savedOrder && savedOrder.storeName) || 'Toko Berkah Bersama';
-      const ownerName = (savedOrder && savedOrder.ownerName) || 'Pelanggan UMKM';
-      const serialKey = generateLicenseKey(storeName);
-
-      const serialEl = document.getElementById('issued-serial-code');
-      const storeInfoEl = document.getElementById('issued-store-info');
-      if (serialEl) serialEl.textContent = serialKey;
-      if (storeInfoEl) {
-        storeInfoEl.textContent = `Terdaftar untuk: ${storeName} (${ownerName}) - Lisensi Aktif Seumur Hidup`;
-      }
-
-      openModal('resmi');
-      setStep(3);
+    if (!storeName) {
+      this.showToast('Nama Toko wajib diisi untuk penerbitan lisensi resmi!', true);
+      document.getElementById('input-store-name').focus();
+      return;
     }
+
+    const pkg = CONFIG.PACKAGES[this.currentPkgKey] || CONFIG.PACKAGES.ultimate;
+    const invCode = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+
+    // Update payment display
+    document.getElementById('pay-pkg-name').textContent = pkg.name;
+    document.getElementById('pay-total-amount').textContent = formatRupiah(pkg.price);
+    document.getElementById('pay-store-name-display').textContent = storeName;
+    document.getElementById('pay-invoice-code').textContent = invCode;
+
+    document.getElementById('checkout-step-form').style.display = 'none';
+    document.getElementById('checkout-step-payment').style.display = 'block';
+
+    // Start 15-Minute Countdown
+    this.startQrisTimer();
+  },
+
+  startQrisTimer() {
+    clearInterval(this.qrisInterval);
+    this.qrisSecondsLeft = 900;
+    const timerEl = document.getElementById('qris-timer');
+
+    const updateTimer = () => {
+      const m = Math.floor(this.qrisSecondsLeft / 60).toString().padStart(2, '0');
+      const s = (this.qrisSecondsLeft % 60).toString().padStart(2, '0');
+      if (timerEl) timerEl.textContent = `${m}:${s}`;
+      if (this.qrisSecondsLeft <= 0) {
+        clearInterval(this.qrisInterval);
+        if (timerEl) timerEl.textContent = 'Kedaluwarsa';
+      }
+      this.qrisSecondsLeft--;
+    };
+    updateTimer();
+    this.qrisInterval = setInterval(updateTimer, 1000);
+  },
+
+  // 4. INSTANT AUTO-FULFILLMENT ENGINE
+  executeInstantFulfillment() {
+    clearInterval(this.qrisInterval);
+
+    const storeName = document.getElementById('input-store-name').value.trim();
+    const customerName = document.getElementById('input-customer-name').value.trim() || 'Pemilik Toko';
+    const waNumber = document.getElementById('input-customer-wa').value.trim();
+    const pkg = CONFIG.PACKAGES[this.currentPkgKey] || CONFIG.PACKAGES.ultimate;
+
+    // Generate Kunci Lisensi Resmi secara instan menggunakan algoritma deterministic
+    const generatedKey = generateLicenseKey(storeName);
+
+    // Tampilkan Layar Sukses
+    document.getElementById('checkout-step-payment').style.display = 'none';
+    document.getElementById('checkout-step-success').style.display = 'block';
+
+    document.getElementById('success-store-name').textContent = storeName;
+    document.getElementById('success-license-key').textContent = generatedKey;
+    document.getElementById('success-pkg-name').textContent = pkg.name;
+
+    // Siapkan Link Notifikasi WhatsApp Pembeli
+    const waText = encodeURIComponent(
+      `Halo Tim BukuKasir UMKM, saya telah menyelesaikan pembayaran lisensi resmi:\n\n` +
+      `🏪 Nama Toko: ${storeName}\n` +
+      `👤 Pemilik: ${customerName}\n` +
+      `📦 Paket: ${pkg.name}\n` +
+      `🔑 Kunci Lisensi Saya: ${generatedKey}\n\n` +
+      `Mohon simpan data lisensi resmi saya. Terima kasih!`
+    );
+    const btnSendWa = document.getElementById('btn-send-wa-confirm');
+    if (btnSendWa) {
+      btnSendWa.href = `https://wa.me/${CONFIG.ADMIN_WA}?text=${waText}`;
+    }
+  },
+
+  copyLicenseKey() {
+    const keyText = document.getElementById('success-license-key').textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(keyText).then(() => {
+        this.showToast(`Kunci lisensi "${keyText}" berhasil disalin.`);
+      });
+    } else {
+      this.showToast(`Kunci lisensi: ${keyText}`);
+    }
+  },
+
+  printCertificate() {
+    const storeName = document.getElementById('input-store-name').value.trim();
+    const customerName = document.getElementById('input-customer-name').value.trim() || 'Pemilik Toko';
+    const pkg = CONFIG.PACKAGES[this.currentPkgKey] || CONFIG.PACKAGES.ultimate;
+    const key = document.getElementById('success-license-key').textContent;
+    const inv = document.getElementById('pay-invoice-code').textContent || 'INV-WEB-SUCCESS';
+    const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>Sertifikat_Lisensi_${storeName}</title>
+        <style>
+          @page { size: A4 portrait; margin: 15mm; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1c1518; padding: 24px; text-align: center; }
+          .cert { border: 2px solid #6e1127; border-radius: 12px; padding: 36px; max-width: 640px; margin: 0 auto; background: #fff; }
+          .logo { font-size: 20px; font-weight: 800; color: #6e1127; margin-bottom: 6px; }
+          .title { font-size: 24px; font-weight: 850; color: #540c1d; }
+          .sub { font-size: 12px; color: #574b50; text-transform: uppercase; margin-bottom: 24px; letter-spacing: 0.05em; }
+          .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; text-align: left; font-size: 14px; }
+          .info-table td { padding: 9px; border-bottom: 1px solid #e8e1d7; }
+          .serial-box { background: #3b0814; color: #6ee7b7; padding: 16px; border-radius: 8px; font-size: 22px; font-weight: 800; letter-spacing: 0.1em; font-family: monospace; margin: 24px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="cert">
+          <div class="logo">BUKUKASIR UMKM</div>
+          <div class="title">SERTIFIKAT LISENSI RESMI</div>
+          <div class="sub">Hak Penggunaan Software Kasir Permanen Seumur Hidup</div>
+          <table class="info-table">
+            <tr><td><strong>Nama Toko</strong></td><td>: ${storeName}</td></tr>
+            <tr><td><strong>Nama Pemilik</strong></td><td>: ${customerName}</td></tr>
+            <tr><td><strong>Paket Edisi</strong></td><td>: ${pkg.name}</td></tr>
+            <tr><td><strong>Nomor Invoice</strong></td><td>: ${inv}</td></tr>
+            <tr><td><strong>Tanggal Aktivasi</strong></td><td>: ${dateStr}</td></tr>
+            <tr><td><strong>Masa Berlaku</strong></td><td>: SEUMUR HIDUP (Bebas Biaya Bulanan)</td></tr>
+          </table>
+          <div class="serial-box">${key}</div>
+          <p style="font-size:12px; color:#85767c;">Terverifikasi resmi oleh sistem BukuKasir UMKM Digital Solutions.</p>
+        </div>
+        <script>window.onload = function() { window.print(); };</script>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
   }
-}
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  WebStore.init();
+});
