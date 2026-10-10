@@ -6,6 +6,16 @@
 const CONFIG = {
   LICENSE_SECRET: 'BK_UMKM_SECURE_SALT_2026_ATNAN49',
   ADMIN_WA: '6281234567890', // Nomor WhatsApp admin resmi
+
+  // Konfigurasi Payment Gateway Pakasir v2
+  PAKASIR: {
+    ENABLED: false, // Ubah ke true setelah pengajuan KYC Pakasir disetujui
+    PROJECT_SLUG: 'kasir-umkm', // Masukkan slug proyek dari dashboard app.pakasir.com
+    API_KEY: '', // API Key v2 dari dashboard Pakasir
+    SANDBOX: false, // Set false untuk transaksi riil QRIS
+    PAYMENT_URL: 'https://app.pakasir.com/pay' // Portal bayar resmi Pakasir
+  },
+
   PACKAGES: {
     retail: {
       name: 'Edisi Retail & Sembako',
