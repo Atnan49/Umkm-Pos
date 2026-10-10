@@ -101,9 +101,9 @@ const WebStore = {
 
   // 2. FAQ Accordion
   bindFAQ() {
-    document.querySelectorAll('.faq-trigger-btn, .faq-question').forEach(q => {
+    document.querySelectorAll('.faq-toggle-button, .faq-trigger-btn, .faq-question').forEach(q => {
       q.addEventListener('click', () => {
-        const item = q.closest('.faq-card-item, .faq-item');
+        const item = q.closest('.faq-row, .faq-card-item, .faq-item');
         if (item) item.classList.toggle('active');
       });
     });
@@ -208,9 +208,10 @@ const WebStore = {
   },
 
   bindPaymentSelector() {
-    document.querySelectorAll('.payment-method-card').forEach(card => {
+    const paymentBtns = document.querySelectorAll('.payment-toggle-btn, .payment-method-card');
+    paymentBtns.forEach(card => {
       card.addEventListener('click', () => {
-        document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('active'));
+        paymentBtns.forEach(c => c.classList.remove('active'));
         card.classList.add('active');
         this.activePaymentMethod = card.dataset.method || 'qris';
 
