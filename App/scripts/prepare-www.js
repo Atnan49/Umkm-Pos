@@ -12,8 +12,6 @@ const filesToCopy = [
   'style.css',
   'app.js',
   'html5-qrcode.min.js',
-  'manifest.json',
-  'sw.js',
   'icon.png',
   'icon.svg'
 ];

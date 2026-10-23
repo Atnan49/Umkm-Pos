@@ -1584,9 +1584,6 @@ const App = {
     this.bindEvents();
     this.initHardwareIntegrations();
     this.initLicenseLock();
-    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof location !== 'undefined' && (location.protocol === 'https:' || location.protocol === 'http:')) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
     this.runSanityCheck();
   },
 

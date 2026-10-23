@@ -1,8 +1,8 @@
 {
   "App/app.js": {
-    "mtime": 1792738455.575177,
-    "seen": 1792742422.7192063,
-    "ast_hash": "3f5e0c087a481dce018e4bade86e850d",
+    "mtime": 1792742716.2193756,
+    "seen": 1792742788.555441,
+    "ast_hash": "333911c2e5db742fb2768b87fcce71e0",
     "semantic_hash": ""
   },
   "App/html5-qrcode.min.js": {
@@ -17,12 +17,6 @@
     "ast_hash": "98379fe7c58e5912f0aaf8c7661aa778",
     "semantic_hash": ""
   },
-  "App/manifest.json": {
-    "mtime": 1790429213.7368436,
-    "seen": 1790435954.0257158,
-    "ast_hash": "5eb03f58fef5b5f3e7f9f2e51e128df0",
-    "semantic_hash": "5eb03f58fef5b5f3e7f9f2e51e128df0"
-  },
   "App/package.json": {
     "mtime": 1792736587.47888,
     "seen": 1792742422.7192233,
@@ -35,16 +29,10 @@
     "ast_hash": "a70d7586cbcc366a669583ca05adcab3",
     "semantic_hash": "a70d7586cbcc366a669583ca05adcab3"
   },
-  "App/sw.js": {
-    "mtime": 1790436923.062261,
-    "seen": 1790437122.3238704,
-    "ast_hash": "dbd844e506a678988f4a961c5de1c8c8",
-    "semantic_hash": ""
-  },
   "App/index.html": {
-    "mtime": 1792736582.5853176,
-    "seen": 1792742422.7192688,
-    "ast_hash": "db06f79c571be9673bdee761af1fce6f",
+    "mtime": 1792742720.447967,
+    "seen": 1792742788.555493,
+    "ast_hash": "72c86b47ea78ba3faa24de69d9660c27",
     "semantic_hash": ""
   },
   "App/icon.svg": {
@@ -294,9 +282,9 @@
     "semantic_hash": ""
   },
   "App/scripts/prepare-www.js": {
-    "mtime": 1790668587.5850174,
-    "seen": 1790668777.0551295,
-    "ast_hash": "a391246e54f49202f6f1fdef36ce3dd4",
+    "mtime": 1792742725.0083208,
+    "seen": 1792742788.555469,
+    "ast_hash": "b1eb6853c716b73d94e59026deba4d2b",
     "semantic_hash": ""
   },
   "App/README.md": {

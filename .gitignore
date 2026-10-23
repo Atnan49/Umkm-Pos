@@ -20,5 +20,7 @@ dist-apk/
 .gradle/
 **/.gradle/
 App/www/
+local.properties
+**/local.properties
 
 
