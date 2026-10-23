@@ -41,52 +41,10 @@
     "ast_hash": "a06890cafb199618252736037c98b50d",
     "semantic_hash": ""
   },
-  "Profile Produk/api/check-status.js": {
-    "mtime": 1792736323.9755163,
-    "seen": 1792746256.0158482,
-    "ast_hash": "157b9da36f53ed9ad84d13186b2bf6d4",
-    "semantic_hash": ""
-  },
-  "Profile Produk/api/create-transaction.js": {
-    "mtime": 1792736322.3461947,
-    "seen": 1792746256.0158517,
-    "ast_hash": "3f539d5c49cf9b8354b8791a1abcb663",
-    "semantic_hash": ""
-  },
-  "Profile Produk/api/webhook.js": {
-    "mtime": 1792736325.9166691,
-    "seen": 1792746256.0158544,
-    "ast_hash": "8a973150888b76f78782a87d4a2eed9a",
-    "semantic_hash": ""
-  },
-  "Profile Produk/app.js": {
-    "mtime": 1792736521.3397052,
-    "seen": 1792746256.0158567,
-    "ast_hash": "bfa17b268b14223870fc8b571d191564",
-    "semantic_hash": ""
-  },
-  "Profile Produk/package.json": {
-    "mtime": 1792749050.1325352,
-    "seen": 1792749061.0424356,
-    "ast_hash": "02c772b7964ad7c3a6eec9fae583b6bd",
-    "semantic_hash": ""
-  },
-  "Profile Produk/vercel.json": {
-    "mtime": 1792745883.3577845,
-    "seen": 1792746256.015861,
+  "vercel.json": {
+    "mtime": 1792749191.3388646,
+    "seen": 1792749207.3565414,
     "ast_hash": "f56f69b2c981d3c9e31d73214b50ce1d",
-    "semantic_hash": ""
-  },
-  "Profile Produk/index.html": {
-    "mtime": 1792736498.2288673,
-    "seen": 1792746256.015914,
-    "ast_hash": "89b9d00cc55d55ec324a9b0df44c90f2",
-    "semantic_hash": ""
-  },
-  "Profile Produk/ketentuan.html": {
-    "mtime": 1792736504.5722456,
-    "seen": 1792746256.0159163,
-    "ast_hash": "4a4d056a6bfa5382fce35bcfb3e6ba21",
     "semantic_hash": ""
   }
 }
