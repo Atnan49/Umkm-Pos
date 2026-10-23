@@ -114,6 +114,14 @@ const LicenseManager = {
 };
 
 const FORMAT = {
+  escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
   currency(amount) {
     return 'Rp ' + Number(amount || 0).toLocaleString('id-ID');
   },
@@ -302,6 +310,12 @@ const Store = {
       this.transactions = t ? JSON.parse(t) : [];
       const o = localStorage.getItem(CONFIG.STORAGE_KEYS.OUTLET);
       this.outlet = o ? { ...CONFIG.DEFAULT_OUTLET, ...JSON.parse(o) } : { ...CONFIG.DEFAULT_OUTLET };
+      if (LicenseManager.isActivated()) {
+        const lic = LicenseManager.getLicense();
+        if (lic && lic.storeName) {
+          this.outlet.name = lic.storeName;
+        }
+      }
     } catch (err) {
       console.warn('Gagal membaca LocalStorage, memuat konfigurasi awal:', err);
       this.products = [...CONFIG.DEFAULT_PRODUCTS];
@@ -565,6 +579,20 @@ const Store = {
     return { success: true, transaction };
   },
 
+  settleDpTransaction(trxId) {
+    const trx = this.transactions.find(t => t.id === trxId);
+    if (!trx || trx.paymentType !== 'dp' || (trx.remainingBill || 0) <= 0) {
+      return { success: false, message: 'Transaksi tidak ditemukan atau sudah lunas.' };
+    }
+    trx.paymentType = 'lunas';
+    trx.cash = trx.total;
+    trx.change = 0;
+    trx.remainingBill = 0;
+    trx.settledAt = new Date().toISOString();
+    this.saveTransactions();
+    return { success: true, transaction: trx };
+  },
+
   getFilteredTransactions(period = this.activeReportPeriod) {
     const now = new Date();
     if (period === 'all') return this.transactions;
@@ -625,9 +653,11 @@ const Store = {
     let profit = 0;
 
     list.forEach(t => {
-      revenue += t.total || 0;
+      const isUnsettledDp = t.paymentType === 'dp' && (t.remainingBill || 0) > 0;
+      const realizedRev = isUnsettledDp ? (t.downPayment || t.cash || 0) : (t.total || 0);
+      revenue += realizedRev;
       cogs += t.cogs || 0;
-      profit += t.profit || 0;
+      profit += isUnsettledDp ? (realizedRev - (t.cogs || 0)) : (t.profit || 0);
     });
 
     const marginPct = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
@@ -856,16 +886,19 @@ const UI = {
     let cardsHtml = visibleProducts.map(p => {
       const isOut = p.stock <= 0;
       const isLow = p.stock > 0 && p.stock <= 5;
-      const barcodeSnippet = p.barcode ? `<span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">[${p.barcode}]</span>` : '';
+      const safeName = FORMAT.escapeHtml(p.name);
+      const safeCat = FORMAT.escapeHtml(p.category || 'Umum');
+      const safeBarcode = FORMAT.escapeHtml(p.barcode || '');
+      const barcodeSnippet = safeBarcode ? `<span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">[${safeBarcode}]</span>` : '';
 
       return `
-        <div class="product-card ${isOut ? 'out-of-stock' : ''}" data-id="${p.id}" tabindex="0" role="button" aria-label="Pilih ${p.name}">
+        <div class="product-card ${isOut ? 'out-of-stock' : ''}" data-id="${p.id}" tabindex="0" role="button" aria-label="Pilih ${safeName}">
           <div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="prod-category-tag">${p.category || 'Umum'}</span>
+              <span class="prod-category-tag">${safeCat}</span>
               ${barcodeSnippet}
             </div>
-            <div class="prod-name">${p.name}</div>
+            <div class="prod-name">${safeName}</div>
           </div>
           <div class="prod-footer">
             <span class="prod-price font-mono">${FORMAT.currency(p.price)}</span>
@@ -934,10 +967,12 @@ const UI = {
     } else {
       this.dom.cartItems.innerHTML = Store.cart.map((item, idx) => {
         const isCustom = item.isCustom;
-        const name = isCustom ? item.name : (Store.products.find(p => p.id === item.productId)?.name || 'Barang');
+        const rawName = isCustom ? item.name : (Store.products.find(p => p.id === item.productId)?.name || 'Barang');
+        const name = FORMAT.escapeHtml(rawName);
         const price = isCustom ? item.price : (Store.products.find(p => p.id === item.productId)?.price || 0);
         const itemId = isCustom ? item.id : item.productId;
-        const noteBadge = item.note ? `<span class="cart-item-note-text" title="${item.note}">📝 ${item.note}</span>` : '';
+        const safeNote = FORMAT.escapeHtml(item.note || '');
+        const noteBadge = item.note ? `<span class="cart-item-note-text" title="${safeNote}">📝 ${safeNote}</span>` : '';
         const noteBtn = `<button type="button" class="btn-add-note" onclick="App.openItemNoteModal(${idx})" title="Tambah atau ubah catatan">${item.note ? 'Ubah' : '+ Catatan'}</button>`;
         const serviceBadge = isCustom ? '<span style="font-size:10px; color:#16a34a; font-weight:700; margin-left:4px;">[JASA]</span>' : '';
 
@@ -1121,15 +1156,19 @@ const UI = {
 
       const barcodeVal = p.barcode || p.id;
 
+      const safeName = FORMAT.escapeHtml(p.name);
+      const safeCat = FORMAT.escapeHtml(p.category || 'Umum');
+      const safeBarcode = FORMAT.escapeHtml(barcodeVal);
+
       return `
         <tr>
           <td>
-            <button type="button" onclick="App.openEditProduct('${p.id}')" class="font-bold" style="background:none; border:none; padding:0; color:var(--text-main); font-weight:700; cursor:pointer; text-align:left; font-size:inherit; font-family:inherit;" title="Klik untuk edit ${p.name}">
-              ${p.name}
+            <button type="button" onclick="App.openEditProduct('${p.id}')" class="font-bold" style="background:none; border:none; padding:0; color:var(--text-main); font-weight:700; cursor:pointer; text-align:left; font-size:inherit; font-family:inherit;" title="Klik untuk edit ${safeName}">
+              ${safeName}
             </button>
-            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">SKU: ${barcodeVal}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">SKU: ${safeBarcode}</div>
           </td>
-          <td><span class="badge-tag badge-gray">${p.category || 'Umum'}</span></td>
+          <td><span class="badge-tag badge-gray">${safeCat}</span></td>
           <td class="text-right font-mono">${FORMAT.currency(p.cost)}</td>
           <td class="text-right font-mono font-bold">${FORMAT.currency(p.price)}</td>
           <td class="text-center font-mono font-bold ${marginColor}">${marginSign}${marginPct}% (${FORMAT.currency(margin)})</td>
@@ -1207,20 +1246,30 @@ const UI = {
     const hasMore = filteredTrx.length > maxDisplayTrx;
 
     let rowsHtml = displayedTransactions.map(t => {
-      const itemsText = (t.items || []).map(i => `${i.name} (${i.qty}x)`).join(', ');
-      const customerBadge = t.customerName ? `<div style="font-size:0.75rem; color:var(--color-primary); font-weight:600; margin-top:2px;">👤 ${t.customerName}</div>` : `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">👤 Umum</div>`;
+      const itemsText = FORMAT.escapeHtml((t.items || []).map(i => `${i.name} (${i.qty}x)`).join(', '));
+      const safeCust = FORMAT.escapeHtml(t.customerName || 'Umum');
+      const customerBadge = t.customerName ? `<div style="font-size:0.75rem; color:var(--color-primary); font-weight:600; margin-top:2px;">👤 ${safeCust}</div>` : `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">👤 Umum</div>`;
+      const isUnsettledDp = t.paymentType === 'dp' && (t.remainingBill || 0) > 0;
+      const dpBadge = isUnsettledDp
+        ? `<div style="font-size:0.72rem; color:var(--color-danger); font-weight:700; margin-top:2px;">BELUM LUNAS &bull; Sisa ${FORMAT.currency(t.remainingBill)}</div>`
+        : '';
+      const settleBtn = isUnsettledDp
+        ? `<button type="button" class="btn-mini-barcode" onclick="App.handleSettleDp('${t.id}')" title="Lunasi sisa tagihan DP" style="margin-right:4px;">✓ Lunasi</button>`
+        : '';
 
       return `
         <tr>
           <td>
-            <div class="font-bold">${t.id}</div>
+            <div class="font-bold">${FORMAT.escapeHtml(t.id)}</div>
             <div style="font-size:0.75rem; color:var(--text-muted);">${FORMAT.dateTime(t.timestamp)}</div>
             ${customerBadge}
+            ${dpBadge}
           </td>
           <td style="max-width: 250px; font-size:0.8rem; line-height: 1.3;">${itemsText}</td>
           <td class="text-right font-mono font-bold">${FORMAT.currency(t.total)}</td>
-          <td class="text-right font-mono text-emerald font-bold">${FORMAT.currency(t.profit)}</td>
-          <td class="text-center">
+          <td class="text-right font-mono text-emerald font-bold">${FORMAT.currency(isUnsettledDp ? ((t.downPayment || t.cash || 0) - (t.cogs || 0)) : t.profit)}</td>
+          <td class="text-center" style="white-space:nowrap;">
+            ${settleBtn}
             <button type="button" class="btn-icon" onclick="App.reprintReceipt('${t.id}')" title="Cetak ulang struk" aria-label="Cetak ulang struk ${t.id}">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             </button>
@@ -1250,7 +1299,7 @@ const UI = {
 
     const itemsHtml = trx.items.map(it => `
       <tr>
-        <td colspan="2" style="font-weight:600; padding-top:2px;">${it.name}</td>
+        <td colspan="2" style="font-weight:600; padding-top:2px;">${FORMAT.escapeHtml(it.name)}</td>
       </tr>
       <tr>
         <td style="color:#222; white-space:nowrap;">${it.qty} x ${FORMAT.currency(it.price)}</td>
@@ -1258,7 +1307,7 @@ const UI = {
       </tr>
     `).join('');
 
-    const customerDisplay = trx.customerName || 'Umum';
+    const customerDisplay = FORMAT.escapeHtml(trx.customerName || 'Umum');
 
     this.dom.receiptContainer.innerHTML = `
       <div class="receipt-header">
@@ -1535,6 +1584,9 @@ const App = {
     this.bindEvents();
     this.initHardwareIntegrations();
     this.initLicenseLock();
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof location !== 'undefined' && (location.protocol === 'https:' || location.protocol === 'http:')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
     this.runSanityCheck();
   },
 
@@ -1574,7 +1626,7 @@ const App = {
           lockOverlay.style.display = 'none';
           this.updateSettingsLicenseInfo();
           UI.showScannerToast('✓ Lisensi Berhasil Diaktifkan! Selamat Datang di BukuKasir UMKM.', false);
-          SoundFeedback.playCheckout();
+          SoundFeedback.playScan(true);
         } else {
           if (alertBox) {
             alertBox.textContent = result.message;
@@ -1922,7 +1974,18 @@ const App = {
     if (brandInput) {
       brandInput.value = Store.outlet.brandTitle || 'BukuKasir UMKM';
     }
-    document.getElementById('setting-outlet-name').value = Store.outlet.name || '';
+    const outletNameInput = document.getElementById('setting-outlet-name');
+    const lic = LicenseManager.getLicense();
+    if (outletNameInput) {
+      if (lic && LicenseManager.isActivated()) {
+        outletNameInput.value = lic.storeName;
+        outletNameInput.readOnly = true;
+        outletNameInput.title = 'Nama toko terkunci sesuai sertifikat lisensi resmi.';
+      } else {
+        outletNameInput.value = Store.outlet.name || '';
+        outletNameInput.readOnly = false;
+      }
+    }
     document.getElementById('setting-outlet-address').value = Store.outlet.address || '';
     document.getElementById('setting-outlet-footer').value = Store.outlet.footer || '';
     document.getElementById('setting-silent-print').checked = Store.outlet.silentPrint !== false;
@@ -2122,16 +2185,16 @@ const App = {
 
     const itemsRows = (trx.items || []).map(it => `
       <tr>
-        <td colspan="2" style="font-weight:bold; padding-top:2px;">${it.name}</td>
+        <td colspan="2" style="font-weight:bold; padding-top:2px;">${FORMAT.escapeHtml(it.name)}</td>
       </tr>
-      ${it.note ? `<tr><td colspan="2" style="font-size:10px; color:#333; font-style:italic; padding-left:4px;">* Catatan: ${it.note}</td></tr>` : ''}
+      ${it.note ? `<tr><td colspan="2" style="font-size:10px; color:#333; font-style:italic; padding-left:4px;">* Catatan: ${FORMAT.escapeHtml(it.note)}</td></tr>` : ''}
       <tr>
         <td style="color:#222; white-space:nowrap;">${it.qty} x ${FORMAT.currency(it.price)}</td>
         <td style="text-align:right; white-space:nowrap;">${FORMAT.currency(it.subtotal)}</td>
       </tr>
     `).join('');
 
-    const customerDisplay = (trx.customerName || 'Umum').toUpperCase();
+    const customerDisplay = FORMAT.escapeHtml((trx.customerName || 'Umum').toUpperCase());
     const orderTypeLabel = trx.orderType === 'take_away' ? 'BUNGKUS / TAKE AWAY' : (trx.orderType === 'dine_in' ? 'MAKAN DI TEMPAT' : '');
 
     return `
@@ -2228,12 +2291,12 @@ const App = {
 
     const itemsRows = (trx.items || []).map(it => `
       <tr>
-        <td style="font-weight:900; font-size:1.15em; padding-top:4px;">${it.qty}x ${it.name}</td>
+        <td style="font-weight:900; font-size:1.15em; padding-top:4px;">${it.qty}x ${FORMAT.escapeHtml(it.name)}</td>
       </tr>
-      ${it.note ? `<tr><td style="font-size:0.95em; font-weight:bold; color:#000; padding-left:8px; padding-bottom:3px;">&gt;&gt;&gt; PESAN: ${it.note}</td></tr>` : ''}
+      ${it.note ? `<tr><td style="font-size:0.95em; font-weight:bold; color:#000; padding-left:8px; padding-bottom:3px;">&gt;&gt;&gt; PESAN: ${FORMAT.escapeHtml(it.note)}</td></tr>` : ''}
     `).join('');
 
-    const customerDisplay = (trx.customerName || 'Umum').toUpperCase();
+    const customerDisplay = FORMAT.escapeHtml((trx.customerName || 'Umum').toUpperCase());
     const orderTypeLabel = trx.orderType === 'take_away' ? 'BUNGKUS / TAKE AWAY' : 'MAKAN DI TEMPAT';
 
     return `
@@ -2469,6 +2532,26 @@ const App = {
     return false;
   },
 
+  async handleSettleDp(transId) {
+    const trx = Store.transactions.find(t => t.id === transId);
+    if (!trx) return;
+    const ok = await AppDialog.confirm({
+      title: 'Pelunasan Tagihan DP',
+      message: `Konfirmasi pelunasan sisa tagihan sebesar ${FORMAT.currency(trx.remainingBill || 0)} untuk pelanggan "${trx.customerName || 'Umum'}" (${trx.id})?`,
+      confirmText: 'Lunasi Sekarang',
+      cancelText: 'Batal',
+      icon: '💵'
+    });
+    if (ok) {
+      const res = Store.settleDpTransaction(transId);
+      if (res.success) {
+        SoundFeedback.playScan(true);
+        UI.renderReports();
+        UI.showScannerToast(`✓ Transaksi ${transId} telah dilunasi`, false);
+      }
+    }
+  },
+
   async reprintReceipt(transId) {
     const trx = Store.transactions.find(t => t.id === transId);
     if (!trx) {
@@ -2643,7 +2726,14 @@ const App = {
           if (ok) {
             if (Array.isArray(data.products)) Store.products = data.products;
             if (Array.isArray(data.transactions)) Store.transactions = data.transactions;
-            if (data.outlet) Store.outlet = { ...CONFIG.DEFAULT_OUTLET, ...data.outlet };
+            if (data.outlet) {
+              const lic = LicenseManager.getLicense();
+              Store.outlet = {
+                ...CONFIG.DEFAULT_OUTLET,
+                ...data.outlet,
+                name: (lic && LicenseManager.isActivated()) ? lic.storeName : (data.outlet.name || CONFIG.DEFAULT_OUTLET.name)
+              };
+            }
             Store.saveProducts();
             Store.saveTransactions();
             Store.saveOutlet();
@@ -2896,7 +2986,10 @@ const App = {
       e.preventDefault();
       const brandInput = document.getElementById('setting-brand-title');
       Store.outlet.brandTitle = brandInput ? brandInput.value.trim() || 'BukuKasir UMKM' : 'BukuKasir UMKM';
-      Store.outlet.name = document.getElementById('setting-outlet-name').value.trim() || CONFIG.DEFAULT_OUTLET.name;
+      const lic = LicenseManager.getLicense();
+      Store.outlet.name = (lic && LicenseManager.isActivated())
+        ? lic.storeName
+        : (document.getElementById('setting-outlet-name').value.trim() || CONFIG.DEFAULT_OUTLET.name);
       if (this.tempLogo !== undefined) {
         Store.outlet.brandLogo = this.tempLogo;
       }
@@ -3220,10 +3313,12 @@ const App = {
   runSanityCheck() {
     console.assert(FORMAT.number(10000000) === '10.000.000', 'Sanity failed: FORMAT.number');
     console.assert(FORMAT.parseRaw('10.000.000') === 10000000, 'Sanity failed: FORMAT.parseRaw');
+    console.assert(FORMAT.escapeHtml('<b>"A&B"</b>') === '&lt;b&gt;&quot;A&amp;B&quot;&lt;/b&gt;', 'Sanity failed: FORMAT.escapeHtml');
     console.assert(FORMAT.terbilang(10000000) === 'Sepuluh Juta Rupiah', 'Sanity failed: FORMAT.terbilang 10jt');
     console.assert(FORMAT.terbilang(100000) === 'Seratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 100rb');
     console.assert(FORMAT.terbilang(1500000) === 'Satu Juta Lima Ratus Ribu Rupiah', 'Sanity failed: FORMAT.terbilang 1.5jt');
     console.assert(Array.isArray(Store.getFilteredTransactions('all')), 'Sanity failed: Store.getFilteredTransactions');
+    console.assert(typeof Store.settleDpTransaction === 'function', 'Sanity failed: Store.settleDpTransaction');
     console.assert(typeof Store.getPeriodDisplayLabel('daily') === 'string', 'Sanity failed: Store.getPeriodDisplayLabel');
     console.assert(generateCode128Svg('TEST-123').includes('<svg'), 'Sanity failed: generateCode128Svg');
   }

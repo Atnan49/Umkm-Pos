@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const LICENSE_SECRET = 'BK_UMKM_SECURE_SALT_2026_ATNAN49';
+const LICENSE_SECRET = process.env.LICENSE_SECRET || 'BK_UMKM_SECURE_SALT_2026_ATNAN49';
 
 function generateLicenseKey(storeName) {
   const cleanName = String(storeName || '').trim().toUpperCase();
@@ -306,7 +306,7 @@ const certificateHtml = `<!DOCTYPE html>
       <div class="sign-box">
         <div>Diterbitkan oleh:</div>
         <div class="sign-name">Tim Pengembang BukuKasir UMKM</div>
-        <div>Layanan Dukungan: WhatsApp Resmi Pengembang</div>
+        <div>Layanan Dukungan: atnanseptian1@gmail.com</div>
       </div>
     </div>
 

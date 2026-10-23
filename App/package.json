@@ -11,7 +11,7 @@
     "build:apk": "node scripts/prepare-www.js && npx cap sync android && cd android && gradlew assembleDebug",
     "generate:icons": "node scripts/generate-icons.js",
     "generate:android-icons": "node scripts/generate-android-icons.js",
-    "license:generate": "node scripts/generate-license.js"
+    "license:generate": "node scripts/buat-lisensi.js"
   },
   "keywords": [
     "pos",
