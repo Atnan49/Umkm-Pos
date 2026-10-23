@@ -19,8 +19,11 @@ dist-apk/
 **/dist-apk/
 .gradle/
 **/.gradle/
-App/www/
 local.properties
 **/local.properties
+.vercel/
+
+# Private mobile app source code (not published to GitHub)
+App/
 
 
