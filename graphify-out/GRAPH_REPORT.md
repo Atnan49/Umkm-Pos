@@ -1,23 +1,22 @@
 # Graph Report - Aplikasi Umkm  (2026-10-23)
 
 ## Corpus Check
-- 12 files · ~16,216 words
+- 11 files · ~16,212 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 5 file(s) not represented in the graph (top: (none) 2, .css 2, .example 1)
 
 ## Summary
-- 40 nodes · 30 edges · 12 communities (2 shown, 10 thin omitted)
+- 38 nodes · 29 edges · 11 communities (2 shown, 9 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `116dea32`
+- Built from commit: `f97fe9d2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - app.js
-- vercel.json
 - Profile Produk/package.json
 - Profile Produk/api/create-transaction.js
 - Profile Produk/app.js
@@ -45,7 +44,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (12 total, 10 thin omitted)
+## Communities (11 total, 9 thin omitted)
 
 ### Community 43 - "Profile Produk/package.json"
 Cohesion: 0.40
@@ -56,7 +55,7 @@ Cohesion: 0.40
 Nodes (4): name, private, type, version
 
 ## Knowledge Gaps
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Not enough signal to generate questions. This usually means the corpus has no AMBIGUOUS edges, no bridge nodes, no INFERRED relationships, and all communities are tightly cohesive. Add more files or run with --mode deep to extract richer edges._

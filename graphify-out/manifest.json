@@ -5,12 +5,6 @@
     "ast_hash": "bfa17b268b14223870fc8b571d191564",
     "semantic_hash": ""
   },
-  "vercel.json": {
-    "mtime": 1792748709.0171897,
-    "seen": 1792748839.1561403,
-    "ast_hash": "f56f69b2c981d3c9e31d73214b50ce1d",
-    "semantic_hash": ""
-  },
   "index.html": {
     "mtime": 1792736498.2288673,
     "seen": 1792742422.7192802,
@@ -72,9 +66,9 @@
     "semantic_hash": ""
   },
   "Profile Produk/package.json": {
-    "mtime": 1792745532.3244133,
-    "seen": 1792746256.0158587,
-    "ast_hash": "a06890cafb199618252736037c98b50d",
+    "mtime": 1792749050.1325352,
+    "seen": 1792749061.0424356,
+    "ast_hash": "02c772b7964ad7c3a6eec9fae583b6bd",
     "semantic_hash": ""
   },
   "Profile Produk/vercel.json": {
