@@ -1,0 +1,7 @@
+App/
+dist/
+dist-apk/
+scripts/
+.gradle/
+android/
+graphify-out/
